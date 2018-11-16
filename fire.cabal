@@ -1,0 +1,36 @@
+name:                fire
+version:             0.1.0.0
+synopsis:            Haskell bindings to ArrayFire
+description:         High-level Haskell bindings to ArrayFire
+homepage:            https://github.com/dmjio/fire
+license:             BSD3
+license-file:        LICENSE
+author:              David Johnson
+maintainer:          djohnson.m@gmail.com
+copyright:           David Johnson (c) 2018-2020
+category:            Math
+build-type:          Simple
+extra-source-files:  CHANGELOG.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:
+    Data.Array.Fire
+  build-tools:
+    hsc2hs
+  include-dirs:
+    include
+  build-depends:
+    base < 5
+  hs-source-dirs:
+    src
+  default-language:
+    Haskell2010
+
+executable main
+  main-is:
+    Main.hs
+  build-depends:
+    base < 5, fire
+  default-language:
+    Haskell2010
