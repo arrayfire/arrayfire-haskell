@@ -4,7 +4,10 @@ import Data.Array.Fire.Internal.Defines
 
 #include "algorithm.h"
 
--- 33 functions
+import Foreign.Ptr
+
+foreign import ccall "af_sum"
+  af_sum :: Ptr AFArray -> AFArray -> DIM -> IO AFError
 
 -- AFAPI af_err af_sum(af_array *out, const af_array in, const int dim);
 -- AFAPI af_err af_sum_nan(af_array *out, const af_array in, const int dim, const double nanval);

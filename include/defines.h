@@ -1,4 +1,5 @@
 #define AF_API_VERSION 1.0
+#define bool unsigned char
 
 typedef enum {
     f32,    ///< 32-bit floating point values

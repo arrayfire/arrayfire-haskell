@@ -4,7 +4,10 @@ module Data.Array.Fire.Internal.Defines where
 import Foreign.ForeignPtr
 import Foreign.Ptr
 
-#include "fire.h"
+#include "defines.h"
+
+type Batch = Bool
+type DIM = Int
 
 afVersion = #const AF_API_VERSION
 

@@ -1,4 +1,4 @@
-#include "fire.h"
+#include "defines.h"
 
 af_err af_set_backend(const af_backend bknd);
 af_err af_get_backend_count(unsigned* num_backends);
