@@ -15,7 +15,31 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
-    Data.Array.Fire
+    Data.Array.Fire.Internal.Algorithm
+    Data.Array.Fire.Internal.Arith
+    Data.Array.Fire.Internal.Array
+    Data.Array.Fire.Internal.Backend
+    Data.Array.Fire.Internal.BLAS
+    Data.Array.Fire.Internal.Complex
+    Data.Array.Fire.Internal.CUDA
+    Data.Array.Fire.Internal.Data
+    Data.Array.Fire.Internal.Defines
+    Data.Array.Fire.Internal.Device
+    Data.Array.Fire.Internal.Exception
+    Data.Array.Fire.Internal.Features
+    Data.Array.Fire.Internal.Graphics
+    Data.Array.Fire.Internal.Images
+    Data.Array.Fire.Internal.Index
+    Data.Array.Fire.Internal.Internal
+    Data.Array.Fire.Internal.LAPACK
+    Data.Array.Fire.Internal.OpenCL
+    Data.Array.Fire.Internal.Random
+    Data.Array.Fire.Internal.Seq
+    Data.Array.Fire.Internal.Signal
+    Data.Array.Fire.Internal.Sparse
+    Data.Array.Fire.Internal.Statistics
+    Data.Array.Fire.Internal.Util
+    Data.Array.Fire.Internal.Vision
   build-tools:
     hsc2hs
   include-dirs:
