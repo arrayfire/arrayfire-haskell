@@ -34,7 +34,3 @@ af_err af_sort_by_key(af_array *out_keys, af_array *out_values, const af_array k
 af_err af_set_unique(af_array *out, const af_array in, const bool is_sorted);
 af_err af_set_union(af_array *out, const af_array first, const af_array second, const bool is_unique);
 af_err af_set_intersect(af_array *out, const af_array first, const af_array second, const bool is_unique);
-
-
-
-

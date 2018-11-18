@@ -1,6 +1,12 @@
 #define AF_API_VERSION 1.0
 #define bool unsigned char
 
+typedef long long intl;
+typedef unsigned long long uintl;
+typedef long long dim_t;
+typedef void * af_features;
+typedef unsigned long long af_window;
+
 typedef enum {
     f32,    ///< 32-bit floating point values
     c32,    ///< 32-bit complex floating point values
@@ -402,8 +408,62 @@ typedef enum {
 
 
 typedef enum {
-              AF_VARIANCE_DEFAULT    = 0, ///< Default (Population) variance
-              AF_VARIANCE_SAMPLE     = 1, ///< Sample variance
-              AF_VARIANCE_POPULATION = 2, ///< Population variance
+	      AF_VARIANCE_DEFAULT    = 0, ///< Default (Population) variance
+	      AF_VARIANCE_SAMPLE     = 1, ///< Sample variance
+	      AF_VARIANCE_POPULATION = 2, ///< Population variance
 } af_var_bias;
 
+/* #include "opencl.h" -- need this for below */
+
+/*
+typedef enum
+{
+    AFCL_DEVICE_TYPE_CPU     = CL_DEVICE_TYPE_CPU,
+    AFCL_DEVICE_TYPE_GPU     = CL_DEVICE_TYPE_GPU,
+    AFCL_DEVICE_TYPE_ACC     = CL_DEVICE_TYPE_ACCELERATOR,
+    AFCL_DEVICE_TYPE_UNKNOWN = -1
+} afcl_device_type;
+*/
+
+typedef enum
+{
+ AFCL_DEVICE_TYPE_CPU     = 0,
+ AFCL_DEVICE_TYPE_GPU     = 1,
+ AFCL_DEVICE_TYPE_ACC     = 2,
+ AFCL_DEVICE_TYPE_UNKNOWN = -1
+} afcl_device_type;
+
+typedef enum
+{
+    AFCL_PLATFORM_AMD     = 0,
+    AFCL_PLATFORM_APPLE   = 1,
+    AFCL_PLATFORM_INTEL   = 2,
+    AFCL_PLATFORM_NVIDIA  = 3,
+    AFCL_PLATFORM_BEIGNET = 4,
+    AFCL_PLATFORM_POCL    = 5,
+    AFCL_PLATFORM_UNKNOWN = -1
+} afcl_platform;
+
+typedef struct af_seq {
+    double begin;
+    double end;
+    double step;
+} af_seq;
+
+typedef struct {
+     int row;
+     int col;
+     const char* title;
+     af_colormap cmap;
+ } af_cell;
+
+typedef struct af_index_t {
+     union {
+	 af_array arr;
+	 af_seq   seq;
+     } idx;
+     bool     isSeq;
+     bool     isBatch;
+ } af_index_t;
+
+typedef void * af_random_engine;
