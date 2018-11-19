@@ -1,19 +1,18 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Sparse where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "sparse.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/sparse.h"
+foreign import ccall unsafe "af_create_sparse_array"
+    af_create_sparse_array :: Ptr AFArray -> DimT -> DimT -> AFArray -> AFArray -> AFArray -> AFStorage -> IO AFErr
 foreign import ccall unsafe "af_create_sparse_array_from_ptr"
-    af_create_sparse_array_from_ptr :: Ptr AFArray -> Word64 -> Word64 -> Word64 -> Ptr () -> Ptr Int -> Ptr Int -> AFDtype -> AFStorage -> AFSource -> IO AFErr
+    af_create_sparse_array_from_ptr :: Ptr AFArray -> DimT -> DimT -> DimT -> Ptr () -> Ptr Int -> Ptr Int -> AFDtype -> AFStorage -> AFSource -> IO AFErr
 foreign import ccall unsafe "af_create_sparse_array_from_dense"
     af_create_sparse_array_from_dense :: Ptr AFArray -> AFArray -> AFStorage -> IO AFErr
 foreign import ccall unsafe "af_sparse_convert_to"
@@ -29,6 +28,6 @@ foreign import ccall unsafe "af_sparse_get_row_idx"
 foreign import ccall unsafe "af_sparse_get_col_idx"
     af_sparse_get_col_idx :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_sparse_get_nnz"
-    af_sparse_get_nnz :: Ptr Word64 -> AFArray -> IO AFErr
+    af_sparse_get_nnz :: Ptr DimT -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_sparse_get_storage"
     af_sparse_get_storage :: Ptr AFStorage -> AFArray -> IO AFErr

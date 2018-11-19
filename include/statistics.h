@@ -4,7 +4,6 @@ af_err af_mean(af_array *out, const af_array in, const dim_t dim);
 af_err af_mean_weighted(af_array *out, const af_array in, const af_array weights, const dim_t dim);
 af_err af_var(af_array *out, const af_array in, const bool isbiased, const dim_t dim);
 af_err af_var_weighted(af_array *out, const af_array in, const af_array weights, const dim_t dim);
-af_err af_meanvar(af_array *mean, af_array *var, const af_array in, const af_array weights, const af_var_bias bias, const dim_t dim);
 af_err af_stdev(af_array *out, const af_array in, const dim_t dim);
 af_err af_cov(af_array* out, const af_array X, const af_array Y, const bool isbiased);
 af_err af_median(af_array* out, const af_array in, const dim_t dim);

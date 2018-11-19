@@ -1,23 +1,22 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Graphics where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "graphics.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/graphics.h"
+foreign import ccall unsafe "af_create_window"
+    af_create_window :: Ptr AFWindow -> Int -> Int -> Ptr CChar -> IO AFErr
 foreign import ccall unsafe "af_set_position"
-    af_set_position :: AFWindow -> Word32 -> Word32 -> IO AFErr
+    af_set_position :: AFWindow -> CUInt -> CUInt -> IO AFErr
 foreign import ccall unsafe "af_set_title"
-    af_set_title :: AFWindow -> Ptr Char -> IO AFErr
+    af_set_title :: AFWindow -> Ptr CChar -> IO AFErr
 foreign import ccall unsafe "af_set_size"
-    af_set_size :: AFWindow -> Word32 -> Word32 -> IO AFErr
+    af_set_size :: AFWindow -> CUInt -> CUInt -> IO AFErr
 foreign import ccall unsafe "af_draw_image"
     af_draw_image :: AFWindow -> AFArray -> Ptr AFCell -> IO AFErr
 foreign import ccall unsafe "af_draw_plot"
@@ -59,7 +58,7 @@ foreign import ccall unsafe "af_set_axes_limits_2d"
 foreign import ccall unsafe "af_set_axes_limits_3d"
     af_set_axes_limits_3d :: AFWindow -> Float -> Float -> Float -> Float -> Float -> Float -> Bool -> Ptr AFCell -> IO AFErr
 foreign import ccall unsafe "af_set_axes_titles"
-    af_set_axes_titles :: AFWindow -> Ptr Char -> Ptr Char -> Ptr Char -> Ptr AFCell -> IO AFErr
+    af_set_axes_titles :: AFWindow -> Ptr CChar -> Ptr CChar -> Ptr CChar -> Ptr AFCell -> IO AFErr
 foreign import ccall unsafe "af_show"
     af_show :: AFWindow -> IO AFErr
 foreign import ccall unsafe "af_is_window_closed"

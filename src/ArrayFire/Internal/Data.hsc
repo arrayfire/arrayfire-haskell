@@ -1,29 +1,28 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Data where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "data.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/data.h"
+foreign import ccall unsafe "af_constant"
+    af_constant :: Ptr AFArray -> Double -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_constant_complex"
-    af_constant_complex :: Ptr AFArray -> Double -> Double -> Word32 -> Ptr Word64 -> AFDtype -> IO AFErr
+    af_constant_complex :: Ptr AFArray -> Double -> Double -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_constant_long"
-    af_constant_long :: Ptr AFArray -> Int64 -> Word32 -> Ptr Word64 -> IO AFErr
+    af_constant_long :: Ptr AFArray -> IntL -> CUInt -> Ptr DimT -> IO AFErr
 foreign import ccall unsafe "af_constant_ulong"
-    af_constant_ulong :: Ptr AFArray -> Word64 -> Word32 -> Ptr Word64 -> IO AFErr
+    af_constant_ulong :: Ptr AFArray -> UIntL -> CUInt -> Ptr DimT -> IO AFErr
 foreign import ccall unsafe "af_range"
-    af_range :: Ptr AFArray -> Word32 -> Ptr Word64 -> Int -> AFDtype -> IO AFErr
+    af_range :: Ptr AFArray -> CUInt -> Ptr DimT -> Int -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_iota"
-    af_iota :: Ptr AFArray -> Word32 -> Ptr Word64 -> Word32 -> Ptr Word64 -> AFDtype -> IO AFErr
+    af_iota :: Ptr AFArray -> CUInt -> Ptr DimT -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_identity"
-    af_identity :: Ptr AFArray -> Word32 -> Ptr Word64 -> AFDtype -> IO AFErr
+    af_identity :: Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_diag_create"
     af_diag_create :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 foreign import ccall unsafe "af_diag_extract"
@@ -31,19 +30,19 @@ foreign import ccall unsafe "af_diag_extract"
 foreign import ccall unsafe "af_join"
     af_join :: Ptr AFArray -> Int -> AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_join_many"
-    af_join_many :: Ptr AFArray -> Int -> Word32 -> Ptr AFArray -> IO AFErr
+    af_join_many :: Ptr AFArray -> Int -> CUInt -> Ptr AFArray -> IO AFErr
 foreign import ccall unsafe "af_tile"
-    af_tile :: Ptr AFArray -> AFArray -> Word32 -> Word32 -> Word32 -> Word32 -> IO AFErr
+    af_tile :: Ptr AFArray -> AFArray -> CUInt -> CUInt -> CUInt -> CUInt -> IO AFErr
 foreign import ccall unsafe "af_reorder"
-    af_reorder :: Ptr AFArray -> AFArray -> Word32 -> Word32 -> Word32 -> Word32 -> IO AFErr
+    af_reorder :: Ptr AFArray -> AFArray -> CUInt -> CUInt -> CUInt -> CUInt -> IO AFErr
 foreign import ccall unsafe "af_shift"
     af_shift :: Ptr AFArray -> AFArray -> Int -> Int -> Int -> Int -> IO AFErr
 foreign import ccall unsafe "af_moddims"
-    af_moddims :: Ptr AFArray -> AFArray -> Word32 -> Ptr Word64 -> IO AFErr
+    af_moddims :: Ptr AFArray -> AFArray -> CUInt -> Ptr DimT -> IO AFErr
 foreign import ccall unsafe "af_flat"
     af_flat :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_flip"
-    af_flip :: Ptr AFArray -> AFArray -> Word32 -> IO AFErr
+    af_flip :: Ptr AFArray -> AFArray -> CUInt -> IO AFErr
 foreign import ccall unsafe "af_lower"
     af_lower :: Ptr AFArray -> AFArray -> Bool -> IO AFErr
 foreign import ccall unsafe "af_upper"

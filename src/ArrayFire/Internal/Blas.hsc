@@ -1,17 +1,16 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.BLAS where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "blas.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/blas.h"
+foreign import ccall unsafe "af_matmul"
+    af_matmul :: Ptr AFArray -> AFArray -> AFArray -> AFMatProp -> AFMatProp -> IO AFErr
 foreign import ccall unsafe "af_dot"
     af_dot :: Ptr AFArray -> AFArray -> AFArray -> AFMatProp -> AFMatProp -> IO AFErr
 foreign import ccall unsafe "af_dot_all"

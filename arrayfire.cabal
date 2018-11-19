@@ -1,4 +1,4 @@
-name:                fire
+name:                arrayfire
 version:             0.1.0.0
 synopsis:            Haskell bindings to ArrayFire
 description:         High-level Haskell bindings to ArrayFire
@@ -15,35 +15,55 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
+    ArrayFire.Arith
+    ArrayFire.Array
+    ArrayFire.Backend
+    ArrayFire.BLAS
+    ArrayFire.Data
+    ArrayFire.Device
+    ArrayFire.Exception
+    ArrayFire.Graphics
+    ArrayFire.LAPACK
+    ArrayFire.Random
+    ArrayFire.Statistics
+    ArrayFire.Util
     ArrayFire.Internal.Algorithm
     ArrayFire.Internal.Arith
     ArrayFire.Internal.Array
     ArrayFire.Internal.Backend
     ArrayFire.Internal.BLAS
-    ArrayFire.Internal.Complex
-    ArrayFire.Internal.CUDA
+--  ArrayFire.Internal.CUDA
     ArrayFire.Internal.Data
     ArrayFire.Internal.Defines
     ArrayFire.Internal.Device
     ArrayFire.Internal.Exception
     ArrayFire.Internal.Features
     ArrayFire.Internal.Graphics
-    ArrayFire.Internal.Images
+    ArrayFire.Internal.Image
     ArrayFire.Internal.Index
     ArrayFire.Internal.Internal
     ArrayFire.Internal.LAPACK
-    ArrayFire.Internal.OpenCL
+--  ArrayFire.Internal.OpenCL
     ArrayFire.Internal.Random
-    ArrayFire.Internal.Seq
+--    ArrayFire.Internal.Seq
     ArrayFire.Internal.Signal
     ArrayFire.Internal.Sparse
     ArrayFire.Internal.Statistics
+    ArrayFire.Internal.Types
     ArrayFire.Internal.Util
     ArrayFire.Internal.Vision
   build-tools:
     hsc2hs
   include-dirs:
-    include
+    /opt/arrayfire/include
+  extra-lib-dirs:
+    /opt/arrayfire/lib
+  ld-options:
+    -rpath /opt/arrayfire/lib
+  cc-options:
+    -fPIC
+  extra-libraries:
+    af
   build-depends:
     base < 5
   hs-source-dirs:
@@ -57,7 +77,7 @@ executable main
   main-is:
     Main.hs
   build-depends:
-    base < 5, fire
+    base < 5, arrayfire
   default-language:
     Haskell2010
 
@@ -70,3 +90,8 @@ executable gen
     base < 5, parsec, text, directory
   default-language:
     Haskell2010
+  other-modules:
+    Lex
+    Parse
+    Print
+    Types

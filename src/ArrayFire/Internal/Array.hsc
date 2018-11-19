@@ -1,23 +1,22 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Array where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "array.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/array.h"
+foreign import ccall unsafe "af_create_array"
+    af_create_array :: Ptr AFArray -> Ptr () -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_create_handle"
-    af_create_handle :: Ptr AFArray -> Word32 -> Ptr Word64 -> AFDtype -> IO AFErr
+    af_create_handle :: Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_copy_array"
     af_copy_array :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_write_array"
-    af_write_array :: AFArray -> Ptr () -> Word -> AFSource -> IO AFErr
+    af_write_array :: AFArray -> Ptr () -> CSize -> AFSource -> IO AFErr
 foreign import ccall unsafe "af_get_data_ptr"
     af_get_data_ptr :: Ptr () -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_release_array"
@@ -35,13 +34,13 @@ foreign import ccall unsafe "af_set_manual_eval_flag"
 foreign import ccall unsafe "af_get_manual_eval_flag"
     af_get_manual_eval_flag :: Ptr Bool -> IO AFErr
 foreign import ccall unsafe "af_get_elements"
-    af_get_elements :: Ptr Word64 -> AFArray -> IO AFErr
+    af_get_elements :: Ptr DimT -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_type"
     af_get_type :: Ptr AFDtype -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_dims"
-    af_get_dims :: Ptr Word64 -> Ptr Word64 -> Ptr Word64 -> Ptr Word64 -> AFArray -> IO AFErr
+    af_get_dims :: Ptr DimT -> Ptr DimT -> Ptr DimT -> Ptr DimT -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_numdims"
-    af_get_numdims :: Ptr Word32 -> AFArray -> IO AFErr
+    af_get_numdims :: Ptr CUInt -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_empty"
     af_is_empty :: Ptr Bool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_scalar"

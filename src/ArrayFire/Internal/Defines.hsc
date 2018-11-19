@@ -1,33 +1,24 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE CPP             #-}
+{-# LANGUAGE RecordWildCards #-}
 module ArrayFire.Internal.Defines where
 
 import Foreign.ForeignPtr
 import Foreign.Ptr
+import Foreign.C.Types
+import Foreign.Storable
 
-#include "defines.h"
+-- #include "arrayfire.h"
+#include "af/defines.h"
+#include "af/seq.h"
+#include "af/index.h"
+#include "af/complex.h"
+-- #include "af/opencl.h"
+-- #include "defines.h"
 
 type Batch = Bool
-type DIM = Int
 
 afVersion = #const AF_API_VERSION
-
-newtype AFDtype = AFDtype { afDType :: Int }
-  deriving (Show, Eq)
-
-#{enum AFDtype, AFDtype
- , f32 = f32
- , c32 = c32
- , f64 = f64
- , c64 = c64
- , b8 = b8
- , s32 = s32
- , u32 = u32
- , u8 = u8
- , s64 = s64
- , u64 = u64
- , s16 = s16
- , u16 = u16
- }
 
 newtype AFErr = AFErr { afError :: Int }
   deriving (Show, Eq)
@@ -56,6 +47,24 @@ newtype AFErr = AFErr { afError :: Int }
  , afErrUnknown = AF_ERR_UNKNOWN
  }
 
+newtype AFDtype = AFDtype { afDType :: Int }
+  deriving (Show, Eq)
+
+#{enum AFDtype, AFDtype
+ , f32 = f32
+ , c32 = c32
+ , f64 = f64
+ , c64 = c64
+ , b8 = b8
+ , s32 = s32
+ , u32 = u32
+ , u8 = u8
+ , s64 = s64
+ , u64 = u64
+ , s16 = s16
+ , u16 = u16
+ }
+
 newtype AFSource = AFSource Int
   deriving (Ord, Show, Eq)
 
@@ -68,15 +77,20 @@ afMaxDims = #const AF_MAX_DIMS
 
 -- // A handle for an internal array object
 newtype AFArray = AFArray (Ptr AFArray)
+  deriving (Storable)
 
 -- // A handle for an internal array object
 newtype AFWindow = AFWindow (Ptr AFWindow)
+  deriving (Storable)
 newtype AFCell = AFCell (Ptr AFCell)
+  deriving (Storable)
 newtype AFFeatures = AFFeatures (Ptr AFFeatures)
+  deriving (Storable)
 newtype AFRandomEngine = AFRandomEngine (Ptr AFRandomEngine)
+  deriving (Storable)
 
 newtype AFInterpType = AFInterpType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFInterpType, AFInterpType
  , afInterpNearest = AF_INTERP_NEAREST
@@ -92,16 +106,15 @@ newtype AFInterpType = AFInterpType Int
  }
 
 newtype AFBorderType = AFBorderType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFBorderType, AFBorderType
  , afBorderPadZero = AF_PAD_ZERO
  , afPadSym = AF_PAD_SYM
- , afPadClampToEdge = AF_PAD_CLAMP_TO_EDGE
  }
 
 newtype AFConnectivity = AFConnectivity Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFConnectivity, AFConnectivity
  , afConnectivity4 = AF_CONNECTIVITY_4
@@ -109,7 +122,7 @@ newtype AFConnectivity = AFConnectivity Int
  }
 
 newtype AFConvMode = AFConvMode Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFConvMode, AFConvMode
  , afConvDefault = AF_CONV_DEFAULT
@@ -117,7 +130,7 @@ newtype AFConvMode = AFConvMode Int
  }
 
 newtype AFConvDomain = AFConvDomain Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFConvDomain, AFConvDomain
  , afConvAuto = AF_CONV_AUTO
@@ -126,7 +139,7 @@ newtype AFConvDomain = AFConvDomain Int
 }
 
 newtype AFMatchType = AFMatchType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFMatchType, AFMatchType
  , afSAD  = AF_SAD
@@ -141,7 +154,7 @@ newtype AFMatchType = AFMatchType Int
 }
 
 newtype AFYccStd = AFYccStd Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFYccStd, AFYccStd
  , afYcc601 = AF_YCC_601
@@ -150,7 +163,7 @@ newtype AFYccStd = AFYccStd Int
  }
 
 newtype AFCSpace = AFCSpace Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFCSpace, AFCSpace
  , afGray = AF_GRAY
@@ -160,7 +173,7 @@ newtype AFCSpace = AFCSpace Int
  }
 
 newtype AFMatProp = AFMatProp Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFMatProp, AFMatProp
  , afMatNone = AF_MAT_NONE
@@ -178,7 +191,7 @@ newtype AFMatProp = AFMatProp Int
  }
 
 newtype AFNormType = AFNormType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFNormType, AFNormType
  , afNormVector1 = AF_NORM_VECTOR_1
@@ -193,7 +206,7 @@ newtype AFNormType = AFNormType Int
 }
 
 newtype AFImageFormat = AFImageFormat Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFImageFormat, AFImageFormat
  , afFIFBmp = AF_FIF_BMP
@@ -212,7 +225,7 @@ newtype AFImageFormat = AFImageFormat Int
  }
 
 newtype AFMomentType = AFMomentType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFMomentType, AFMomentType
  , afMomentM00 = AF_MOMENT_M00
@@ -223,7 +236,7 @@ newtype AFMomentType = AFMomentType Int
 }
 
 newtype AFHomographyType = AFHomographyType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFHomographyType, AFHomographyType
  , afHomographyRansac = AF_HOMOGRAPHY_RANSAC
@@ -231,7 +244,7 @@ newtype AFHomographyType = AFHomographyType Int
 }
 
 newtype AFBackend = AFBackend Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFBackend, AFBackend
  , afBackendDefault = AF_BACKEND_DEFAULT
@@ -241,14 +254,14 @@ newtype AFBackend = AFBackend Int
 }
 
 newtype AFID = AFID Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFID, AFID
   afID = AF_ID
 }
 
 newtype AFBinaryOp = AFBinaryOp Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFBinaryOp, AFBinaryOp
  , afBinaryAdd  = AF_BINARY_ADD
@@ -258,7 +271,7 @@ newtype AFBinaryOp = AFBinaryOp Int
  }
 
 newtype AFRandomEngineType = AFRandomEngineType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFRandomEngineType, AFRandomEngineType
  , afRandomEnginePhilox4X3210 = AF_RANDOM_ENGINE_PHILOX_4X32_10
@@ -271,7 +284,7 @@ newtype AFRandomEngineType = AFRandomEngineType Int
  }
 
 newtype AFColorMap = AFColorMap Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFColorMap, AFColorMap
  , afColormapDefault = AF_COLORMAP_DEFAULT
@@ -288,7 +301,7 @@ newtype AFColorMap = AFColorMap Int
 }
 
 newtype AFMarkerType = AFMarkerType Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFMarkerType, AFMarkerType
  , afMarkerNone     = AF_MARKER_NONE
@@ -302,7 +315,7 @@ newtype AFMarkerType = AFMarkerType Int
  }
 
 newtype AFCannyThreshold = AFCannyThreshold Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFCannyThreshold, AFCannyThreshold
  , afCannyThresholdManual = AF_CANNY_THRESHOLD_MANUAL
@@ -310,7 +323,7 @@ newtype AFCannyThreshold = AFCannyThreshold Int
  }
 
 newtype AFStorage = AFStorage Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFStorage, AFStorage
  , afStorageDense = AF_STORAGE_DENSE
@@ -320,7 +333,7 @@ newtype AFStorage = AFStorage Int
  }
 
 newtype AFFluxFunction = AFFluxFunction Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFFluxFunction, AFFluxFunction
  , afFluxQuadratic = AF_FLUX_QUADRATIC
@@ -329,7 +342,7 @@ newtype AFFluxFunction = AFFluxFunction Int
  }
 
 newtype AFDiffusionEq = AFDiffusionEq Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFDiffusionEq, AFDiffusionEq
  , afDiffusionGrad = AF_DIFFUSION_GRAD
@@ -338,7 +351,7 @@ newtype AFDiffusionEq = AFDiffusionEq Int
  }
 
 newtype AFTopkFunction = AFTopkFunction Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFTopkFunction, AFTopkFunction
  , afTopkMin = AF_TOPK_MIN
@@ -347,34 +360,68 @@ newtype AFTopkFunction = AFTopkFunction Int
  }
 
 newtype AFIterativeDeconvAlgo = AFIterativeDeconvAlgo Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
-#{enum AFIterativeDeconvAlgo, AFIterativeDeconvAlgo
- , afIterativeDeconvLandweber       = AF_ITERATIVE_DECONV_LANDWEBER
- , afIterativeDeconvRichardsonlucy  = AF_ITERATIVE_DECONV_RICHARDSONLUCY
- , afIterativeDeconvDefault         = AF_ITERATIVE_DECONV_DEFAULT
- }
+-- #{enum AFIterativeDeconvAlgo, AFIterativeDeconvAlgo
+-- , afIterativeDeconvLandweber       = AF_ITERATIVE_DECONV_LANDWEBER
+-- , afIterativeDeconvRichardsonlucy  = AF_ITERATIVE_DECONV_RICHARDSONLUCY
+-- , afIterativeDeconvDefault         = AF_ITERATIVE_DECONV_DEFAULT
+-- }
 
 newtype AFInverseDeconvAlgo = AFInverseDeconvAlgo Int
-  deriving (Ord, Show, Eq)
+  deriving (Ord, Show, Eq, Storable)
 
 #{enum AFInverseDeconvAlgo, AFInverseDeconvAlgo
   afInverseDeconvTikhonov = AF_INVERSE_DECONV_TIKHONOV
   afInverseDeconvDefault = AF_INVERSE_DECONV_DEFAULT
  }
 
-newtype AFVarBias = AFVarBias Int
-  deriving (Ord, Show, Eq)
+-- newtype AFVarBias = AFVarBias Int
+--   deriving (Ord, Show, Eq)
 
-#{enum AFVarBias, AFVarBias
- , afVarianceDefault = AF_VARIANCE_DEFAULT
- , afVarianceSample = AF_VARIANCE_SAMPLE
- , afVariancePopulation = AF_VARIANCE_POPULATION
-}
+-- #{enum AFVarBias, AFVarBias
+--  , afVarianceDefault = AF_VARIANCE_DEFAULT
+--  , afVarianceSample = AF_VARIANCE_SAMPLE
+--  , afVariancePopulation = AF_VARIANCE_POPULATION
+-- }
 
-newtype AFSomeenumT = AFSomeenumT Int
-  deriving (Ord, Show, Eq)
+newtype AFSomeEnum = AFSomeEnum Int
+  deriving (Ord, Show, Eq, Storable)
 
-#{enum AFSomeenumT, AFSomeenumT
+#{enum AFSomeEnum, AFSomeEnum
  , afSomeEnum = 0
  }
+
+newtype DimT = DimT CLLong
+  deriving (Show, Eq, Storable, Num)
+
+newtype UIntL = UIntL CULLong
+  deriving (Show, Eq, Storable, Num)
+
+newtype IntL = IntL CLLong
+  deriving (Show, Eq, Storable, Num)
+
+-- static const af_seq af_span = {1, 1, 0};
+
+-- newtype AFCLPlatform = AFCLPlatform Int
+--   deriving (Show, Eq)
+
+-- #{enum AFCLPlatform, AFCLPlatform
+--  , afclPlatformAMD = AFCL_PLATFORM_AMD
+--  , afclPlatformApple = AFCL_PLATFORM_APPLE
+--  , afclPlatformIntel = AFCL_PLATFORM_INTEL
+--  , afclPlatformNVIDIA = AFCL_PLATFORM_NVIDIA
+--  , afclPlatformBEIGNET = AFCL_PLATFORM_BEIGNET
+--  , afclPlatformPOCL = AFCL_PLATFORM_POCL
+--  , afclPlatformUnknown = AFCL_PLATFORM_UNKNOWN
+-- }
+
+-- newtype DeviceType = DeviceType Int
+--   deriving (Show, Eq)
+
+-- #{enum DeviceType, DeviceType
+--  , afCLDeviceTypeCPU = AFCL_DEVICE_TYPE_CPU
+--  , afCLDeviceTypeGPU = AFCL_DEVICE_TYPE_GPU
+--  , afCLDeviceTypeAccel = AFCL_DEVICE_TYPE_ACCEL
+--  , afCLDeviceTypeUnknown = AFCL_DEVICE_TYPE_UNKNOWN
+-- }

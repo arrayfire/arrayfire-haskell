@@ -1,17 +1,16 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Signal where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "signal.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/signal.h"
+foreign import ccall unsafe "af_approx1"
+    af_approx1 :: Ptr AFArray -> AFArray -> AFArray -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_approx2"
     af_approx2 :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_approx1_uniform"
@@ -19,35 +18,35 @@ foreign import ccall unsafe "af_approx1_uniform"
 foreign import ccall unsafe "af_approx2_uniform"
     af_approx2_uniform :: Ptr AFArray -> AFArray -> AFArray -> Int -> Double -> Double -> AFArray -> Int -> Double -> Double -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_fft"
-    af_fft :: Ptr AFArray -> AFArray -> Double -> Word64 -> IO AFErr
+    af_fft :: Ptr AFArray -> AFArray -> Double -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft_inplace"
     af_fft_inplace :: AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_fft2"
-    af_fft2 :: Ptr AFArray -> AFArray -> Double -> Word64 -> Word64 -> IO AFErr
+    af_fft2 :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft2_inplace"
     af_fft2_inplace :: AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_fft3"
-    af_fft3 :: Ptr AFArray -> AFArray -> Double -> Word64 -> Word64 -> Word64 -> IO AFErr
+    af_fft3 :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft3_inplace"
     af_fft3_inplace :: AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_ifft"
-    af_ifft :: Ptr AFArray -> AFArray -> Double -> Word64 -> IO AFErr
+    af_ifft :: Ptr AFArray -> AFArray -> Double -> DimT -> IO AFErr
 foreign import ccall unsafe "af_ifft_inplace"
     af_ifft_inplace :: AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_ifft2"
-    af_ifft2 :: Ptr AFArray -> AFArray -> Double -> Word64 -> Word64 -> IO AFErr
+    af_ifft2 :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_ifft2_inplace"
     af_ifft2_inplace :: AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_ifft3"
-    af_ifft3 :: Ptr AFArray -> AFArray -> Double -> Word64 -> Word64 -> Word64 -> IO AFErr
+    af_ifft3 :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_ifft3_inplace"
     af_ifft3_inplace :: AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_fft_r2c"
-    af_fft_r2c :: Ptr AFArray -> AFArray -> Double -> Word64 -> IO AFErr
+    af_fft_r2c :: Ptr AFArray -> AFArray -> Double -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft2_r2c"
-    af_fft2_r2c :: Ptr AFArray -> AFArray -> Double -> Word64 -> Word64 -> IO AFErr
+    af_fft2_r2c :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft3_r2c"
-    af_fft3_r2c :: Ptr AFArray -> AFArray -> Double -> Word64 -> Word64 -> Word64 -> IO AFErr
+    af_fft3_r2c :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft_c2r"
     af_fft_c2r :: Ptr AFArray -> AFArray -> Double -> Bool -> IO AFErr
 foreign import ccall unsafe "af_fft2_c2r"
@@ -73,10 +72,10 @@ foreign import ccall unsafe "af_fir"
 foreign import ccall unsafe "af_iir"
     af_iir :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_medfilt"
-    af_medfilt :: Ptr AFArray -> AFArray -> Word64 -> Word64 -> AFBorderType -> IO AFErr
+    af_medfilt :: Ptr AFArray -> AFArray -> DimT -> DimT -> AFBorderType -> IO AFErr
 foreign import ccall unsafe "af_medfilt1"
-    af_medfilt1 :: Ptr AFArray -> AFArray -> Word64 -> AFBorderType -> IO AFErr
+    af_medfilt1 :: Ptr AFArray -> AFArray -> DimT -> AFBorderType -> IO AFErr
 foreign import ccall unsafe "af_medfilt2"
-    af_medfilt2 :: Ptr AFArray -> AFArray -> Word64 -> Word64 -> AFBorderType -> IO AFErr
+    af_medfilt2 :: Ptr AFArray -> AFArray -> DimT -> DimT -> AFBorderType -> IO AFErr
 foreign import ccall unsafe "af_set_fft_plan_cache_size"
-    af_set_fft_plan_cache_size :: Word -> IO AFErr
+    af_set_fft_plan_cache_size :: CSize -> IO AFErr

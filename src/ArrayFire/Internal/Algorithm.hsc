@@ -1,17 +1,16 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Algorithm where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "algorithm.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/algorithm.h"
+foreign import ccall unsafe "af_sum"
+    af_sum :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 foreign import ccall unsafe "af_sum_nan"
     af_sum_nan :: Ptr AFArray -> AFArray -> Int -> Double -> IO AFErr
 foreign import ccall unsafe "af_product"
@@ -51,9 +50,9 @@ foreign import ccall unsafe "af_imin"
 foreign import ccall unsafe "af_imax"
     af_imax :: Ptr AFArray -> Ptr AFArray -> AFArray -> Int -> IO AFErr
 foreign import ccall unsafe "af_imin_all"
-    af_imin_all :: Ptr Double -> Ptr Double -> Ptr Word32 -> AFArray -> IO AFErr
+    af_imin_all :: Ptr Double -> Ptr Double -> Ptr CUInt -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_imax_all"
-    af_imax_all :: Ptr Double -> Ptr Double -> Ptr Word32 -> AFArray -> IO AFErr
+    af_imax_all :: Ptr Double -> Ptr Double -> Ptr CUInt -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_accum"
     af_accum :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 foreign import ccall unsafe "af_scan"
@@ -67,11 +66,11 @@ foreign import ccall unsafe "af_diff1"
 foreign import ccall unsafe "af_diff2"
     af_diff2 :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 foreign import ccall unsafe "af_sort"
-    af_sort :: Ptr AFArray -> AFArray -> Word32 -> Bool -> IO AFErr
+    af_sort :: Ptr AFArray -> AFArray -> CUInt -> Bool -> IO AFErr
 foreign import ccall unsafe "af_sort_index"
-    af_sort_index :: Ptr AFArray -> Ptr AFArray -> AFArray -> Word32 -> Bool -> IO AFErr
+    af_sort_index :: Ptr AFArray -> Ptr AFArray -> AFArray -> CUInt -> Bool -> IO AFErr
 foreign import ccall unsafe "af_sort_by_key"
-    af_sort_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> Word32 -> Bool -> IO AFErr
+    af_sort_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CUInt -> Bool -> IO AFErr
 foreign import ccall unsafe "af_set_unique"
     af_set_unique :: Ptr AFArray -> AFArray -> Bool -> IO AFErr
 foreign import ccall unsafe "af_set_union"

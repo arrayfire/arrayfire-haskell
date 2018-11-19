@@ -1,17 +1,16 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Arith where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "arith.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/arith.h"
+foreign import ccall unsafe "af_add"
+    af_add :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
 foreign import ccall unsafe "af_sub"
     af_sub :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
 foreign import ccall unsafe "af_mul"

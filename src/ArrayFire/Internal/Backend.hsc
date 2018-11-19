@@ -1,19 +1,18 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.Backend where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "backend.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/backend.h"
+foreign import ccall unsafe "af_set_backend"
+    af_set_backend :: AFBackend -> IO AFErr
 foreign import ccall unsafe "af_get_backend_count"
-    af_get_backend_count :: Ptr Word32 -> IO AFErr
+    af_get_backend_count :: Ptr CUInt -> IO AFErr
 foreign import ccall unsafe "af_get_available_backends"
     af_get_available_backends :: Ptr Int -> IO AFErr
 foreign import ccall unsafe "af_get_backend_id"

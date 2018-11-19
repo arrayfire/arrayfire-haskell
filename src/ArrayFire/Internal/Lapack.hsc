@@ -1,17 +1,16 @@
+{-# LANGUAGE CPP #-}
 module ArrayFire.Internal.LAPACK where
 
 import ArrayFire.Internal.Defines
-
+import ArrayFire.Internal.Types
 import Data.Word
-
 import Data.Int
-
-#include "lapack.h"
-
-#include "extra.h"
-
 import Foreign.Ptr
+import Foreign.C.Types
 
+#include "af/lapack.h"
+foreign import ccall unsafe "af_svd"
+    af_svd :: Ptr AFArray -> Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_svd_inplace"
     af_svd_inplace :: Ptr AFArray -> Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_lu"
@@ -35,7 +34,7 @@ foreign import ccall unsafe "af_inverse"
 foreign import ccall unsafe "af_pinverse"
     af_pinverse :: Ptr AFArray -> AFArray -> Double -> AFMatProp -> IO AFErr
 foreign import ccall unsafe "af_rank"
-    af_rank :: Ptr Word32 -> AFArray -> Double -> IO AFErr
+    af_rank :: Ptr CUInt -> AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_det"
     af_det :: Ptr Double -> Ptr Double -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_norm"
