@@ -15,6 +15,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
+    ArrayFire.Algorithm
     ArrayFire.Arith
     ArrayFire.Array
     ArrayFire.Backend
