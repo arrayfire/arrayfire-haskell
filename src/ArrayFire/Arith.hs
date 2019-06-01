@@ -5,107 +5,100 @@ import Foreign.Storable
 import Foreign.C.String
 
 import ArrayFire.Exception
+import ArrayFire.Types
+import ArrayFire.FFI
 import ArrayFire.Internal.Arith
 import ArrayFire.Internal.Defines
 
 add
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-add arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_add arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+add x y batch =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_add arr arr1 arr2 batch
 
 sub
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-sub arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_sub arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+sub x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_add arr arr1 arr2 batch
 
 mul
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-mul arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_mul arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+mul x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_mul arr arr1 arr2 batch
 
 div
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-div arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_div arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+div x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_div arr arr1 arr2 batch
 
 lt
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-lt arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_lt arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+lt x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_lt arr arr1 arr2 batch
 
 gt
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-gt arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_gt arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+gt x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_gt arr arr1 arr2 batch
 
 le
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-le arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_le arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+le x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_le arr arr1 arr2 batch
 
 ge
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-ge arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_ge arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+ge x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_ge arr arr1 arr2 batch
 
 eq
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-eq arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_eq arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+eq x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_eq arr arr1 arr2 batch
 
 neq
   :: AFArray

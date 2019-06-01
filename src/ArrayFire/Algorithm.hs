@@ -9,7 +9,6 @@ import ArrayFire.Exception
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Defines
 
--- af_sum :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 sum
   :: AFArray
   -> Int

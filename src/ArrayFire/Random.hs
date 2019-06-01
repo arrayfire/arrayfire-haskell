@@ -1,16 +1,53 @@
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE ViewPatterns         #-}
+{-# LANGUAGE KindSignatures       #-}
 module ArrayFire.Random where
 
-import Foreign.Marshal
-import Foreign.Storable
+import Control.Exception
+import Control.Monad
+
 import Foreign.C.String
+import Foreign.C.Types
+import Foreign.Marshal            hiding (void)
+import Foreign.Marshal.Array
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
-import ArrayFire.Internal.Random
+import Data.Proxy
+
+import ArrayFire.Internal.Array
+
 import ArrayFire.Exception
+import ArrayFire.Types
 import ArrayFire.Internal.Defines
+import ArrayFire.Internal.Random
 
-randn arr n dimt typ =
-  alloca $ \ptr ->
-    alloca $ \d -> do
-      poke d dimt
-      print =<< af_randn  ptr n d typ
-      peek ptr
+randn
+  :: forall dims a
+   . (Dims dims, AFType a)
+  => IO (Array a)
+randn = do
+  ptr <- alloca $ \ptrPtr -> mask_ $ do
+    dimArray <- newArray dimt
+    exitCode <- af_randn ptrPtr n dimArray typ
+    unless (exitCode == afSuccess) $ do
+      let AFErr afExceptionCode = exitCode
+          afExceptionType = toAFExceptionType exitCode
+      afExceptionMsg <- errorToString exitCode
+      throwIO AFException {..}
+    peek ptrPtr
+  Array <$>
+    newForeignPtr
+      af_release_array_finalizer
+        ptr
+      where
+        n = fromIntegral (length dimt)
+        dimt :: [DimT] = toDims (Proxy @ dims)
+        typ = afType (Proxy @ a)
