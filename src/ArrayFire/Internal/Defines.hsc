@@ -79,8 +79,8 @@ afMaxDims = #const AF_MAX_DIMS
 type AFArray = Ptr ()
 
 -- // A handle for an internal array object
-newtype AFWindow = AFWindow (Ptr AFWindow)
-  deriving (Storable)
+type AFWindow = CULLong
+
 newtype AFCell = AFCell (Ptr AFCell)
   deriving (Storable)
 newtype AFFeatures = AFFeatures (Ptr AFFeatures)
