@@ -40,3 +40,13 @@ var
 var arr b d =
   arr `op1` (\p x ->
     af_var p x b (fromIntegral d))
+
+varWeighted
+  :: AFType a
+  => Array a
+  -> Array a
+  -> Int -- * dimension
+  -> Array a
+varWeighted x y (fromIntegral -> n) =
+  op2 x y $ \a b c ->
+    af_var_weighted a b c n
