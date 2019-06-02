@@ -66,6 +66,24 @@ op2p (Array fptr1) op =
     fptrB <- newForeignPtr af_release_array_finalizer y
     pure (Array fptrA, Array fptrB)
 
+op2p2
+  :: Array a
+  -> Array a
+  -> (Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
+  -> (Array a, Array a)
+op2p2 (Array fptr1) (Array fptr2) op =
+  unsafePerformIO $ do
+    (x,y) <-
+      withForeignPtr fptr1 $ \ptr1 -> do
+        withForeignPtr fptr2 $ \ptr2 -> do
+          alloca $ \ptrInput1 -> do
+            alloca $ \ptrInput2 -> do
+              throwAFError =<< op ptrInput1 ptrInput2 ptr1 ptr2
+              (,) <$> peek ptrInput1 <*> peek ptrInput2
+    fptrA <- newForeignPtr af_release_array_finalizer x
+    fptrB <- newForeignPtr af_release_array_finalizer y
+    pure (Array fptrA, Array fptrB)
+
 op1
   :: Array a
   -> (Ptr AFArray -> AFArray -> IO AFErr)

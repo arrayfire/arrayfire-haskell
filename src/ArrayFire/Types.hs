@@ -171,3 +171,23 @@ toMatProp PosDef = (AFMatProp 1024)
 toMatProp Orthog = (AFMatProp 2048)
 toMatProp TriDiag = (AFMatProp 4096)
 toMatProp BlockDiag = (AFMatProp 8192)
+
+data BinaryOp
+  = Add
+  | Mul
+  | Min
+  | Max
+  deriving (Show, Eq, Ord)
+
+toBinaryOp :: BinaryOp -> AFBinaryOp
+toBinaryOp Add = AFBinaryOp 0
+toBinaryOp Mul = AFBinaryOp 1
+toBinaryOp Min = AFBinaryOp 2
+toBinaryOp Max = AFBinaryOp 3
+
+fromBinaryOp :: AFBinaryOp -> BinaryOp
+fromBinaryOp (AFBinaryOp 0) = Add
+fromBinaryOp (AFBinaryOp 1) = Mul
+fromBinaryOp (AFBinaryOp 2) = Min
+fromBinaryOp (AFBinaryOp 3) = Max
+fromBinaryOp x = error ("Invalid Binary Op: " <> show x)
