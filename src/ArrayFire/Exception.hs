@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module ArrayFire.Exception where
 
 import Control.Exception hiding (TypeError)
@@ -69,3 +70,10 @@ toAFExceptionType (AFErr 998) = InternalError
 toAFExceptionType (AFErr 999) = UnknownError
 toAFExceptionType (AFErr _) = UnhandledError
 
+throwAFError :: AFErr -> IO ()
+throwAFError exitCode = 
+  unless (exitCode == afSuccess) $ do
+    let AFErr afExceptionCode = exitCode
+        afExceptionType = toAFExceptionType exitCode
+    afExceptionMsg <- errorToString exitCode
+    throwIO AFException {..}

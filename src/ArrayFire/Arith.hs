@@ -1,8 +1,13 @@
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module ArrayFire.Arith where
 
 import Foreign.Marshal
 import Foreign.Storable
 import Foreign.C.String
+import Data.Proxy
+import Data.Coerce
 
 import ArrayFire.Exception
 import ArrayFire.Types
@@ -186,17 +191,14 @@ bitShiftR x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
 
--- fix me
 cast
-  :: (AFType a, AFType b)
-  => AFArray a
-  -> AFArray b
-  -> IO AFArray
-cast afArr typ = do
-  alloca $ \arr -> do
-    r <- af_cast arr afArr typ
-    putStrLn =<< errorToString r
-    peek arr
+  :: forall a b . (AFType a, AFType b)
+  => Array a
+  -> Array b
+cast afArr =
+  coerce $ afArr `op1` (\x y -> af_cast x y dtyp)
+    where
+      dtyp = afType (Proxy @ b)
 
 minOf
   :: AFType a
@@ -218,18 +220,15 @@ maxOf x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
     af_maxof arr arr1 arr2 batch
 
--- fix me
 clamp
-  :: AFArray
-  -> AFArray
-  -> AFArray
+  :: Array a
+  -> Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-clamp a b c batch = do
-  alloca $ \arr -> do
-    r <- af_clamp arr a b c batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+clamp a b c batch =
+  op3 a b c $ \arr arr1 arr2 arr3 ->
+    af_clamp arr arr1 arr2 arr3 batch
 
 rem
   :: AFType a

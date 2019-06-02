@@ -17,6 +17,24 @@ import Foreign.C
 import Foreign.Marshal.Alloc
 import System.IO.Unsafe
 
+op3
+  :: Array a
+  -> Array a
+  -> Array a
+  -> (Ptr AFArray -> AFArray -> AFArray -> AFArray -> IO AFErr)
+  -> Array a
+op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
+  unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 ->
+      withForeignPtr fptr2 $ \ptr2 -> do
+         withForeignPtr fptr3 $ \ptr3 -> do
+           ptr <- 
+             alloca $ \ptrInput -> do
+               throwAFError =<< op ptrInput ptr1 ptr2 ptr3
+               peek ptrInput
+           fptr <- newForeignPtr af_release_array_finalizer ptr
+           pure (Array fptr)
+
 op2
   :: Array a
   -> Array a
@@ -28,12 +46,7 @@ op2 (Array fptr1) (Array fptr2) op =
       withForeignPtr fptr2 $ \ptr2 -> do
         ptr <-
           alloca $ \ptrInput -> do
-            exitCode <- op ptrInput ptr1 ptr2
-            unless (exitCode == afSuccess) $ do
-              let AFErr afExceptionCode = exitCode
-                  afExceptionType = toAFExceptionType exitCode
-              afExceptionMsg <- errorToString exitCode
-              throwIO AFException {..}
+            throwAFError =<< op ptrInput ptr1 ptr2
             peek ptrInput
         fptr <- newForeignPtr af_release_array_finalizer ptr
         pure (Array fptr)
@@ -47,12 +60,7 @@ op1 (Array fptr1) op =
     withForeignPtr fptr1 $ \ptr1 -> do
       ptr <-
         alloca $ \ptrInput -> do
-          exitCode <- op ptrInput ptr1
-          unless (exitCode == afSuccess) $ do
-            let AFErr afExceptionCode = exitCode
-                afExceptionType = toAFExceptionType exitCode
-            afExceptionMsg <- errorToString exitCode
-            throwIO AFException {..}
+          throwAFError =<< op ptrInput ptr1
           peek ptrInput
       fptr <- newForeignPtr af_release_array_finalizer ptr
       pure (Array fptr)
@@ -60,13 +68,7 @@ op1 (Array fptr1) op =
 afCall
   :: IO AFErr
   -> IO ()
-afCall op = do
-  exitCode <- op
-  unless (exitCode == afSuccess) $ do
-    let AFErr afExceptionCode = exitCode
-        afExceptionType = toAFExceptionType exitCode
-    afExceptionMsg <- errorToString exitCode
-    throwIO AFException {..}
+afCall = (throwAFError =<<)
 
 afCall1
   :: Storable a
@@ -74,12 +76,7 @@ afCall1
   -> IO a
 afCall1 op =
   alloca $ \ptrInput -> do
-    exitCode <- op ptrInput
-    unless (exitCode == afSuccess) $ do
-      let AFErr afExceptionCode = exitCode
-          afExceptionType = toAFExceptionType exitCode
-      afExceptionMsg <- errorToString exitCode
-      throwIO AFException {..}
+    throwAFError =<< op ptrInput
     peek ptrInput
 
 infoFromArray
@@ -91,12 +88,7 @@ infoFromArray (Array fptr1) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput -> do
-        exitCode <- op ptrInput ptr1
-        unless (exitCode == afSuccess) $ do
-          let AFErr afExceptionCode = exitCode
-              afExceptionType = toAFExceptionType exitCode
-          afExceptionMsg <- errorToString exitCode
-          throwIO AFException {..}
+        throwAFError =<< op ptrInput ptr1
         peek ptrInput
 
 infoFromArray2
@@ -109,12 +101,7 @@ infoFromArray2 (Array fptr1) op =
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput1 -> do
         alloca $ \ptrInput2 -> do
-          exitCode <- op ptrInput1 ptrInput2 ptr1
-          unless (exitCode == afSuccess) $ do
-            let AFErr afExceptionCode = exitCode
-                afExceptionType = toAFExceptionType exitCode
-            afExceptionMsg <- errorToString exitCode
-            throwIO AFException {..}
+          throwAFError =<< op ptrInput1 ptrInput2 ptr1
           (,) <$> peek ptrInput1 <*> peek ptrInput2
 
 infoFromArray3
@@ -128,12 +115,7 @@ infoFromArray3 (Array fptr1) op =
       alloca $ \ptrInput1 -> do
         alloca $ \ptrInput2 -> do
           alloca $ \ptrInput3 -> do
-            exitCode <- op ptrInput1 ptrInput2 ptrInput3 ptr1
-            unless (exitCode == afSuccess) $ do
-              let AFErr afExceptionCode = exitCode
-                  afExceptionType = toAFExceptionType exitCode
-              afExceptionMsg <- errorToString exitCode
-              throwIO AFException {..}
+            throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptr1
             (,,) <$> peek ptrInput1
                  <*> peek ptrInput2
                  <*> peek ptrInput3
