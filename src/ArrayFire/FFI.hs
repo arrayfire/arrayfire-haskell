@@ -66,6 +66,23 @@ op2p (Array fptr1) op =
     fptrB <- newForeignPtr af_release_array_finalizer y
     pure (Array fptrA, Array fptrB)
 
+op3p
+  :: Array a
+  -> (Ptr AFArray -> Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr)
+  -> (Array a, Array a, Array a)
+op3p (Array fptr1) op =
+  unsafePerformIO $ do
+    (x,y,z) <- withForeignPtr fptr1 $ \ptr1 -> do
+        alloca $ \ptrInput1 -> do
+          alloca $ \ptrInput2 -> do
+            alloca $ \ptrInput3 -> do
+              throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptr1
+              (,,) <$> peek ptrInput1 <*> peek ptrInput2 <*> peek ptrInput3
+    fptrA <- newForeignPtr af_release_array_finalizer x
+    fptrB <- newForeignPtr af_release_array_finalizer y
+    fptrC <- newForeignPtr af_release_array_finalizer z
+    pure (Array fptrA, Array fptrB, Array fptrC)
+
 op2p2
   :: Array a
   -> Array a
@@ -97,6 +114,22 @@ op1 (Array fptr1) op =
           peek ptrInput
       fptr <- newForeignPtr af_release_array_finalizer ptr
       pure (Array fptr)
+
+op1b
+  :: Storable b
+  => Array a
+  -> (Ptr AFArray -> Ptr b -> AFArray -> IO AFErr)
+  -> (b, Array a)
+op1b (Array fptr1) op =
+  unsafePerformIO $
+    withForeignPtr fptr1 $ \ptr1 -> do
+      (y,x) <-
+        alloca $ \ptrInput1 -> do
+          alloca $ \ptrInput2 -> do
+            throwAFError =<< op ptrInput1 ptrInput2 ptr1
+            (,) <$> peek ptrInput1 <*> peek ptrInput2
+      fptr <- newForeignPtr af_release_array_finalizer y
+      pure (x, Array fptr)
 
 afCall
   :: IO AFErr
