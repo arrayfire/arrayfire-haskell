@@ -94,3 +94,32 @@ instance (KnownNat a, KnownNat b, KnownNat c, KnownNat d) =>
       x = fromIntegral $ natVal (Proxy @ b)
       y = fromIntegral $ natVal (Proxy @ c)
       z = fromIntegral $ natVal (Proxy @ d)
+
+data Backend
+  = Default
+  | CPU
+  | CUDA
+  | OpenCL
+  deriving (Show, Eq, Ord)
+
+toBackend :: AFBackend -> Backend
+toBackend (AFBackend 0) = Default
+toBackend (AFBackend 1) = CPU
+toBackend (AFBackend 2) = CUDA
+toBackend (AFBackend 4) = OpenCL
+
+toAFBackend :: Backend -> AFBackend
+toAFBackend Default = (AFBackend 0)
+toAFBackend CPU = (AFBackend 1)
+toAFBackend CUDA = (AFBackend 2)
+toAFBackend OpenCL = (AFBackend 4)
+
+toBackends :: Int -> [Backend]
+toBackends 0 = []
+toBackends 1 = [CPU]
+toBackends 2 = [CUDA]
+toBackends 3 = [CPU,CUDA]
+toBackends 4 = [OpenCL]
+toBackends 5 = [CPU,OpenCL]
+toBackends 6 = [CUDA,OpenCL]
+toBackends 7 = [CPU,CUDA,OpenCL]
