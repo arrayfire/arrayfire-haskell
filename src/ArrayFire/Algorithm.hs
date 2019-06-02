@@ -1,106 +1,172 @@
 module ArrayFire.Algorithm where
 
-import Foreign.C.String
 import Foreign.Marshal
 import Foreign.Storable
-import Prelude                    hiding (sum)
+import Foreign.C.String
 
 import ArrayFire.Exception
+import ArrayFire.Types
+import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Defines
 
 sum
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-sum arr1 n = do
-  alloca $ \arr -> do
-    r <- af_sum arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+sum x n = x `op1` (\p a -> af_sum p a n)
 
--- af_sum_nan :: Ptr AFArray -> AFArray -> Int -> Double -> IO AFErr
 sumNaN
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
   -> Double
-  -> IO AFArray
-sumNaN a n d = do
-  alloca $ \arr -> do
-    r <- af_sum_nan arr a n d
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+sumNaN n i d = n `op1` (\p a -> af_sum_nan p a i d)
 
 product
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-product arr1 n = do
-  alloca $ \arr -> do
-    r <- af_product arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+product x n = x `op1` (\p a -> af_product p a n)
 
 productNaN
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
   -> Double
-  -> IO AFArray
-productNaN a n d = do
-  alloca $ \arr -> do
-    r <- af_product_nan arr a n d
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+productNaN n i d = n `op1` (\p a -> af_product_nan p a i d)
 
 min
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-min arr1 n = do
-  alloca $ \arr -> do
-    r <- af_min arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+min x n = x `op1` (\p a -> af_min p a n)
 
 max
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-max arr1 n = do
-  alloca $ \arr -> do
-    r <- af_max arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+max x n = x `op1` (\p a -> af_max p a n)
 
 allTrue
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-allTrue arr1 n = do
-  alloca $ \arr -> do
-    r <- af_all_true arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+allTrue x n = x `op1` (\p a -> af_all_true p a n)
 
 anyTrue
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-anyTrue arr1 n = do
-  alloca $ \arr -> do
-    r <- af_any_true arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+anyTrue x n = x `op1` (\p a -> af_any_true p a n)
 
--- anyCount
---   :: AFArray
---   -> Int
---   -> IO AFArray
--- anyCount arr1 n = do
---   alloca $ \arr -> do
---     r <- af_any_count arr arr1 n
---     putStrLn =<< errorToString r
---     peek arr
+count
+  :: AFType a
+  => Array a
+  -> Int
+  -> Array a
+count x n = x `op1` (\p a -> af_count p a n)
+
+sumAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+sumAll _ = undefined
+
+sumNaNAll
+  :: AFType a
+  => Array a
+  -> Double
+  -> (Double, Double)
+sumNaNAll _ _ = undefined
+
+productAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+productAll _ = undefined
+
+productNaNAll
+  :: AFType a
+  => Array a
+  -> Double
+  -> (Double, Double)
+productNaNAll _ _ = undefined
+
+minAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+minAll = undefined
+
+maxAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+maxAll = undefined
+
+allTrueAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+allTrueAll = undefined
+
+anyTrueAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+anyTrueAll = undefined
+
+countAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+countAll = undefined
+
+imin
+  :: AFType a
+  => Array a
+  -> Int -- * dimension
+  -> (Array a, Array a)
+imin = undefined
+
+imax
+  :: AFType a
+  => Array a
+  -> Int -- * dimension
+  -> (Array a, Array a)
+imax = undefined
+
+iminAll
+  :: AFType a
+  => Array a
+  -> Int -- * dimension
+  -> Double
+  -> (Array a, Array a)
+iminAll = undefined
+
+imaxAll
+  :: AFType a
+  => Array a
+  -> Int -- * dimension
+  -> Double
+  -> (Array a, Array a)
+imaxAll = undefined
+
+accum
+  :: AFType a
+  => Array a
+  -> Int -- * dimension
+  -> Array a
+accum x n = x `op1` (\x y -> af_accum x y n)
 
 
 setUnique
