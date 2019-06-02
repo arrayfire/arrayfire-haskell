@@ -30,3 +30,13 @@ meanWeighted
 meanWeighted x y (fromIntegral -> n) =
   op2 x y $ \a b c ->
     af_mean_weighted a b c n
+
+var
+  :: AFType a
+  => Array a
+  -> Bool
+  -> Int  -- * dimension
+  -> Array a
+var arr b d =
+  arr `op1` (\p x ->
+    af_var p x b (fromIntegral d))
