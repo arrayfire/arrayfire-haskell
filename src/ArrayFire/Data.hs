@@ -45,12 +45,7 @@ constant
 constant val = do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     dimArray <- newArray dimt
-    exitCode <- af_constant ptrPtr val n dimArray typ
-    unless (exitCode == afSuccess) $ do
-      let AFErr afExceptionCode = exitCode
-          afExceptionType = toAFExceptionType exitCode
-      afExceptionMsg <- errorToString exitCode
-      throwIO AFException {..}
+    throwAFError =<< af_constant ptrPtr val n dimArray typ
     peek ptrPtr
   Array <$>
     newForeignPtr
@@ -58,5 +53,5 @@ constant val = do
         ptr
       where
         n = fromIntegral (length dimt)
-        dimt :: [DimT] = toDims (Proxy @ dims)
+        dimt = toDims (Proxy @ dims)
         typ = afType (Proxy @ Double)
