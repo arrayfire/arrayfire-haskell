@@ -123,3 +123,51 @@ toBackends 4 = [OpenCL]
 toBackends 5 = [CPU,OpenCL]
 toBackends 6 = [CUDA,OpenCL]
 toBackends 7 = [CPU,CUDA,OpenCL]
+
+data MatProp
+  = None
+  | Trans
+  | CTrans
+  | Conj
+  | Upper
+  | Lower
+  | DiagUnit
+  | Sym
+  | PosDef
+  | Orthog
+  | TriDiag
+  | BlockDiag
+  deriving (Show, Eq, Ord)
+
+fromMatProp
+  :: AFMatProp
+  -> MatProp
+fromMatProp (AFMatProp 0) = None
+fromMatProp (AFMatProp 1) = Trans
+fromMatProp (AFMatProp 2) = CTrans
+fromMatProp (AFMatProp 4) = Conj
+fromMatProp (AFMatProp 32) = Upper
+fromMatProp (AFMatProp 64) = Lower
+fromMatProp (AFMatProp 128) = DiagUnit
+fromMatProp (AFMatProp 512) = Sym
+fromMatProp (AFMatProp 1024) = PosDef
+fromMatProp (AFMatProp 2048) = Orthog
+fromMatProp (AFMatProp 4096) = TriDiag
+fromMatProp (AFMatProp 8192) = BlockDiag
+fromMatProp x = error $ "Invalid AFMatProp value: " <> show x
+
+toMatProp
+  :: MatProp
+  -> AFMatProp
+toMatProp None = (AFMatProp 0)
+toMatProp Trans = (AFMatProp 1)
+toMatProp CTrans = (AFMatProp 2)
+toMatProp Conj = (AFMatProp 4)
+toMatProp Upper = (AFMatProp 32)
+toMatProp Lower = (AFMatProp 64)
+toMatProp DiagUnit = (AFMatProp 128)
+toMatProp Sym = (AFMatProp 512)
+toMatProp PosDef = (AFMatProp 1024)
+toMatProp Orthog = (AFMatProp 2048)
+toMatProp TriDiag = (AFMatProp 4096)
+toMatProp BlockDiag = (AFMatProp 8192)
