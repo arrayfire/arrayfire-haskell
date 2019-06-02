@@ -29,14 +29,15 @@ import ArrayFire.Types
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Random
 
-randn
+rand
   :: forall dims a
    . (Dims dims, AFType a)
-  => IO (Array a)
-randn = do
+   => (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr)
+   -> IO (Array a)
+rand f = do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     dimArray <- newArray dimt
-    throwAFError =<< af_randn ptrPtr n dimArray typ
+    throwAFError =<< f ptrPtr n dimArray typ
     peek ptrPtr
   Array <$>
     newForeignPtr
@@ -46,3 +47,15 @@ randn = do
         n = fromIntegral (length dimt)
         dimt :: [DimT] = toDims (Proxy @ dims)
         typ = afType (Proxy @ a)
+
+randn
+  :: forall dims a
+   . (Dims dims, AFType a)
+  => IO (Array a)
+randn = rand @dims @a af_randn
+
+randu
+  :: forall dims a
+   . (Dims dims, AFType a)
+  => IO (Array a)
+randu = rand @dims @a af_randu
