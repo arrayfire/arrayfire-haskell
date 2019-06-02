@@ -36,12 +36,7 @@ randn
 randn = do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     dimArray <- newArray dimt
-    exitCode <- af_randn ptrPtr n dimArray typ
-    unless (exitCode == afSuccess) $ do
-      let AFErr afExceptionCode = exitCode
-          afExceptionType = toAFExceptionType exitCode
-      afExceptionMsg <- errorToString exitCode
-      throwIO AFException {..}
+    throwAFError =<< af_randn ptrPtr n dimArray typ
     peek ptrPtr
   Array <$>
     newForeignPtr
