@@ -28,7 +28,7 @@ op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
          withForeignPtr fptr3 $ \ptr3 -> do
-           ptr <- 
+           ptr <-
              alloca $ \ptrInput -> do
                throwAFError =<< op ptrInput ptr1 ptr2 ptr3
                peek ptrInput
@@ -167,3 +167,21 @@ infoFromArray3 (Array fptr1) op =
             (,,) <$> peek ptrInput1
                  <*> peek ptrInput2
                  <*> peek ptrInput3
+
+infoFromArray4
+  :: (Storable a, Storable b, Storable c, Storable d)
+  => Array arr
+  -> (Ptr a -> Ptr b -> Ptr c -> Ptr d -> AFArray -> IO AFErr)
+  -> (a,b,c,d)
+infoFromArray4 (Array fptr1) op =
+  unsafePerformIO $
+    withForeignPtr fptr1 $ \ptr1 ->
+      alloca $ \ptrInput1 ->
+        alloca $ \ptrInput2 ->
+          alloca $ \ptrInput3 ->
+            alloca $ \ptrInput4 -> do
+              throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptrInput4 ptr1
+              (,,,) <$> peek ptrInput1
+                    <*> peek ptrInput2
+                    <*> peek ptrInput3
+                    <*> peek ptrInput4

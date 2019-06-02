@@ -48,7 +48,7 @@ newtype AFErr = AFErr { afError :: Int }
  }
 
 newtype AFDtype = AFDtype { afDType :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Storable)
 
 #{enum AFDtype, AFDtype
  , f32 = f32
@@ -392,13 +392,13 @@ newtype AFSomeEnum = AFSomeEnum Int
  }
 
 newtype DimT = DimT CLLong
-  deriving (Show, Eq, Storable, Num)
+  deriving (Show, Eq, Storable, Num, Integral, Real, Enum, Ord)
 
 newtype UIntL = UIntL CULLong
-  deriving (Show, Eq, Storable, Num)
+  deriving (Show, Eq, Storable, Num, Integral, Real, Enum, Ord)
 
 newtype IntL = IntL CLLong
-  deriving (Show, Eq, Storable, Num)
+  deriving (Show, Eq, Storable, Num, Integral, Real, Enum, Ord)
 
 -- static const af_seq af_span = {1, 1, 0};
 
