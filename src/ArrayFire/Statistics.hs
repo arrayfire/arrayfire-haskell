@@ -15,7 +15,7 @@ import ArrayFire.FFI
 mean
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> Array a
 mean x n =
   x `op1` (\x y ->
@@ -25,7 +25,7 @@ meanWeighted
   :: AFType a
   => Array a
   -> Array a
-  -> Int -- * dimension
+  -> Int
   -> Array a
 meanWeighted x y (fromIntegral -> n) =
   op2 x y $ \a b c ->
@@ -35,7 +35,7 @@ var
   :: AFType a
   => Array a
   -> Bool
-  -> Int  -- * dimension
+  -> Int
   -> Array a
 var arr b d =
   arr `op1` (\p x ->
@@ -45,7 +45,7 @@ varWeighted
   :: AFType a
   => Array a
   -> Array a
-  -> Int -- * dimension
+  -> Int
   -> Array a
 varWeighted x y (fromIntegral -> n) =
   op2 x y $ \a b c ->
@@ -54,7 +54,7 @@ varWeighted x y (fromIntegral -> n) =
 stdev
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> Array a
 stdev x n =
   x `op1` (\x y ->
@@ -64,7 +64,7 @@ cov
   :: AFType a
   => Array a
   -> Array a
-  -> Bool -- * dimension
+  -> Bool
   -> Array a
 cov x y n =
   op2 x y $ \a b c ->
@@ -73,7 +73,7 @@ cov x y n =
 median
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> Array a
 median x n =
   x `op1` (\x y ->

@@ -135,14 +135,14 @@ countAll = (`infoFromArray2` af_count_all)
 imin
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> (Array a, Array a)
 imin a n = op2p a (\x y z -> af_imin x y z n)
 
 imax
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> (Array a, Array a)
 imax a n = op2p a (\x y z -> af_imax x y z n)
 
@@ -165,14 +165,14 @@ imaxAll a = do
 accum
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> Array a
 accum x n = x `op1` (\x y -> af_accum x y n)
 
 scan
   :: AFType a
   => Array a
-  -> Int -- * dimension
+  -> Int
   -> BinaryOp
   -> Bool
   -> Array a
@@ -183,7 +183,7 @@ scanByKey
   :: AFType a
   => Array a
   -> Array a
-  -> Int -- * dimension
+  -> Int
   -> BinaryOp
   -> Bool
   -> Array a
