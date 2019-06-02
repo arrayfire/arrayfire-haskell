@@ -6,23 +6,28 @@ import Foreign.C.String
 
 import ArrayFire.Internal.Backend
 import ArrayFire.Exception
+import ArrayFire.FFI
+import ArrayFire.Types
 import ArrayFire.Internal.Defines
 
 setBackend :: AFBackend -> IO ()
-setBackend backend = print =<< af_set_backend backend
+setBackend backend =
+  afCall (af_set_backend backend)
 
 getBackendCount :: IO Int
-getBackendCount = do
-  alloca $ \ptr -> do
-   print =<< af_get_backend_count ptr
-   fromIntegral <$> peek ptr
+getBackendCount =
+  fromIntegral <$>
+    afCall1 af_get_backend_count
 
--- af_get_available_backends :: Ptr Int -> IO AFErr
--- af_get_backend_id :: Ptr AFBackend -> AFArray -> IO AFErr
+getAvailableBackends :: IO Int
+getAvailableBackends =
+  afCall1 af_get_available_backends
 
-getActiveBackend = do
-  alloca $ \ptr -> do
-   print =<< af_get_active_backend ptr
-   peek ptr
+getBackendId :: Array a -> AFBackend
+getBackendId = flip infoFromArray af_get_backend_id
 
--- af_get_device_id :: Ptr Int -> AFArray -> IO AFErr
+getActiveBackend :: IO AFBackend
+getActiveBackend = afCall1 af_get_active_backend
+
+getDeviceID :: Array a -> Int
+getDeviceID = flip infoFromArray af_get_device_id
