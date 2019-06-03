@@ -136,6 +136,12 @@ afCall
   -> IO ()
 afCall = (throwAFError =<<)
 
+inPlace :: Array a -> (AFArray -> IO AFErr) -> Array a
+inPlace r@(Array fptr) op =
+  (unsafePerformIO $
+    withForeignPtr fptr $ \ptr ->
+      throwAFError =<< op ptr) `seq` r
+
 afCall1
   :: Storable a
   => (Ptr a -> IO AFErr)
