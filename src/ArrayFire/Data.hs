@@ -1,13 +1,33 @@
+{-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PolyKinds           #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE ViewPatterns        #-}
+{-# LANGUAGE KindSignatures      #-}
 module ArrayFire.Data where
 
-import Foreign.Marshal
-import Foreign.Storable
-import Foreign.C.String
+import Control.Exception
+import Control.Monad
 
--- import ArrayFire.Internal.Util
-import ArrayFire.Internal.Data
+import Foreign.C.String
+import Foreign.C.Types
+import Foreign.Marshal            hiding (void)
+import Foreign.Marshal.Array
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
+
+import Data.Proxy
+
+import ArrayFire.Internal.Array
+
 import ArrayFire.Exception
+import ArrayFire.Types
 import ArrayFire.Internal.Defines
+import ArrayFire.Internal.Data
 
     -- /**
     --     \param[out] arr is the generated array of given type
@@ -19,14 +39,19 @@ import ArrayFire.Internal.Defines
     -- /
 
 constant
-  :: Double -- ^ Value of each element in the array
-  -> Int -- ^ Size of dimension array
-  -> DimT -- ^ Array containing sizes of the dimension
-  -> AFDtype -- ^ Type of the Array
-  -> IO AFArray
-constant val ndims dims dtype = do
-  alloca $ \arr ->
-    alloca $ \dimt -> do
-      poke dimt dims
-      r <- af_constant arr val (fromIntegral ndims) dimt dtype
-      peek arr
+  :: forall dims
+   . (Dims dims)
+  => Double -> IO (Array Double)
+constant val = do
+  ptr <- alloca $ \ptrPtr -> mask_ $ do
+    dimArray <- newArray dimt
+    throwAFError =<< af_constant ptrPtr val n dimArray typ
+    peek ptrPtr
+  Array <$>
+    newForeignPtr
+      af_release_array_finalizer
+        ptr
+      where
+        n = fromIntegral (length dimt)
+        dimt = toDims (Proxy @ dims)
+        typ = afType (Proxy @ Double)

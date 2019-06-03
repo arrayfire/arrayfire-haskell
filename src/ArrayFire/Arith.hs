@@ -1,660 +1,519 @@
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module ArrayFire.Arith where
 
 import Foreign.Marshal
 import Foreign.Storable
 import Foreign.C.String
+import Data.Proxy
+import Data.Coerce
 
 import ArrayFire.Exception
+import ArrayFire.Types
+import ArrayFire.FFI
 import ArrayFire.Internal.Arith
 import ArrayFire.Internal.Defines
 
 add
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-add arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_add arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+add x y batch =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_add arr arr1 arr2 batch
 
 sub
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-sub arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_sub arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+sub x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_add arr arr1 arr2 batch
 
 mul
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-mul arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_mul arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+mul x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_mul arr arr1 arr2 batch
 
 div
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-div arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_div arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+div x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_div arr arr1 arr2 batch
 
 lt
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-lt arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_lt arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+lt x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_lt arr arr1 arr2 batch
 
 gt
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-gt arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_gt arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+gt x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_gt arr arr1 arr2 batch
 
 le
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-le arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_le arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+le x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_le arr arr1 arr2 batch
 
 ge
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-ge arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_ge arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+ge x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_ge arr arr1 arr2 batch
 
 eq
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-eq arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_eq arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+eq x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_eq arr arr1 arr2 batch
 
 neq
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-neq arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_neq arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+neq x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_neq arr arr1 arr2 batch
 
 and
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-and arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_and arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+and x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_and arr arr1 arr2 batch
 
 or
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-or arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_or arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+or x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_or arr arr1 arr2 batch
 
 not
-  :: AFArray
-  -> IO AFArray
-not arr1 = do
-  alloca $ \arr -> do
-    r <- af_not arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+not = flip op1 af_not
 
 bitAnd
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-bitAnd arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_bitand arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+bitAnd x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitand arr arr1 arr2 batch
 
 bitOr
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-bitOr arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_bitor arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+bitOr x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitor arr arr1 arr2 batch
 
 bitXor
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-bitXor arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_bitxor arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+bitXor x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitxor arr arr1 arr2 batch
 
 bitShiftL
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-bitShiftL arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_bitshiftl arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+bitShiftL x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitshiftl arr arr1 arr2 batch
 
 bitShiftR
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-bitShiftR arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_bitshiftr arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+bitShiftR x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitshiftr arr arr1 arr2 batch
 
 cast
-  :: AFArray
-  -> AFDtype
-  -> IO AFArray
-cast afArr typ = do
-  alloca $ \arr -> do
-    r <- af_cast arr afArr typ
-    putStrLn =<< errorToString r
-    peek arr
+  :: forall a b . (AFType a, AFType b)
+  => Array a
+  -> Array b
+cast afArr =
+  coerce $ afArr `op1` (\x y -> af_cast x y dtyp)
+    where
+      dtyp = afType (Proxy @ b)
 
 minOf
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-minOf arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_minof arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+minOf x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_minof arr arr1 arr2 batch
 
 maxOf
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-maxOf arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_maxof arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+maxOf x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_maxof arr arr1 arr2 batch
 
 clamp
-  :: AFArray
-  -> AFArray
-  -> AFArray
+  :: Array a
+  -> Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-clamp a b c batch = do
-  alloca $ \arr -> do
-    r <- af_clamp arr a b c batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+clamp a b c batch =
+  op3 a b c $ \arr arr1 arr2 arr3 ->
+    af_clamp arr arr1 arr2 arr3 batch
 
 rem
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-rem arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_rem arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+rem x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_rem arr arr1 arr2 batch
 
 mod
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-mod arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_mod arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+mod x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_mod arr arr1 arr2 batch
 
 abs
-  :: AFArray
-  -> IO AFArray
-abs arr1 = do
-  alloca $ \arr -> do
-    r <- af_abs arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+abs = flip op1 af_abs
 
 arg
-  :: AFArray
-  -> IO AFArray
-arg arr1 = do
-  alloca $ \arr -> do
-    r <- af_arg arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+arg = flip op1 af_arg
 
 sign
-  :: AFArray
-  -> IO AFArray
-sign arr1 = do
-  alloca $ \arr -> do
-    r <- af_sign arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+sign = flip op1 af_sign
 
 round
-  :: AFArray
-  -> IO AFArray
-round arr1 = do
-  alloca $ \arr -> do
-    r <- af_round arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+round = flip op1 af_round
 
 trunc
-  :: AFArray
-  -> IO AFArray
-trunc arr1 = do
-  alloca $ \arr -> do
-    r <- af_trunc arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+trunc = flip op1 af_trunc
 
 floor
-  :: AFArray
-  -> IO AFArray
-floor arr1 = do
-  alloca $ \arr -> do
-    r <- af_floor arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+floor = flip op1 af_floor
 
 ceil
-  :: AFArray
-  -> IO AFArray
-ceil arr1 = do
-  alloca $ \arr -> do
-    r <- af_ceil arr arr1
-    putStrLn =<< errorToString r
-    peek arr
-
--- hypot
+  :: AFType a
+  => Array a
+  -> Array a
+ceil = flip op1 af_ceil
 
 sin
-  :: AFArray
-  -> IO AFArray
-sin arr1 = do
-  alloca $ \arr -> do
-    r <- af_sin arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+sin = flip op1 af_sin
 
 cos
-  :: AFArray
-  -> IO AFArray
-cos arr1 = do
-  alloca $ \arr -> do
-    r <- af_cos arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+cos = flip op1 af_cos
 
 tan
-  :: AFArray
-  -> IO AFArray
-tan arr1 = do
-  alloca $ \arr -> do
-    r <- af_tan arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+tan = flip op1 af_tan
 
 asin
-  :: AFArray
-  -> IO AFArray
-asin arr1 = do
-  alloca $ \arr -> do
-    r <- af_asin arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+asin = flip op1 af_asin
 
 acos
-  :: AFArray
-  -> IO AFArray
-acos arr1 = do
-  alloca $ \arr -> do
-    r <- af_acos arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+acos = flip op1 af_acos
 
 atan
-  :: AFArray
-  -> IO AFArray
-atan arr1 = do
-  alloca $ \arr -> do
-    r <- af_atan arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+atan = flip op1 af_atan
 
---af_atan2
 atan2
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-atan2 arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_atan2 arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+atan2 x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_atan2 arr arr1 arr2 batch
 
 cplx2
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-cplx2 arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_cplx2 arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+cplx2 x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_cplx2 arr arr1 arr2 batch
 
 cplx
-  :: AFArray
-  -> IO AFArray
-cplx arr1 = do
-  alloca $ \arr -> do
-    r <- af_cplx arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+cplx = flip op1 af_cplx
 
 real
-  :: AFArray
-  -> IO AFArray
-real arr1 = do
-  alloca $ \arr -> do
-    r <- af_real arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+real = flip op1 af_real
 
 imag
-  :: AFArray
-  -> IO AFArray
-imag arr1 = do
-  alloca $ \arr -> do
-    r <- af_imag arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+imag = flip op1 af_imag
 
 conjg
-  :: AFArray
-  -> IO AFArray
-conjg arr1 = do
-  alloca $ \arr -> do
-    r <- af_conjg arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+conjg = flip op1 af_conjg
 
 sinh
-  :: AFArray
-  -> IO AFArray
-sinh arr1 = do
-  alloca $ \arr -> do
-    r <- af_sinh arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+sinh = flip op1 af_sinh
 
 cosh
-  :: AFArray
-  -> IO AFArray
-cosh arr1 = do
-  alloca $ \arr -> do
-    r <- af_cosh arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+cosh = flip op1 af_cosh
 
 tanh
-  :: AFArray
-  -> IO AFArray
-tanh arr1 = do
-  alloca $ \arr -> do
-    r <- af_tanh arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+tanh = flip op1 af_tanh
 
 root
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-root arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_root arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+root x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_root arr arr1 arr2 batch
 
 pow
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Batch
-  -> IO AFArray
-pow arr1 arr2 batch = do
-  alloca $ \arr -> do
-    r <- af_pow arr arr1 arr2 batch
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+pow x y batch = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_pow arr arr1 arr2 batch
 
 pow2
-  :: AFArray
-  -> IO AFArray
-pow2 arr1 = do
-  alloca $ \arr -> do
-    r <- af_pow2 arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+pow2 = flip op1 af_pow2
 
 exp
-  :: AFArray
-  -> IO AFArray
-exp arr1 = do
-  alloca $ \arr -> do
-    r <- af_exp arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+exp = flip op1 af_exp
 
 sigmoid
-  :: AFArray
-  -> IO AFArray
-sigmoid arr1 = do
-  alloca $ \arr -> do
-    r <- af_sigmoid arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+sigmoid = flip op1 af_sigmoid
 
 expm1
-  :: AFArray
-  -> IO AFArray
-expm1 arr1 = do
-  alloca $ \arr -> do
-    r <- af_expm1 arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+expm1 = flip op1 af_expm1
 
 erf
-  :: AFArray
-  -> IO AFArray
-erf arr1 = do
-  alloca $ \arr -> do
-    r <- af_erf arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+erf = flip op1 af_erf
 
 erfc
-  :: AFArray
-  -> IO AFArray
-erfc arr1 = do
-  alloca $ \arr -> do
-    r <- af_erfc arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+erfc = flip op1 af_erfc
 
 log
-  :: AFArray
-  -> IO AFArray
-log arr1 = do
-  alloca $ \arr -> do
-    r <- af_log arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+log = flip op1 af_log
 
 log1p
-  :: AFArray
-  -> IO AFArray
-log1p arr1 = do
-  alloca $ \arr -> do
-    r <- af_log1p arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+log1p = flip op1 af_log1p
 
 log10
-  :: AFArray
-  -> IO AFArray
-log10 arr1 = do
-  alloca $ \arr -> do
-    r <- af_log10 arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+log10 = flip op1 af_log10
 
 log2
-  :: AFArray
-  -> IO AFArray
-log2 arr1 = do
-  alloca $ \arr -> do
-    r <- af_log2 arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+log2 = flip op1 af_log2
 
 sqrt
-  :: AFArray
-  -> IO AFArray
-sqrt arr1 = do
-  alloca $ \arr -> do
-    r <- af_sqrt arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+sqrt = flip op1 af_sqrt
 
 cbrt
-  :: AFArray
-  -> IO AFArray
-cbrt arr1 = do
-  alloca $ \arr -> do
-    r <- af_cbrt arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+cbrt = flip op1 af_cbrt
 
 factorial
-  :: AFArray
-  -> IO AFArray
-factorial arr1 = do
-  alloca $ \arr -> do
-    r <- af_factorial arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+factorial = flip op1 af_factorial
 
 tgamma
-  :: AFArray
-  -> IO AFArray
-tgamma arr1 = do
-  alloca $ \arr -> do
-    r <- af_tgamma arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+tgamma = flip op1 af_tgamma
 
 lgamma
-  :: AFArray
-  -> IO AFArray
-lgamma arr1 = do
-  alloca $ \arr -> do
-    r <- af_lgamma arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+lgamma = flip op1 af_lgamma
 
 isZero
-  :: AFArray
-  -> IO AFArray
-isZero arr1 = do
-  alloca $ \arr -> do
-    r <- af_iszero arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+isZero = flip op1 af_iszero
 
 isInf
-  :: AFArray
-  -> IO AFArray
-isInf arr1 = do
-  alloca $ \arr -> do
-    r <- af_isinf arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+  :: AFType a
+  => Array a
+  -> Array a
+isInf = flip op1 af_isinf
 
-isNaN
-  :: AFArray
-  -> IO AFArray
-isNaN arr1 = do
-  alloca $ \arr -> do
-    r <- af_isnan arr arr1
-    putStrLn =<< errorToString r
-    peek arr
+isNan
+  :: AFType a
+  => Array a
+  -> Array a
+isNan = flip op1 af_isnan

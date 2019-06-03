@@ -1,138 +1,266 @@
+{-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Algorithm where
 
-import Foreign.C.String
 import Foreign.Marshal
 import Foreign.Storable
-import Prelude                    hiding (sum)
+import Foreign.C.String
 
 import ArrayFire.Exception
+import ArrayFire.Types
+import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Defines
 
--- af_sum :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 sum
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-sum arr1 n = do
-  alloca $ \arr -> do
-    r <- af_sum arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+sum x n = x `op1` (\p a -> af_sum p a n)
 
--- af_sum_nan :: Ptr AFArray -> AFArray -> Int -> Double -> IO AFErr
 sumNaN
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
   -> Double
-  -> IO AFArray
-sumNaN a n d = do
-  alloca $ \arr -> do
-    r <- af_sum_nan arr a n d
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+sumNaN n i d = n `op1` (\p a -> af_sum_nan p a i d)
 
 product
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-product arr1 n = do
-  alloca $ \arr -> do
-    r <- af_product arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+product x n = x `op1` (\p a -> af_product p a n)
 
 productNaN
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
   -> Double
-  -> IO AFArray
-productNaN a n d = do
-  alloca $ \arr -> do
-    r <- af_product_nan arr a n d
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+productNaN n i d = n `op1` (\p a -> af_product_nan p a i d)
 
 min
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-min arr1 n = do
-  alloca $ \arr -> do
-    r <- af_min arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+min x n = x `op1` (\p a -> af_min p a n)
 
 max
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-max arr1 n = do
-  alloca $ \arr -> do
-    r <- af_max arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+max x n = x `op1` (\p a -> af_max p a n)
 
 allTrue
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-allTrue arr1 n = do
-  alloca $ \arr -> do
-    r <- af_all_true arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+allTrue x n = x `op1` (\p a -> af_all_true p a n)
 
 anyTrue
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Int
-  -> IO AFArray
-anyTrue arr1 n = do
-  alloca $ \arr -> do
-    r <- af_any_true arr arr1 n
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+anyTrue x n = x `op1` (\p a -> af_any_true p a n)
 
--- anyCount
---   :: AFArray
---   -> Int
---   -> IO AFArray
--- anyCount arr1 n = do
---   alloca $ \arr -> do
---     r <- af_any_count arr arr1 n
---     putStrLn =<< errorToString r
---     peek arr
+count
+  :: AFType a
+  => Array a
+  -> Int
+  -> Array a
+count x n = x `op1` (\p a -> af_count p a n)
 
+sumAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+sumAll = (`infoFromArray2` af_sum_all)
+
+sumNaNAll
+  :: AFType a
+  => Array a
+  -> Double
+  -> (Double, Double)
+sumNaNAll a d = infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
+
+productAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+productAll = (`infoFromArray2` af_product_all)
+
+productNaNAll
+  :: AFType a
+  => Array a
+  -> Double
+  -> (Double, Double)
+productNaNAll a d = infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
+
+minAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+minAll = (`infoFromArray2` af_min_all)
+
+maxAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+maxAll = (`infoFromArray2` af_max_all)
+
+allTrueAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+allTrueAll = (`infoFromArray2` af_all_true_all)
+
+anyTrueAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+anyTrueAll = (`infoFromArray2` af_any_true_all)
+
+countAll
+  :: AFType a
+  => Array a
+  -> (Double, Double)
+countAll = (`infoFromArray2` af_count_all)
+
+imin
+  :: AFType a
+  => Array a
+  -> Int
+  -> (Array a, Array a)
+imin a n = op2p a (\x y z -> af_imin x y z n)
+
+imax
+  :: AFType a
+  => Array a
+  -> Int
+  -> (Array a, Array a)
+imax a n = op2p a (\x y z -> af_imax x y z n)
+
+iminAll
+  :: AFType a
+  => Array a
+  -> (Double, Double, Int)
+iminAll a = do
+  let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imin_all
+  (x,y,z)
+
+imaxAll
+  :: AFType a
+  => Array a
+  -> (Double, Double, Int)
+imaxAll a = do
+  let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imax_all
+  (x,y,z)
+
+accum
+  :: AFType a
+  => Array a
+  -> Int
+  -> Array a
+accum x n = x `op1` (\x y -> af_accum x y n)
+
+scan
+  :: AFType a
+  => Array a
+  -> Int
+  -> BinaryOp
+  -> Bool
+  -> Array a
+scan a d op batch =
+  a `op1` (\x y -> af_scan x y d (toBinaryOp op) batch)
+
+scanByKey
+  :: AFType a
+  => Array a
+  -> Array a
+  -> Int
+  -> BinaryOp
+  -> Bool
+  -> Array a
+scanByKey a b d op batch =
+  op2 a b (\x y z -> af_scan_by_key x y z d (toBinaryOp op) batch)
+
+-- Clashes with Haskell's "where" keyword, prefix by `af`
+afWhere
+  :: AFType a
+  => Array a
+  -> Array a
+afWhere = (`op1` af_where)
+
+diff1
+  :: AFType a
+  => Array a
+  -> Int
+  -> Array a
+diff1 a n = a `op1` (\p a -> af_diff1 p a n)
+
+diff2
+  :: AFType a
+  => Array a
+  -> Int
+  -> Array a
+diff2 a n = a `op1` (\p a -> af_diff2 p a n)
+
+sort
+  :: AFType a
+  => Array a
+  -> Int
+  -> Bool
+  -> Array a
+sort a (fromIntegral -> n) b =
+  a `op1` (\p a -> af_sort p a n b)
+
+sortIndex
+  :: AFType a
+  => Array a
+  -> Int
+  -> Bool
+  -> (Array a, Array a)
+sortIndex a (fromIntegral -> n) b =
+  a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
+
+sortByKey
+  :: AFType a
+  => Array a
+  -> Array a
+  -> Int
+  -> Bool
+  -> (Array a, Array a)
+sortByKey a1 a2 (fromIntegral -> n) b =
+  op2p2 a1 a2 (\w x y z -> af_sort_by_key w x y z n b)
 
 setUnique
-  :: AFArray
+  :: AFType a
+  => Array a
   -> Bool
-  -> IO AFArray
-setUnique a k = do
-  alloca $ \arr -> do
-    r <- af_set_unique arr a k
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+setUnique a b =
+  op1 a (\x y -> af_set_unique x y b)
 
 setUnion
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Bool
-  -> IO AFArray
-setUnion a b k = do
-  alloca $ \arr -> do
-    r <- af_set_union arr a b k
-    putStrLn =<< errorToString r
-    peek arr
-
+  -> Array a
+setUnion a1 a2 b =
+  op2 a1 a2 (\x y z -> af_set_union x y z b)
 
 setIntersect
-  :: AFArray
-  -> AFArray
+  :: AFType a
+  => Array a
+  -> Array a
   -> Bool
-  -> IO AFArray
-setIntersect a b k = do
-  alloca $ \arr -> do
-    r <- af_set_intersect arr a b k
-    putStrLn =<< errorToString r
-    peek arr
+  -> Array a
+setIntersect a1 a2 b =
+  op2 a1 a2 (\x y z -> af_set_intersect x y z b)
