@@ -191,3 +191,18 @@ fromBinaryOp (AFBinaryOp 1) = Mul
 fromBinaryOp (AFBinaryOp 2) = Min
 fromBinaryOp (AFBinaryOp 3) = Max
 fromBinaryOp x = error ("Invalid Binary Op: " <> show x)
+
+data Storage
+  = Dense
+  | CSR
+  | CSC
+  | COO
+  deriving (Show, Eq, Ord, Enum)
+
+toStorage :: Storage -> AFStorage
+toStorage = AFStorage . fromEnum
+
+fromStorage :: AFStorage -> Storage
+fromStorage (AFStorage x)
+  | x `elem` [0..3] = toEnum x
+  | otherwise = error $ "Invalid Storage " <> (show x)
