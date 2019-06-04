@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/device.h"
 foreign import ccall unsafe "af_info"
     af_info :: IO AFErr
 foreign import ccall unsafe "af_init"

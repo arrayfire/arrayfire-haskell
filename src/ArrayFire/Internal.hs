@@ -2,7 +2,6 @@ module ArrayFire.Internal where
 
 import Foreign.Ptr
 
-
 import ArrayFire.Types
 import ArrayFire.FFI
 

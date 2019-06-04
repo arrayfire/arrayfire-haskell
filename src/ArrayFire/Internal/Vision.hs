@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/vision.h"
 foreign import ccall unsafe "af_fast"
     af_fast :: Ptr AFFeatures -> AFArray -> Float -> CUInt -> Bool -> Float -> CUInt -> IO AFErr
 foreign import ccall unsafe "af_harris"

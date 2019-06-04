@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/algorithm.h"
 foreign import ccall unsafe "af_sum"
     af_sum :: Ptr AFArray -> AFArray -> Int -> IO AFErr
 foreign import ccall unsafe "af_sum_nan"

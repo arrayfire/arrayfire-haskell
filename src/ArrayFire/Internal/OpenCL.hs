@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/opencl.h"
 foreign import ccall unsafe "afcl_get_context"
     afcl_get_context :: Ptr ClContext -> Bool -> IO AFErr
 foreign import ccall unsafe "afcl_get_queue"

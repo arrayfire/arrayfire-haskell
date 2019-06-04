@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/signal.h"
 foreign import ccall unsafe "af_approx1"
     af_approx1 :: Ptr AFArray -> AFArray -> AFArray -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_approx2"

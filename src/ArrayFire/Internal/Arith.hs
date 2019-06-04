@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/arith.h"
 foreign import ccall unsafe "af_add"
     af_add :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
 foreign import ccall unsafe "af_sub"

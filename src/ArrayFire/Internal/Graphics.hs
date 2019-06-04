@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/graphics.h"
 foreign import ccall unsafe "af_create_window"
     af_create_window :: Ptr AFWindow -> Int -> Int -> Ptr CChar -> IO AFErr
 foreign import ccall unsafe "af_set_position"

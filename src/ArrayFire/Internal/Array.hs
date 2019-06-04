@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/array.h"
 foreign import ccall unsafe "af_create_array"
     af_create_array :: Ptr AFArray -> Ptr () -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_create_handle"

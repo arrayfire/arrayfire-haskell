@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/sparse.h"
 foreign import ccall unsafe "af_create_sparse_array"
     af_create_sparse_array :: Ptr AFArray -> DimT -> DimT -> AFArray -> AFArray -> AFArray -> AFStorage -> IO AFErr
 foreign import ccall unsafe "af_create_sparse_array_from_ptr"

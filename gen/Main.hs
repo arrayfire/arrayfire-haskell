@@ -68,8 +68,11 @@ makeName n
   | otherwise = n
 
 makePath :: String -> String
-makePath s =
-  printf "src/ArrayFire/Internal/%s.hsc" (capitalName (makeName s))
+makePath s
+  | s `elem` ["types", "defines"] =
+    printf "src/ArrayFire/Internal/%s.hsc" (capitalName (makeName s))
+  | otherwise =
+    printf "src/ArrayFire/Internal/%s.hs" (capitalName (makeName s))
 
 file :: String -> Text
 file a = T.pack $ printf
@@ -81,11 +84,7 @@ file a = T.pack $ printf
   \import Data.Int\n\
   \import Foreign.Ptr\n\
   \import Foreign.C.Types\n\n\
-  \#include \"af/%s.h\"\n\
-  \" (capitalName a) (if lowerCase a == "exception"
-                        then "defines"
-                        else lowerCase a)
+  \" (capitalName a)
 
-capitalName, lowerCase :: [Char] -> [Char]
+capitalName :: [Char] -> [Char]
 capitalName (x:xs) = toUpper x : xs
-lowerCase (x:xs) = map toLower (x:xs)

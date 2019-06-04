@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/blas.h"
 foreign import ccall unsafe "af_matmul"
     af_matmul :: Ptr AFArray -> AFArray -> AFArray -> AFMatProp -> AFMatProp -> IO AFErr
 foreign import ccall unsafe "af_dot"

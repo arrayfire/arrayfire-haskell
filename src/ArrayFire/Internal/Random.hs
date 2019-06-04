@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/random.h"
 foreign import ccall unsafe "af_create_random_engine"
     af_create_random_engine :: Ptr AFRandomEngine -> AFRandomEngineType -> UIntL -> IO AFErr
 foreign import ccall unsafe "af_retain_random_engine"

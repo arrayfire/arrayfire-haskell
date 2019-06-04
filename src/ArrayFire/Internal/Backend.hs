@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/backend.h"
 foreign import ccall unsafe "af_set_backend"
     af_set_backend :: AFBackend -> IO AFErr
 foreign import ccall unsafe "af_get_backend_count"

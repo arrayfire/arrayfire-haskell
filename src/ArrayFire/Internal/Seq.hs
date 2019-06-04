@@ -8,6 +8,5 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/seq.h"
 foreign import ccall unsafe "af_make_seq"
     af_make_seq :: Double -> Double -> Double -> IO AFSeq

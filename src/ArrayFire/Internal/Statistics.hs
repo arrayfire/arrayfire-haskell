@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/statistics.h"
 foreign import ccall unsafe "af_mean"
     af_mean :: Ptr AFArray -> AFArray -> DimT -> IO AFErr
 foreign import ccall unsafe "af_mean_weighted"

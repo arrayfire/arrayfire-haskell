@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/index.h"
 foreign import ccall unsafe "af_index"
     af_index :: Ptr AFArray -> AFArray -> CUInt -> Ptr AFSeq -> IO AFErr
 foreign import ccall unsafe "af_lookup"

@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/features.h"
 foreign import ccall unsafe "af_create_features"
     af_create_features :: Ptr AFFeatures -> DimT -> IO AFErr
 foreign import ccall unsafe "af_retain_features"

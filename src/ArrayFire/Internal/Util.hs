@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/util.h"
 foreign import ccall unsafe "af_print_array"
     af_print_array :: AFArray -> IO AFErr
 foreign import ccall unsafe "af_print_array_gen"

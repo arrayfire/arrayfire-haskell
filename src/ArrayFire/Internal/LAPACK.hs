@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/lapack.h"
 foreign import ccall unsafe "af_svd"
     af_svd :: Ptr AFArray -> Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_svd_inplace"

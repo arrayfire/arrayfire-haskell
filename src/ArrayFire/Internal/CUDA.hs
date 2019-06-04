@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/cuda.h"
 foreign import ccall unsafe "afcu_get_stream"
     afcu_get_stream :: Ptr CudaStreamT -> Int -> IO AFErr
 foreign import ccall unsafe "afcu_get_native_id"

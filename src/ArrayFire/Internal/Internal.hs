@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/internal.h"
 foreign import ccall unsafe "af_create_strided_array"
     af_create_strided_array :: Ptr AFArray -> Ptr () -> DimT -> CUInt -> Ptr DimT -> Ptr DimT -> AFDtype -> AFSource -> IO AFErr
 foreign import ccall unsafe "af_get_strides"

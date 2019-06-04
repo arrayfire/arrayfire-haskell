@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/data.h"
 foreign import ccall unsafe "af_constant"
     af_constant :: Ptr AFArray -> Double -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_constant_complex"

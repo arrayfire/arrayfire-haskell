@@ -8,7 +8,6 @@ import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
-#include "af/image.h"
 foreign import ccall unsafe "af_gradient"
     af_gradient :: Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_load_image"
