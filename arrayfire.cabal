@@ -27,6 +27,7 @@ library
     ArrayFire.Exception
     ArrayFire.Graphics
     ArrayFire.Image
+    ArrayFire.Internal
     ArrayFire.LAPACK
     ArrayFire.Random
     ArrayFire.Signal
