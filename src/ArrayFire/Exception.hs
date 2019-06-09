@@ -7,6 +7,7 @@ import Control.Monad
 import Foreign.C.String
 import Foreign.Marshal
 import Foreign.Storable
+import Foreign.Ptr
 
 import ArrayFire.Internal.Exception
 import ArrayFire.Internal.Defines
@@ -78,8 +79,8 @@ throwAFError exitCode =
     afExceptionMsg <- errorToString exitCode
     throwIO AFException {..}
 
--- foreign import ccall unsafe "af_get_last_error"
---     af_get_last_error :: Ptr (Ptr CChar) -> Ptr DimT -> IO ()
+foreign import ccall unsafe "&af_release_random_engine"
+  af_release_random_engine_finalizer :: FunPtr (AFRandomEngine -> IO ())
 
--- foreign import ccall unsafe "af_err_to_string"
---     af_err_to_string :: AFErr -> IO (Ptr CChar)
+foreign import ccall unsafe "&af_release_array"
+  af_release_array_finalizer :: FunPtr (AFArray -> IO ())

@@ -20,9 +20,7 @@ import GHC.TypeLits
 
 newtype Array a = Array (ForeignPtr ())
 newtype Features = Features (ForeignPtr ())
-
-
--- instance Eq a => Eq (Array a) where
+newtype RandomEngine = RandomEngine (ForeignPtr ())
 
 -- | Mapping of Haskell types to ArrayFire types
 class AFType a where
@@ -208,3 +206,21 @@ fromStorage :: AFStorage -> Storage
 fromStorage (AFStorage x)
   | x `elem` [0..3] = toEnum x
   | otherwise = error $ "Invalid Storage " <> (show x)
+
+data RandomEngineType
+  = Philox
+  | ThreeFry
+  | Mersenne
+  deriving (Eq, Show)
+
+toRandomEngine :: AFRandomEngineType -> RandomEngineType
+toRandomEngine (AFRandomEngineType 100) = Philox
+toRandomEngine (AFRandomEngineType 200) = ThreeFry
+toRandomEngine (AFRandomEngineType 300) = Mersenne
+toRandomEngine (AFRandomEngineType x) =
+  error ("Invalid random engine: " <> show x)
+
+fromRandomEngine :: RandomEngineType ->  AFRandomEngineType
+fromRandomEngine Philox = (AFRandomEngineType 100)
+fromRandomEngine ThreeFry = (AFRandomEngineType 200)
+fromRandomEngine Mersenne = (AFRandomEngineType 300)

@@ -71,5 +71,3 @@ foreign import ccall unsafe "af_is_sparse"
     af_is_sparse :: Ptr Bool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_scalar"
     af_get_scalar :: Ptr () -> AFArray -> IO AFErr
-foreign import ccall unsafe "&af_release_array"
-    af_release_array_finalizer :: FunPtr (AFArray -> IO ())

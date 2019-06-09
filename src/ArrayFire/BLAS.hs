@@ -32,6 +32,6 @@ transpose :: Array a -> Bool -> Array a
 transpose arr1 b =
   arr1 `op1` (\x y -> af_transpose x y b)
 
-transposeInPlace :: Array a -> Bool -> Array a
+transposeInPlace :: Array a -> Bool -> IO ()
 transposeInPlace arr b =
   arr `inPlace` (`af_transpose_inplace` b)

@@ -51,13 +51,7 @@ writeToDisk fileName = do
           let name = makeName (reverse . drop 2 . reverse $ fileName)
           T.writeFile (makePath name) $
             file name <> T.intercalate "\n" (genBinding <$> successes)
-          when (name == "array") (T.appendFile (makePath name) (T.pack extraRelease))
           printf "Wrote bindings to %s\n" (makePath name)
-
-extraRelease :: String
-extraRelease =
-  "\nforeign import ccall unsafe \"&af_release_array\"\n\
-    \    af_release_array_finalizer :: FunPtr (AFArray -> IO ())"
 
 -- | Filename remappings
 makeName :: String -> String

@@ -1,7 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Features where
 
-
 import Control.Exception hiding (TypeError)
 import Data.Typeable
 import Control.Monad
@@ -17,10 +16,10 @@ import ArrayFire.FFI
 import ArrayFire.Exception
 import ArrayFire.Internal.Defines
 
-createFeatures 
+createFeatures
   :: Int
   -> Features
-createFeatures (fromIntegral -> n) = 
+createFeatures (fromIntegral -> n) =
   unsafePerformIO $ do
     ptr <-
       alloca $ \ptrInput -> do
@@ -58,7 +57,7 @@ getFeaturesOrientation
   :: Features
   -> Array a
 getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
-  
+
 getFeaturesSize
   :: Features
   -> Array a

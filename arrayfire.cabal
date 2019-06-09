@@ -73,6 +73,8 @@ library
     -fPIC
   extra-libraries:
     af
+  c-sources:
+    cbits/wrapper.c
   build-depends:
     base < 5, vector
   hs-source-dirs:

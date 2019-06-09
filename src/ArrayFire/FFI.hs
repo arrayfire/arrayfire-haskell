@@ -143,7 +143,7 @@ op1f
   -> (Ptr AFFeatures -> AFFeatures -> IO AFErr)
   -> Features
 op1f (Features x) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr x $ \ptr1 -> do
       ptr <-
         alloca $ \ptrInput -> do
@@ -151,6 +151,19 @@ op1f (Features x) op =
           peek ptrInput
       fptr <- newForeignPtr af_release_features ptr
       pure (Features fptr)
+
+op1re
+  :: RandomEngine
+  -> (Ptr AFRandomEngine -> AFRandomEngine -> IO AFErr)
+  -> IO RandomEngine
+op1re (RandomEngine x) op = mask_ $
+  withForeignPtr x $ \ptr1 -> do
+    ptr <-
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput ptr1
+        peek ptrInput
+    fptr <- newForeignPtr af_release_random_engine_finalizer ptr
+    pure (RandomEngine fptr)
 
 op1b
   :: Storable b
@@ -171,13 +184,15 @@ op1b (Array fptr1) op =
 afCall
   :: IO AFErr
   -> IO ()
-afCall = (throwAFError =<<)
+afCall = mask_ . (throwAFError =<<)
 
-inPlace :: Array a -> (AFArray -> IO AFErr) -> Array a
-inPlace r@(Array fptr) op =
-  (unsafePerformIO $
-    withForeignPtr fptr $ \ptr ->
-      throwAFError =<< op ptr) `seq` r
+inPlace :: Array a -> (AFArray -> IO AFErr) -> IO ()
+inPlace (Array fptr) op =
+  mask_ . withForeignPtr fptr $ (throwAFError <=< op)
+
+inPlaceEng :: RandomEngine -> (AFRandomEngine -> IO AFErr) -> IO ()
+inPlaceEng (RandomEngine fptr) op =
+  mask_ . withForeignPtr fptr $ (throwAFError <=< op)
 
 afCall1
   :: Storable a
@@ -208,6 +223,18 @@ infoFromFeatures
   -> a
 infoFromFeatures (Features fptr1) op =
   unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 -> do
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput ptr1
+        peek ptrInput
+
+infoFromRandomEngine
+  :: Storable a
+  => RandomEngine
+  -> (Ptr a -> AFRandomEngine -> IO AFErr)
+  -> IO a
+infoFromRandomEngine (RandomEngine fptr1) op =
+  mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1

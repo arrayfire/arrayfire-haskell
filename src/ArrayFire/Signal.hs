@@ -34,7 +34,7 @@ approx1Uniform
   -> Double
   -> Double
   -> AFInterpType
-  -> Float 
+  -> Float
   -> Array a
 approx1Uniform arr1 arr2 i1 d1 d2 interp f =
   op2 arr1 arr2 (\p x y -> af_approx1_uniform p x y i1 d1 d2 interp f)
@@ -51,7 +51,7 @@ approx2Uniform
   -> Double
   -> Double
   -> AFInterpType
-  -> Float 
+  -> Float
   -> Array a
 approx2Uniform arr1 arr2 i1 d1 d2 arr3 i2 d3 d4 interp f =
   op3 arr1 arr2 arr3 (\p x y z -> af_approx2_uniform p x y i1 d1 d2 z i2 d3 d4 interp f)
@@ -62,14 +62,14 @@ fft
   -> Double
   -> Int
   -> Array a
-fft a d x = 
+fft a d x =
   op1 a (\j k -> af_fft j k d (fromIntegral x))
-  
+
 fft_inplace
   :: AFType a
   => Array a
   -> Double
-  -> Array a
+  -> IO ()
 fft_inplace a d = a `inPlace` (flip af_fft_inplace d)
 
 fft2
@@ -79,14 +79,14 @@ fft2
   -> Int
   -> Int
   -> Array a
-fft2 a d x y = 
+fft2 a d x y =
   op1 a (\j k -> af_fft2 j k d (fromIntegral x) (fromIntegral y))
 
 fft2_inplace
   :: AFType a
   => Array a
   -> Double
-  -> Array a
+  -> IO ()
 fft2_inplace a d = a `inPlace` (flip af_fft2_inplace d)
 
 fft3
@@ -97,14 +97,14 @@ fft3
   -> Int
   -> Int
   -> Array a
-fft3 a d x y z = 
+fft3 a d x y z =
   op1 a (\j k -> af_fft3 j k d (fromIntegral x) (fromIntegral y) (fromIntegral z))
 
 fft3_inplace
   :: AFType a
   => Array a
   -> Double
-  -> Array a
+  -> IO ()
 fft3_inplace a d = a `inPlace` (flip af_fft3_inplace d)
 
 ifft
@@ -113,14 +113,14 @@ ifft
   -> Double
   -> Int
   -> Array a
-ifft a d x = 
+ifft a d x =
   op1 a (\j k -> af_ifft j k d (fromIntegral x))
 
 ifft_inplace
   :: AFType a
   => Array a
   -> Double
-  -> Array a
+  -> IO ()
 ifft_inplace a d = a `inPlace` (flip af_ifft_inplace d)
 
 ifft2
@@ -130,14 +130,14 @@ ifft2
   -> Int
   -> Int
   -> Array a
-ifft2 a d x y = 
+ifft2 a d x y =
   op1 a (\j k -> af_ifft2 j k d (fromIntegral x) (fromIntegral y))
 
 ifft2_inplace
   :: AFType a
   => Array a
   -> Double
-  -> Array a
+  -> IO ()
 ifft2_inplace a d = a `inPlace` (flip af_ifft2_inplace d)
 
 ifft3
@@ -148,15 +148,15 @@ ifft3
   -> Int
   -> Int
   -> Array a
-ifft3 a d x y z = 
+ifft3 a d x y z =
   op1 a (\j k -> af_ifft3 j k d (fromIntegral x) (fromIntegral y) (fromIntegral z))
 
 ifft3_inplace
   :: AFType a
   => Array a
   -> Double
-  -> Array a
-ifft3_inplace a d = a `inPlace` (flip af_ifft3_inplace d)    
+  -> IO ()
+ifft3_inplace a d = a `inPlace` (flip af_ifft3_inplace d)
 
 fftr2c
   :: AFType a
@@ -164,7 +164,7 @@ fftr2c
   -> Double
   -> Int
   -> Array a
-fftr2c a d x = 
+fftr2c a d x =
   op1 a (\j k -> af_fft_r2c j k d (fromIntegral x))
 
 fft2r2c
@@ -174,7 +174,7 @@ fft2r2c
   -> Int
   -> Int
   -> Array a
-fft2r2c a d x y = 
+fft2r2c a d x y =
   op1 a (\j k -> af_fft2_r2c j k d (fromIntegral x) (fromIntegral y))
 
 fft3r2c
@@ -185,7 +185,7 @@ fft3r2c
   -> Int
   -> Int
   -> Array a
-fft3r2c a d x y z = 
+fft3r2c a d x y z =
   op1 a (\j k -> af_fft3_r2c j k d (fromIntegral x) (fromIntegral y) (fromIntegral z))
 
 fftc2r
@@ -215,7 +215,7 @@ fft3C2r a cm cd = op1 a (\x y -> af_fft3_c2r x y cm cd)
 convolve1
   :: AFType a
   => Array a
-  -> Array a  
+  -> Array a
   -> AFConvMode
   -> AFConvDomain
   -> Array a
@@ -224,7 +224,7 @@ convolve1 a b cm cd = op2 a b (\x y z -> af_convolve1 x y z cm cd)
 convolve2
   :: AFType a
   => Array a
-  -> Array a  
+  -> Array a
   -> AFConvMode
   -> AFConvDomain
   -> Array a
@@ -233,7 +233,7 @@ convolve2 a b cm cd = op2 a b (\x y z -> af_convolve2 x y z cm cd)
 convolve3
   :: AFType a
   => Array a
-  -> Array a  
+  -> Array a
   -> AFConvMode
   -> AFConvDomain
   -> Array a
@@ -243,7 +243,7 @@ convolve2Sep
   :: AFType a
   => Array a
   -> Array a
-  -> Array a  
+  -> Array a
   -> AFConvMode
   -> Array a
 convolve2Sep a b c d = op3 a b c (\x y z j -> af_convolve2_sep x y z j d)
@@ -316,7 +316,7 @@ medFilt2
 medFilt2 a l w b =
  a `op1` (\x y -> af_medfilt2 x y (fromIntegral l) (fromIntegral w) b)
 
-setFFTPlanCacheSize 
+setFFTPlanCacheSize
   :: Int
   -> IO ()
 setFFTPlanCacheSize =
