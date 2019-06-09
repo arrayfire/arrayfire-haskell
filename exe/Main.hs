@@ -1,12 +1,17 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
+-- {-# LANGUAGE PolyKinds #-}
 module Main where
 
-import Control.Exception
-import Prelude hiding (sum, product)
 import Control.Concurrent
+import Control.Exception
+import Control.Monad
 import Data.Complex
+import Prelude                    hiding (sum, product)
+
+import GHC.ST
 
 import ArrayFire.Internal.Defines
 
@@ -14,6 +19,7 @@ import ArrayFire.Util
 import ArrayFire.Types
 import ArrayFire.Exception
 import ArrayFire.Device
+import ArrayFire.Types
 import ArrayFire.Data
 import ArrayFire.Arith
 import ArrayFire.Algorithm
@@ -31,10 +37,10 @@ main = do
   -- print =<< getVersion
   -- getInfo
   -- print =<< errorToString afErrNoMem
-  -- putStrLn =<< getInfoString
-  -- print =<< getDeviceCount
-  -- print =<< getDevice
-  -- print =<< getRevision
+  putStrLn =<< getInfoString
+  print =<< getDeviceCount
+  print =<< getDevice
+  print =<< getRevision
 
   -- Create and print an array
   -- arr1 <- constant 1 1 1 f64
@@ -43,22 +49,18 @@ main = do
   -- printArray r
 
   -- print =<< isLAPACKAvailable
+  -- print =<< getAvailableBackends
   -- print =<< getActiveBackend
+  -- print =<< getAvailableBackends
 
-  -- w <- createWindow 300 300 "hey"
-  -- showWindow w
-  -- threadDelay (secs 10)
+  -- array <- constant @'(10,10) 200
+  -- putStrLn "backend id"
+  -- print (getBackendID array)
+  -- putStrLn "device id"
+  -- print (getDeviceID array)
 
-  array <- constant @2 99999
-  printArray array
-
-  array0 :: Array Bool <- randn @'(2,2)
-  printArray array0
-
-  array1 :: Array Bool <- randn @'(2,2)
-  printArray array1
-
-  printArray ((array1 `add` array0) True)
+  -- array <- randu @'(9,9,9) @Double
+  -- printArray array  -- printArray (mean array 0)
 
 --  printArray (add array 1)
 
@@ -68,7 +70,23 @@ main = do
   -- x <- constant 10 1 1 f64
   -- printArray =<< mean x 0
 
-  -- print =<< isLAPACKAvailable
+--  print =<< isLAPACKAvailable
+
+  a <- randu @'(3,3) @Float
+  b <- randu @'(3,3) @Float
+  printArray ((a `matmul` b) None None)
+    `catch` (\(e :: AFException) -> do
+                putStrLn "got one"
+                print e)
+
+  putStrLn "create window"
+  window <- createWindow 200 200 "hey"
+  putStrLn "set visibility"
+  setWindowVisibility window True
+  putStrLn "show window"
+  showWindow window
+
+
   -- print =<< getActiveBackend
   -- print =<< getDeviceCount
   -- print =<< getDevice

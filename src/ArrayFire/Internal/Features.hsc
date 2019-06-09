@@ -25,5 +25,6 @@ foreign import ccall unsafe "af_get_features_orientation"
     af_get_features_orientation :: Ptr AFArray -> AFFeatures -> IO AFErr
 foreign import ccall unsafe "af_get_features_size"
     af_get_features_size :: Ptr AFArray -> AFFeatures -> IO AFErr
-foreign import ccall unsafe "af_release_features"
-    af_release_features :: AFFeatures -> IO AFErr
+foreign import ccall unsafe "&af_release_features"
+    af_release_features :: FunPtr (AFFeatures -> IO ())
+

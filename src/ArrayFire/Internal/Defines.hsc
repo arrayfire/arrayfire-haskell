@@ -77,16 +77,12 @@ afMaxDims = #const AF_MAX_DIMS
 
 -- // A handle for an internal array object
 type AFArray = Ptr ()
+type AFFeatures = Ptr ()
+type AFRandomEngine = Ptr ()
+type AFCell = Ptr ()
 
 -- // A handle for an internal array object
 type AFWindow = CULLong
-
-newtype AFCell = AFCell (Ptr AFCell)
-  deriving (Storable)
-newtype AFFeatures = AFFeatures (Ptr AFFeatures)
-  deriving (Storable)
-newtype AFRandomEngine = AFRandomEngine (Ptr AFRandomEngine)
-  deriving (Storable)
 
 newtype AFInterpType = AFInterpType Int
   deriving (Ord, Show, Eq, Storable)
