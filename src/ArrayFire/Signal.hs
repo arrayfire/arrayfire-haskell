@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Signal where
 
 import ArrayFire.Types
@@ -9,10 +10,10 @@ approx1
   :: AFType a
   => Array a
   -> Array a
-  -> AFInterpType
+  -> InterpType
   -> Float
   -> Array a
-approx1 arr1 arr2 i1 f =
+approx1 arr1 arr2 (fromInterpType -> i1) f =
   op2 arr1 arr2 (\p x y -> af_approx1 p x y i1 f)
 
 approx2
@@ -20,10 +21,10 @@ approx2
   => Array a
   -> Array a
   -> Array a
-  -> AFInterpType
+  -> InterpType
   -> Float
   -> Array a
-approx2 arr1 arr2 arr3 i1 f =
+approx2 arr1 arr2 arr3 (fromInterpType -> i1) f =
   op3 arr1 arr2 arr3 (\p x y z -> af_approx2 p x y z i1 f)
 
 approx1Uniform
@@ -33,10 +34,10 @@ approx1Uniform
   -> Int
   -> Double
   -> Double
-  -> AFInterpType
+  -> InterpType
   -> Float
   -> Array a
-approx1Uniform arr1 arr2 i1 d1 d2 interp f =
+approx1Uniform arr1 arr2 i1 d1 d2 (fromInterpType -> interp) f =
   op2 arr1 arr2 (\p x y -> af_approx1_uniform p x y i1 d1 d2 interp f)
 
 approx2Uniform
@@ -50,10 +51,10 @@ approx2Uniform
   -> Int
   -> Double
   -> Double
-  -> AFInterpType
+  -> InterpType
   -> Float
   -> Array a
-approx2Uniform arr1 arr2 i1 d1 d2 arr3 i2 d3 d4 interp f =
+approx2Uniform arr1 arr2 i1 d1 d2 arr3 i2 d3 d4 (fromInterpType -> interp) f =
   op3 arr1 arr2 arr3 (\p x y z -> af_approx2_uniform p x y i1 d1 d2 z i2 d3 d4 interp f)
 
 fft

@@ -124,6 +124,18 @@ op2p2 (Array fptr1) (Array fptr2) op =
     fptrB <- newForeignPtr af_release_array_finalizer y
     pure (Array fptrA, Array fptrB)
 
+createArray
+  :: (Ptr AFArray -> IO AFErr)
+  -> Array a
+createArray op =
+  unsafePerformIO . mask_ $ do
+    ptr <-
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput
+        peek ptrInput
+    fptr <- newForeignPtr af_release_array_finalizer ptr
+    pure (Array fptr)
+
 op1
   :: Array a
   -> (Ptr AFArray -> AFArray -> IO AFErr)
@@ -186,6 +198,31 @@ afCall
   -> IO ()
 afCall = mask_ . (throwAFError =<<)
 
+loadAFImage
+  :: String
+  -> Bool
+  -> (Ptr AFArray -> CString -> Bool -> IO AFErr)
+  -> IO (Array a)
+loadAFImage s b op = mask_ $
+  withCString s $ \cstr -> do
+    p <- alloca $ \ptr -> do
+      throwAFError =<< op ptr cstr b
+      peek ptr
+    fptr <- newForeignPtr af_release_array_finalizer p
+    pure (Array fptr)
+
+loadAFImageNative
+  :: String
+  -> (Ptr AFArray -> CString -> IO AFErr)
+  -> IO (Array a)
+loadAFImageNative s op = mask_ $
+  withCString s $ \cstr -> do
+    p <- alloca $ \ptr -> do
+      throwAFError =<< op ptr cstr
+      peek ptr
+    fptr <- newForeignPtr af_release_array_finalizer p
+    pure (Array fptr)
+
 inPlace :: Array a -> (AFArray -> IO AFErr) -> IO ()
 inPlace (Array fptr) op =
   mask_ . withForeignPtr fptr $ (throwAFError <=< op)
@@ -239,6 +276,17 @@ infoFromRandomEngine (RandomEngine fptr1) op =
       alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
         peek ptrInput
+
+afSaveImage
+  :: Array b
+  -> String
+  -> (CString -> AFArray -> IO AFErr)
+  -> IO ()
+afSaveImage (Array fptr1) str op =
+  withCString str $ \cstr ->
+    withForeignPtr fptr1 $ \ptr1 -> do
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput ptr1
 
 infoFromArray
   :: Storable a
