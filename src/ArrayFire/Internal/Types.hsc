@@ -70,4 +70,3 @@ instance Storable AFCFloat where
     #{poke af_cfloat, real} ptr afcReal
     #{poke af_cfloat, imag} ptr afcImag
 
-

@@ -71,9 +71,15 @@ toAFExceptionType (AFErr 999) = UnknownError
 toAFExceptionType (AFErr _) = UnhandledError
 
 throwAFError :: AFErr -> IO ()
-throwAFError exitCode = 
+throwAFError exitCode =
   unless (exitCode == afSuccess) $ do
     let AFErr afExceptionCode = exitCode
         afExceptionType = toAFExceptionType exitCode
     afExceptionMsg <- errorToString exitCode
     throwIO AFException {..}
+
+-- foreign import ccall unsafe "af_get_last_error"
+--     af_get_last_error :: Ptr (Ptr CChar) -> Ptr DimT -> IO ()
+
+-- foreign import ccall unsafe "af_err_to_string"
+--     af_err_to_string :: AFErr -> IO (Ptr CChar)

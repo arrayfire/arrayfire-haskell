@@ -7,6 +7,7 @@ import ArrayFire.Types
 
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Array
+import ArrayFire.Internal.Features
 
 import Control.Exception
 import Control.Monad
@@ -137,6 +138,20 @@ op1 (Array fptr1) op =
       fptr <- newForeignPtr af_release_array_finalizer ptr
       pure (Array fptr)
 
+op1f
+  :: Features
+  -> (Ptr AFFeatures -> AFFeatures -> IO AFErr)
+  -> Features
+op1f (Features x) op =
+  unsafePerformIO $ do
+    withForeignPtr x $ \ptr1 -> do
+      ptr <-
+        alloca $ \ptrInput -> do
+          throwAFError =<< op ptrInput ptr1
+          peek ptrInput
+      fptr <- newForeignPtr af_release_features ptr
+      pure (Features fptr)
+
 op1b
   :: Storable b
   => Array a
@@ -172,6 +187,31 @@ afCall1 op =
   alloca $ \ptrInput -> do
     throwAFError =<< op ptrInput
     peek ptrInput
+
+featuresToArray
+  :: Features
+  -> (Ptr AFArray -> AFFeatures -> IO AFErr)
+  -> Array a
+featuresToArray (Features fptr1) op =
+  unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 -> do
+      y <- alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput ptr1
+        peek ptrInput
+      fptr <- newForeignPtr af_release_array_finalizer y
+      pure (Array fptr)
+
+infoFromFeatures
+  :: Storable a
+  => Features
+  -> (Ptr a -> AFFeatures -> IO AFErr)
+  -> a
+infoFromFeatures (Features fptr1) op =
+  unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 -> do
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput ptr1
+        peek ptrInput
 
 infoFromArray
   :: Storable a

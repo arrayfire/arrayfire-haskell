@@ -19,6 +19,8 @@ import GHC.Int
 import GHC.TypeLits
 
 newtype Array a = Array (ForeignPtr ())
+newtype Features = Features (ForeignPtr ())
+
 
 -- instance Eq a => Eq (Array a) where
 

@@ -25,6 +25,7 @@ library
     ArrayFire.Data
     ArrayFire.Device
     ArrayFire.Exception
+    ArrayFire.Features
     ArrayFire.Graphics
     ArrayFire.Image
     ArrayFire.LAPACK
