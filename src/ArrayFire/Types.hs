@@ -24,7 +24,7 @@ import GHC.TypeLits
 newtype Array a = Array (ForeignPtr ())
 newtype Features = Features (ForeignPtr ())
 newtype RandomEngine = RandomEngine (ForeignPtr ())
-newtype Window = Window CULLong
+newtype Window = Window (ForeignPtr ())
 
 -- | Mapping of Haskell types to ArrayFire types
 class AFType a where

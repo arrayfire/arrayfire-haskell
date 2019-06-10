@@ -124,6 +124,18 @@ op2p2 (Array fptr1) (Array fptr2) op =
     fptrB <- newForeignPtr af_release_array_finalizer y
     pure (Array fptrA, Array fptrB)
 
+createArray'
+  :: (Ptr AFArray -> IO AFErr)
+  -> IO (Array a)
+createArray' op =
+  mask_ $ do
+    ptr <-
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput
+        peek ptrInput
+    fptr <- newForeignPtr af_release_array_finalizer ptr
+    pure (Array fptr)
+
 createArray
   :: (Ptr AFArray -> IO AFErr)
   -> Array a
@@ -140,28 +152,31 @@ createWindow'
   :: (Ptr AFWindow -> IO AFErr)
   -> IO Window
 createWindow' op =
-  mask_ $
-    alloca $ \ptrInput -> do
-      throwAFError =<< op ptrInput
-      Window <$> peek ptrInput
+  mask_ $ do
+    ptr <-
+      alloca $ \ptrInput -> do
+        throwAFError =<< op ptrInput
+        peek ptrInput
+    fptr <- newForeignPtr af_release_window_finalizer ptr
+    pure (Window fptr)
 
 opw
   :: Window
   -> (AFWindow -> IO AFErr)
   -> IO ()
-opw (Window long) op
-  = mask_ $ throwAFError =<< op long
+opw (Window fptr) op
+  = mask_ . withForeignPtr fptr $ (throwAFError <=< op)
 
 opw1
   :: Storable a
   => Window
   -> (Ptr a -> AFWindow -> IO AFErr)
   -> IO a
-opw1 (Window long) op
-  = mask_ $
-      alloca $ \x -> do
-        throwAFError =<< op x long
-        peek x
+opw1 (Window fptr) op
+  = mask_ . withForeignPtr fptr $ \ptr -> do
+       alloca $ \p -> do
+         throwAFError =<< op p ptr
+         peek p
 
 op1
   :: Array a

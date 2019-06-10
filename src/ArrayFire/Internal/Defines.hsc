@@ -81,7 +81,7 @@ type AFFeatures = Ptr ()
 type AFRandomEngine = Ptr ()
 
 -- // A handle for an internal array object
-type AFWindow = CULLong
+type AFWindow = Ptr ()
 
 newtype AFInterpType = AFInterpType Int
   deriving (Ord, Show, Eq, Storable)
