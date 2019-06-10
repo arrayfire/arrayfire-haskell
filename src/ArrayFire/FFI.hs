@@ -282,7 +282,7 @@ afSaveImage
   -> String
   -> (CString -> AFArray -> IO AFErr)
   -> IO ()
-afSaveImage (Array fptr1) str op =
+afSaveImage (Array fptr1) str op = mask_ $
   withCString str $ \cstr ->
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput -> do
