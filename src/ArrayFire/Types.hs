@@ -224,3 +224,159 @@ fromRandomEngine :: RandomEngineType ->  AFRandomEngineType
 fromRandomEngine Philox = (AFRandomEngineType 100)
 fromRandomEngine ThreeFry = (AFRandomEngineType 200)
 fromRandomEngine Mersenne = (AFRandomEngineType 300)
+
+data InterpType
+  = Nearest
+  | Linear
+  | Bilinear
+  | Cubic
+  | LowerInterp
+  | LinearCosine
+  | BilinearCosine
+  | Bicubic
+  | CubicSpline
+  | BicubicSpline
+  deriving (Show, Eq, Ord, Enum)
+
+toInterpType :: AFInterpType -> InterpType
+toInterpType (AFInterpType x) = toEnum x
+
+fromInterpType :: InterpType -> AFInterpType
+fromInterpType = AFInterpType . fromEnum
+
+data BorderType
+  = PadZero
+  | PadSym
+  deriving (Show, Ord, Enum, Eq)
+
+toBorderType :: AFBorderType -> BorderType
+toBorderType (AFBorderType x) = toEnum x
+
+fromBorderType :: BorderType -> AFBorderType
+fromBorderType = AFBorderType . fromEnum
+
+data Connectivity
+  = Conn4
+  | Conn8
+  deriving (Show, Ord, Enum, Eq)
+
+toConnectivity :: AFConnectivity -> Connectivity
+toConnectivity (AFConnectivity 4) = Conn4
+toConnectivity (AFConnectivity 8) = Conn4
+toConnectivity (AFConnectivity x) = error ("Unknown connectivity option: " <> show x)
+
+fromConnectivity :: Connectivity -> AFConnectivity
+fromConnectivity Conn4 = AFConnectivity 4
+fromConnectivity Conn8 = AFConnectivity 8
+
+data CSpace
+  = Gray
+  | RGB
+  | HSV
+  | YCBCR
+  deriving (Show, Eq, Ord, Enum)
+
+toCSpace :: AFCSpace -> CSpace
+toCSpace (AFCSpace x) = toEnum x
+
+fromCSpace :: CSpace -> AFCSpace
+fromCSpace = AFCSpace . fromEnum
+
+data YccStd
+  = Ycc601
+  | Ycc709
+  | Ycc2020
+  deriving (Show, Eq, Ord)
+
+toAFYccStd :: AFYccStd -> YccStd
+toAFYccStd (AFYccStd 601) = Ycc601
+toAFYccStd (AFYccStd 709) = Ycc709
+toAFYccStd (AFYccStd 2020) = Ycc2020
+toAFYccStd (AFYccStd x) = error ("Unknown AFYccStd option: " <> show x)
+
+fromAFYccStd :: YccStd -> AFYccStd
+fromAFYccStd Ycc601 = afYcc601
+fromAFYccStd Ycc709 = afYcc709
+fromAFYccStd Ycc2020 = afYcc2020
+
+data MomentType
+  = M00
+  | M01
+  | M10
+  | M11
+  | FirstOrder
+  deriving (Show, Eq, Ord)
+
+toMomentType :: AFMomentType -> MomentType
+toMomentType x
+  | x == afMomentM00 = M00
+  | x == afMomentM01 = M01
+  | x == afMomentM10 = M10
+  | x == afMomentM11 = M11
+  | x == afMomentFirstOrder = FirstOrder
+  | otherwise = error ("Unknown moment type: " <> show x)
+
+fromMomentType :: MomentType -> AFMomentType
+fromMomentType M00 = afMomentM00
+fromMomentType M01 = afMomentM01
+fromMomentType M10 = afMomentM10
+fromMomentType M11 = afMomentM11
+fromMomentType FirstOrder = afMomentFirstOrder
+
+data CannyThreshold
+  = Manual
+  | AutoOtsu
+  deriving (Show, Eq, Ord, Enum)
+
+toCannyThreshold :: AFCannyThreshold -> CannyThreshold
+toCannyThreshold (AFCannyThreshold x) = toEnum x
+
+fromCannyThreshold :: CannyThreshold -> AFCannyThreshold
+fromCannyThreshold = AFCannyThreshold . fromEnum
+
+data FluxFunction
+  = FluxDefault
+  | FluxQuadratic
+  | FluxExponential
+  deriving (Show, Eq, Ord, Enum)
+
+toFluxFunction :: AFFluxFunction -> FluxFunction
+toFluxFunction (AFFluxFunction x) = toEnum x
+
+fromFluxFunction :: FluxFunction -> AFFluxFunction
+fromFluxFunction = AFFluxFunction . fromEnum
+
+data DiffusionEq
+  = DiffusionDefault
+  | DiffusionGrad
+  | DiffusionMCDE
+  deriving (Show, Eq, Ord, Enum)
+
+toDiffusionEq :: AFDiffusionEq -> DiffusionEq
+toDiffusionEq (AFDiffusionEq x) = toEnum x
+
+fromDiffusionEq :: DiffusionEq -> AFDiffusionEq
+fromDiffusionEq = AFDiffusionEq . fromEnum
+
+data IterativeDeconvAlgo
+  = DeconvDefault
+  | DeconvLandweber
+  | DeconvRichardsonLucy
+  deriving (Show, Eq, Ord, Enum)
+
+toIterativeDeconvAlgo :: AFIterativeDeconvAlgo -> IterativeDeconvAlgo
+toIterativeDeconvAlgo (AFIterativeDeconvAlgo x) = toEnum x
+
+fromIterativeDeconvAlgo :: IterativeDeconvAlgo -> AFIterativeDeconvAlgo
+fromIterativeDeconvAlgo = AFIterativeDeconvAlgo . fromEnum
+
+data InverseDeconvAlgo
+  = InverseDeconvDefault
+  | InverseDeconvTikhonov
+  deriving (Show, Eq, Ord, Enum)
+
+toInverseDeconvAlgo :: AFInverseDeconvAlgo -> InverseDeconvAlgo
+toInverseDeconvAlgo (AFInverseDeconvAlgo x) = toEnum x
+
+fromInverseDeconvAlgo :: InverseDeconvAlgo -> AFInverseDeconvAlgo
+fromInverseDeconvAlgo = AFInverseDeconvAlgo . fromEnum
