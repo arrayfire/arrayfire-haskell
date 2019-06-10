@@ -26,6 +26,8 @@ import Foreign.ForeignPtr
 import Foreign.Ptr
 import Foreign.Storable
 
+import System.IO.Unsafe
+
 import GHC.Int
 import GHC.TypeLits
 
@@ -194,19 +196,124 @@ diagExtract
 diagExtract x n =
   x `op1` (\p a -> af_diag_extract p a n)
 
+join
+  :: Int
+  -> Array (a :: *)
+  -> Array a
+  -> Array a
+join n arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
--- af_err af_join(af_array *out, const int dim, const af_array first, const af_array second);
--- af_err af_join_many(af_array *out, const int dim, const unsigned n_arrays, const af_array *inputs);
--- af_err af_tile(af_array *out, const af_array in, const unsigned x, const unsigned y, const unsigned z, const unsigned w);
--- af_err af_reorder(af_array *out, const af_array in, const unsigned x, const unsigned y, const unsigned z, const unsigned w);
--- af_err af_shift(af_array *out, const af_array in, const int x, const int y, const int z, const int w);
--- af_err af_moddims(af_array *out, const af_array in, const unsigned ndims, const dim_t * const dims);
--- af_err af_flat(af_array *out, const af_array in);
--- af_err af_flip(af_array *out, const af_array in, const unsigned dim);
--- af_err af_lower(af_array *out, const af_array in, bool is_unit_diag);
--- af_err af_upper(af_array *out, const af_array in, bool is_unit_diag);
--- af_err af_select(af_array *out, const af_array cond, const af_array a, const af_array b);
--- af_err af_select_scalar_r(af_array *out, const af_array cond, const af_array a, const double b);
--- af_err af_select_scalar_l(af_array *out, const af_array cond, const double a, const af_array b);
+joinMany
+  :: Int -- * dim
+  -> [Array a]
+  -> Array a
+joinMany n arrays = unsafePerformIO . mask_ $ do
+  fptrs <- forM arrays $ \(Array fptr) -> pure fptr
+  newPtr <-
+    alloca $ \fPtrsPtr -> do
+      forM_ fptrs $ \fptr ->
+        withForeignPtr fptr (poke fPtrsPtr)
+      alloca $ \aPtr -> do
+        af_join_many aPtr n nArrays fPtrsPtr
+        peek aPtr
+  Array <$>
+    newForeignPtr af_release_array_finalizer newPtr
+  where
+    nArrays = fromIntegral (length arrays)
+
+tile
+  :: Array (a :: *)
+  -> Int -- * dim
+  -> Int
+  -> Int
+  -> Int
+  -> Array a
+tile a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
+  a `op1` (\p k -> af_tile p k x y z w)
+
+reorder
+  :: Array (a :: *)
+  -> Int -- * dim
+  -> Int
+  -> Int
+  -> Int
+  -> Array a
+reorder a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
+  a `op1` (\p k -> af_tile p k x y z w)
+
+shift
+  :: Array (a :: *)
+  -> Int -- * dim
+  -> Int
+  -> Int
+  -> Int
+  -> Array a
+shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
+  a `op1` (\p k -> af_shift p k x y z w)
+
+moddims
+  :: forall a dims
+   . Dims dims
+  => Array (a :: *)
+  -> Array a
+moddims (Array fptr) =
+  unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
+    newPtr <- alloca $ \aPtr -> do
+      dimsPtr <- newArray dims
+      throwAFError =<< af_moddims aPtr ptr n dimsPtr
+      free dimsPtr
+      peek aPtr
+    Array <$> newForeignPtr af_release_array_finalizer newPtr
+  where
+    dims = toDims (Proxy @ dims)
+    n = fromIntegral (length dims)
+
+flat
+  :: Array (a :: *)
+  -> Array a
+flat = (`op1` af_flat)
+
+flip
+  :: Array (a :: *)
+  -> Int
+  -> Array a
+flip a (fromIntegral -> dim) =
+  a `op1` (\p k -> af_flip p k dim)
+
+lower
+  :: Array (a :: *)
+  -> Bool
+  -> Array a
+lower a b =
+  a `op1` (\p k -> af_lower p k b)
+
+upper
+  :: Array (a :: *)
+  -> Bool
+  -> Array a
+upper a b =
+  a `op1` (\p k -> af_upper p k b)
+
+select
+  :: Array (a :: *)
+  -> Array a
+  -> Array a
+  -> Array a
+select a b c = op3 a b c af_select
+
+selectScalarR
+  :: Array (a :: *)
+  -> Array a
+  -> Double
+  -> Array a
+selectScalarR a b c = op2 a b (\p w x -> af_select_scalar_r p w x c)
+
+selectScalarL
+  :: Array (a :: *)
+  -> Double
+  -> Array a
+  -> Array a
+selectScalarL a n b = op2 a b (\p w x -> af_select_scalar_l p w n x)
+
 -- af_err af_replace(af_array a, const af_array cond, const af_array b);
 -- af_err af_replace_scalar(af_array a, const af_array cond, const double b);
