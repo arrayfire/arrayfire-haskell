@@ -1,7 +1,7 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE DataKinds           #-}
 -- {-# LANGUAGE PolyKinds #-}
 module Main where
 
@@ -10,6 +10,7 @@ import Control.Exception
 import Control.Monad
 import Data.Complex
 import Prelude                    hiding (sum, product)
+import Data.Proxy
 
 import GHC.ST
 
@@ -33,7 +34,9 @@ import ArrayFire.BLAS
 
 main :: IO ()
 main = do
+  info >> putStrLn "ok" >> afInit
   -- Info things
+  print =<< getSizeOf (Proxy @ Double)
   print =<< getVersion
   print =<< getRevision
   -- getInfo
