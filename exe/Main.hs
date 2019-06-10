@@ -34,13 +34,13 @@ import ArrayFire.BLAS
 main :: IO ()
 main = do
   -- Info things
-  -- print =<< getVersion
+  print =<< getVersion
+  print =<< getRevision
   -- getInfo
   -- print =<< errorToString afErrNoMem
   putStrLn =<< getInfoString
   print =<< getDeviceCount
   print =<< getDevice
-  print =<< getRevision
 
   -- Create and print an array
   -- arr1 <- constant 1 1 1 f64

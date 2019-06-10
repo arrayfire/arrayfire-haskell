@@ -5,7 +5,7 @@ typedef long long intl;
 typedef unsigned long long uintl;
 typedef long long dim_t;
 typedef void * af_features;
-typedef unsigned long long af_window;
+typedef void * af_window;
 
 typedef enum {
     f32,    ///< 32-bit floating point values
