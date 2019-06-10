@@ -82,5 +82,8 @@ throwAFError exitCode =
 foreign import ccall unsafe "&af_release_random_engine"
   af_release_random_engine_finalizer :: FunPtr (AFRandomEngine -> IO ())
 
+foreign import ccall unsafe "&af_destroy_window"
+  af_release_window_finalizer :: FunPtr (AFWindow -> IO ())
+
 foreign import ccall unsafe "&af_release_array"
   af_release_array_finalizer :: FunPtr (AFArray -> IO ())

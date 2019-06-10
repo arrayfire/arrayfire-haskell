@@ -4,9 +4,11 @@ module ArrayFire.Internal.Types where
 
 #include "af/seq.h"
 #include "af/complex.h"
+#include "af/graphics.h"
 #include "af/index.h"
 
 import Foreign.Storable
+import Foreign.C.String
 import ArrayFire.Internal.Defines
 
 data AFSeq
@@ -70,3 +72,25 @@ instance Storable AFCFloat where
     #{poke af_cfloat, real} ptr afcReal
     #{poke af_cfloat, imag} ptr afcImag
 
+data AFCell
+  = AFCell
+  { afCellRow :: {-# UNPACK #-} !Int
+  , afCellCol :: {-# UNPACK #-} !Int
+  , afCellTitle :: {-# UNPACK #-} !CString
+  , afCellColorMap :: {-# UNPACK #-} !AFColorMap
+  } deriving (Show, Eq)
+
+instance Storable AFCell where
+  sizeOf _ = #{size af_cell}
+  alignment _ = #{alignment af_cell}
+  peek ptr = do
+    afCellRow <- #{peek af_cell, row} ptr
+    afCellCol <- #{peek af_cell, col} ptr
+    afCellTitle <- #{peek af_cell, title} ptr
+    afCellColorMap <- #{peek af_cell, cmap} ptr
+    pure AFCell{..}
+  poke ptr AFCell{..} = do
+    #{poke af_cell, row} ptr afCellRow
+    #{poke af_cell, col} ptr afCellCol
+    #{poke af_cell, title} ptr afCellTitle
+    #{poke af_cell, cmap} ptr afCellColorMap

@@ -136,6 +136,33 @@ createArray op =
     fptr <- newForeignPtr af_release_array_finalizer ptr
     pure (Array fptr)
 
+createWindow'
+  :: (Ptr AFWindow -> IO AFErr)
+  -> IO Window
+createWindow' op =
+  mask_ $
+    alloca $ \ptrInput -> do
+      throwAFError =<< op ptrInput
+      Window <$> peek ptrInput
+
+opw
+  :: Window
+  -> (AFWindow -> IO AFErr)
+  -> IO ()
+opw (Window long) op
+  = mask_ $ throwAFError =<< op long
+
+opw1
+  :: Storable a
+  => Window
+  -> (Ptr a -> AFWindow -> IO AFErr)
+  -> IO a
+opw1 (Window long) op
+  = mask_ $
+      alloca $ \x -> do
+        throwAFError =<< op x long
+        peek x
+
 op1
   :: Array a
   -> (Ptr AFArray -> AFArray -> IO AFErr)

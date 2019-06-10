@@ -82,7 +82,7 @@ main = do
   putStrLn "create window"
   window <- createWindow 200 200 "hey"
   putStrLn "set visibility"
-  setWindowVisibility window True
+  setVisibility window True
   putStrLn "show window"
   showWindow window
 
