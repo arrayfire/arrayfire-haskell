@@ -439,3 +439,31 @@ fromMarkerType = AFMarkerType . fromEnum
 toMarkerType :: AFMarkerType -> MarkerType
 toMarkerType (AFMarkerType x) = toEnum x
 
+data MatchType
+  = MatchTypeSAD
+  | MatchTypeZSAD
+  | MatchTypeLSAD
+  | MatchTypeSSD
+  | MatchTypeZSSD
+  | MatchTypeLSSD
+  | MatchTypeNCC
+  | MatchTypeZNCC
+  | MatchTypeSHD
+  deriving (Show, Eq, Ord, Enum)
+
+fromMatchType :: MatchType -> AFMatchType
+fromMatchType = AFMatchType . fromEnum
+
+toMatchType :: AFMatchType -> MatchType
+toMatchType (AFMatchType x) = toEnum x
+
+data HomographyType
+  = RANSAC
+  | LMEDS
+  deriving (Show, Eq, Ord, Enum)
+
+fromHomographyType :: HomographyType -> AFHomographyType
+fromHomographyType = AFHomographyType . fromEnum
+
+toHomographyType :: AFHomographyType -> HomographyType
+toHomographyType (AFHomographyType x) = toEnum x

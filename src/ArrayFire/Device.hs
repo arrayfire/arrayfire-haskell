@@ -23,7 +23,6 @@ getDeviceCount = do
   putStrLn "get device count"
   alloca $ \ptr -> do
     r <- af_get_device_count ptr
-    print r
     peek ptr
 
 getDevice :: IO Int
@@ -31,5 +30,4 @@ getDevice = do
   putStrLn "get device"
   alloca $ \ptr -> do
     r <- af_get_device ptr
-    print r
     peek ptr
