@@ -6,14 +6,17 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
 {-# LANGUAGE KindSignatures      #-}
+{-# LANGUAGE RecordWildCards     #-}
 module ArrayFire.Types where
 
 import ArrayFire.Internal.Defines
+import ArrayFire.Internal.Types
 import Data.Kind
 import Data.Complex
 import Data.Proxy
 import Data.Word
 import Foreign.C.Types
+import Foreign.C.String
 import Foreign.ForeignPtr
 import GHC.Int
 import GHC.TypeLits
@@ -21,6 +24,7 @@ import GHC.TypeLits
 newtype Array a = Array (ForeignPtr ())
 newtype Features = Features (ForeignPtr ())
 newtype RandomEngine = RandomEngine (ForeignPtr ())
+newtype Window = Window CULLong
 
 -- | Mapping of Haskell types to ArrayFire types
 class AFType a where
@@ -380,3 +384,58 @@ toInverseDeconvAlgo (AFInverseDeconvAlgo x) = toEnum x
 
 fromInverseDeconvAlgo :: InverseDeconvAlgo -> AFInverseDeconvAlgo
 fromInverseDeconvAlgo = AFInverseDeconvAlgo . fromEnum
+
+data Cell
+  = Cell
+  { cellRow :: Int
+  , cellCol :: Int
+  , cellTitle :: String
+  , cellColorMap :: ColorMap
+  } deriving (Show, Eq)
+
+cellToAFCell :: Cell -> IO AFCell
+cellToAFCell Cell {..} =
+  withCString cellTitle $ \cstr ->
+    pure AFCell { afCellRow = cellRow
+                , afCellCol = cellCol
+                , afCellTitle = cstr
+                , afCellColorMap = fromColorMap cellColorMap
+                }
+
+data ColorMap
+  = ColorMapDefault
+  | ColorMapSpectrum
+  | ColorMapColors
+  | ColorMapRed
+  | ColorMapMood
+  | ColorMapHeat
+  | ColorMapBlue
+  | ColorMapInferno
+  | ColorMapMagma
+  | ColorMapPlasma
+  | ColorMapViridis
+  deriving (Show, Eq, Ord, Enum)
+
+fromColorMap :: ColorMap -> AFColorMap
+fromColorMap = AFColorMap . fromEnum
+
+toColorMap :: AFColorMap -> ColorMap
+toColorMap (AFColorMap x) = toEnum x
+
+data MarkerType
+  = MarkerTypeNone
+  | MarkerTypePoint
+  | MarkerTypeCircle
+  | MarkerTypeSquare
+  | MarkerTypeTriangle
+  | MarkerTypeCross
+  | MarkerTypePlus
+  | MarkerTypeStar
+  deriving (Show, Eq, Ord, Enum)
+
+fromMarkerType :: MarkerType -> AFMarkerType
+fromMarkerType = AFMarkerType . fromEnum
+
+toMarkerType :: AFMarkerType -> MarkerType
+toMarkerType (AFMarkerType x) = toEnum x
+

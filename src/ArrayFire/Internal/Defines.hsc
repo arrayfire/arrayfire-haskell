@@ -79,7 +79,6 @@ afMaxDims = #const AF_MAX_DIMS
 type AFArray = Ptr ()
 type AFFeatures = Ptr ()
 type AFRandomEngine = Ptr ()
-type AFCell = Ptr ()
 
 -- // A handle for an internal array object
 type AFWindow = CULLong
