@@ -28,6 +28,7 @@ library
     ArrayFire.Features
     ArrayFire.Graphics
     ArrayFire.Image
+    ArrayFire.Index
     ArrayFire.LAPACK
     ArrayFire.Random
     ArrayFire.Signal

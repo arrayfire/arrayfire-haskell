@@ -467,3 +467,28 @@ fromHomographyType = AFHomographyType . fromEnum
 
 toHomographyType :: AFHomographyType -> HomographyType
 toHomographyType (AFHomographyType x) = toEnum x
+
+data Seq
+  = Seq
+  { seqBegin :: Double
+  , seqEnd :: Double
+  , seqStep :: Double
+  } deriving (Show, Eq, Ord)
+
+toAFSeq :: Seq -> AFSeq
+toAFSeq (Seq x y z) = (AFSeq x y z)
+
+data Index a
+  = Index
+  { afIdx :: Either (Array a) Seq
+  , afIsSeq :: Bool
+  , afIsBatch :: Bool
+  }
+
+toAFIndex :: Index a -> IO AFIndex
+toAFIndex (Index a b c) = do
+  case a of
+    Right s -> pure $ AFIndex (Right (toAFSeq s)) b c
+    Left (Array fptr) -> do
+      withForeignPtr fptr $ \ptr ->
+        pure $ AFIndex (Left ptr) b c
