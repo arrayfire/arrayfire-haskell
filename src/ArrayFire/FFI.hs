@@ -4,11 +4,8 @@ module ArrayFire.FFI where
 
 import ArrayFire.Exception
 import ArrayFire.Types
-
 import ArrayFire.Internal.Defines
-import ArrayFire.Internal.Array
 import ArrayFire.Internal.Features
-
 import Control.Exception
 import Control.Monad
 import Foreign.ForeignPtr
@@ -326,9 +323,8 @@ afSaveImage
   -> IO ()
 afSaveImage (Array fptr1) str op =
   withCString str $ \cstr ->
-    withForeignPtr fptr1 $ \ptr1 -> do
-      alloca $ \ptrInput -> do
-        throwAFError =<< op ptrInput ptr1
+    withForeignPtr fptr1 $
+      throwAFError <=< op cstr
 
 infoFromArray
   :: Storable a

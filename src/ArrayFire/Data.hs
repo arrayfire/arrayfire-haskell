@@ -13,30 +13,19 @@ module ArrayFire.Data where
 
 import Control.Exception
 import Control.Monad
-
 import Data.Complex
 import Data.Proxy
 import Data.Word
-
-import Foreign.C.String
-import Foreign.C.Types
-import Foreign.Marshal            hiding (void)
-import Foreign.Marshal.Array
 import Foreign.ForeignPtr
-import Foreign.Ptr
+import Foreign.Marshal         hiding (void)
 import Foreign.Storable
-
-import System.IO.Unsafe
-
 import GHC.Int
 import GHC.TypeLits
-
-import ArrayFire.Internal.Array
+import System.IO.Unsafe
 
 import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Types
-import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Data
 
 constant
@@ -96,7 +85,6 @@ constantLong val = do
       where
         n = fromIntegral (length dimt)
         dimt = toDims (Proxy @ dims)
-        typ = afType (Proxy @ Int64)
 
 constantULong
   :: forall dims
@@ -116,7 +104,6 @@ constantULong val = do
       where
         n = fromIntegral (length dimt)
         dimt = toDims (Proxy @ dims)
-        typ = afType (Proxy @ (Complex Double))
 
 range
   :: forall dims a
@@ -204,7 +191,7 @@ join
 join n arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
 joinMany
-  :: Int -- * dim
+  :: Int
   -> [Array a]
   -> Array a
 joinMany n arrays = unsafePerformIO . mask_ $ do
@@ -214,7 +201,7 @@ joinMany n arrays = unsafePerformIO . mask_ $ do
       forM_ fptrs $ \fptr ->
         withForeignPtr fptr (poke fPtrsPtr)
       alloca $ \aPtr -> do
-        af_join_many aPtr n nArrays fPtrsPtr
+        throwAFError =<< af_join_many aPtr n nArrays fPtrsPtr
         peek aPtr
   Array <$>
     newForeignPtr af_release_array_finalizer newPtr
@@ -223,7 +210,7 @@ joinMany n arrays = unsafePerformIO . mask_ $ do
 
 tile
   :: Array (a :: *)
-  -> Int -- * dim
+  -> Int
   -> Int
   -> Int
   -> Int
@@ -233,7 +220,7 @@ tile a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral
 
 reorder
   :: Array (a :: *)
-  -> Int -- * dim
+  -> Int
   -> Int
   -> Int
   -> Int
@@ -243,7 +230,7 @@ reorder a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromInteg
 
 shift
   :: Array (a :: *)
-  -> Int -- * dim
+  -> Int
   -> Int
   -> Int
   -> Int

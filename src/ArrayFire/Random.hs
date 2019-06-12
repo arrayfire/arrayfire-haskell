@@ -10,19 +10,19 @@
 module ArrayFire.Random where
 
 import Control.Exception
-import Control.Monad
 
-import Foreign.C.String
+
+
 import Foreign.C.Types
 import Foreign.Marshal            hiding (void)
-import Foreign.Marshal.Array
+
 import Foreign.ForeignPtr
 import Foreign.Ptr
 import Foreign.Storable
 
 import Data.Proxy
 
-import ArrayFire.Internal.Array
+
 
 import ArrayFire.Exception
 import ArrayFire.Types

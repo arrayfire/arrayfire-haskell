@@ -42,7 +42,6 @@ library
     ArrayFire.Internal.Array
     ArrayFire.Internal.Backend
     ArrayFire.Internal.BLAS
---  ArrayFire.Internal.CUDA
     ArrayFire.Internal.Data
     ArrayFire.Internal.Defines
     ArrayFire.Internal.Device
@@ -53,9 +52,7 @@ library
     ArrayFire.Internal.Index
     ArrayFire.Internal.Internal
     ArrayFire.Internal.LAPACK
---  ArrayFire.Internal.OpenCL
     ArrayFire.Internal.Random
---    ArrayFire.Internal.Seq
     ArrayFire.Internal.Signal
     ArrayFire.Internal.Sparse
     ArrayFire.Internal.Statistics
@@ -80,6 +77,8 @@ library
     base < 5, vector
   hs-source-dirs:
     src
+  ghc-options:
+    -Wall
   default-language:
     Haskell2010
 

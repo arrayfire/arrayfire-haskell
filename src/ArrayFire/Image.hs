@@ -4,18 +4,18 @@
 
 module ArrayFire.Image where
 
-import Control.Exception          hiding (TypeError)
-import Control.Monad
+
+
 import Data.Typeable
-import Foreign.C.String
-import Foreign.Marshal
-import Foreign.Ptr
-import Foreign.Storable
+
+
+
+
 
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Image
-import ArrayFire.Internal.Defines
+
 
 gradient :: Array a -> (Array a, Array a)
 gradient a = a `op2p` af_gradient
@@ -46,7 +46,7 @@ resize
   -> InterpType
   -> Array a
 resize a (fromIntegral -> d0) (fromIntegral -> d1) (fromInterpType -> interp) =
-  a `op1` (\ptr a -> af_resize ptr a d0 d1 interp)
+  a `op1` (\ptr x -> af_resize ptr x d0 d1 interp)
 
 transform
   :: Array a
@@ -56,8 +56,8 @@ transform
   -> InterpType
   -> Bool
   -> Array a
-transform inp transform (fromIntegral -> d0) (fromIntegral -> d1) (fromInterpType -> interp) inverse =
-  op2 inp transform (\ptr a1 a2 -> af_transform ptr a1 a2 d0 d1 interp inverse)
+transform inp trans (fromIntegral -> d0) (fromIntegral -> d1) (fromInterpType -> interp) inverse =
+  op2 inp trans (\ptr a1 a2 -> af_transform ptr a1 a2 d0 d1 interp inverse)
 
 transformCoordinates
   :: Array a
@@ -65,7 +65,7 @@ transformCoordinates
   -> Float
   -> Array a
 transformCoordinates a d0 d1 =
-  a `op1` (\ptr a -> af_transform_coordinates ptr a d0 d1)
+  a `op1` (\ptr x -> af_transform_coordinates ptr x d0 d1)
 
 rotate
   :: Array a
@@ -74,7 +74,7 @@ rotate
   -> InterpType
   -> Array a
 rotate a theta crop (fromInterpType -> interp) =
-  a `op1` (\ptr a -> af_rotate ptr a theta crop interp)
+  a `op1` (\ptr x -> af_rotate ptr x theta crop interp)
 
 translate
   :: Array a
@@ -85,7 +85,7 @@ translate
   -> InterpType
   -> Array a
 translate a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterpType -> interp) =
-  a `op1` (\ptr a -> af_translate ptr a trans0 trans1 odim0 odim1 interp)
+  a `op1` (\ptr x -> af_translate ptr x trans0 trans1 odim0 odim1 interp)
 
 scale
   :: Array a
@@ -96,7 +96,7 @@ scale
   -> InterpType
   -> Array a
 scale a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterpType -> interp) =
-  a `op1` (\ptr a -> af_scale ptr a trans0 trans1 odim0 odim1 interp)
+  a `op1` (\ptr x -> af_scale ptr x trans0 trans1 odim0 odim1 interp)
 
 skew
   :: Array a
@@ -108,7 +108,7 @@ skew
   -> Bool
   -> Array a
 skew a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterpType -> interp) b =
-  a `op1` (\ptr a -> af_skew ptr a trans0 trans1 odim0 odim1 interp b)
+  a `op1` (\ptr x -> af_skew ptr x trans0 trans1 odim0 odim1 interp b)
 
 histogram
   :: Array a
@@ -117,7 +117,7 @@ histogram
   -> Double
   -> Array a
 histogram a (fromIntegral -> b) c d =
-  a `op1` (\ptr a -> af_histogram ptr a b c d)
+  a `op1` (\ptr x -> af_histogram ptr x b c d)
 
 dilate
   :: Array a
@@ -283,20 +283,20 @@ ycbcr2rgb
   :: Array a
   -> YccStd
   -> Array a
-ycbcr2rgb a y = a `op1` (\p a -> af_ycbcr2rgb p a (fromAFYccStd y))
+ycbcr2rgb a y = a `op1` (\p k -> af_ycbcr2rgb p k (fromAFYccStd y))
 
 rgb2ycbcr
   :: Array a
   -> YccStd
   -> Array a
-rgb2ycbcr a y = a `op1` (\p a -> af_rgb2ycbcr p a (fromAFYccStd y))
+rgb2ycbcr a y = a `op1` (\p k -> af_rgb2ycbcr p k (fromAFYccStd y))
 
 moments
   :: Array a
   -> MomentType
   -> Array a
 moments in' m =
-  in' `op1` (\p a -> af_moments p a (fromMomentType m))
+  in' `op1` (\p k -> af_moments p k (fromMomentType m))
 
 momentsAll
   :: Array a
@@ -313,8 +313,8 @@ canny
   -> Int
   -> Bool
   -> Array a
-canny in' (fromCannyThreshold -> canny) low high (fromIntegral -> window) fast =
-  in' `op1` (\p a -> af_canny p a canny low high window fast)
+canny in' (fromCannyThreshold -> canny') low high (fromIntegral -> window) fast =
+  in' `op1` (\p a -> af_canny p a canny' low high window fast)
 
 anisotropicDiffusion
   :: Array a

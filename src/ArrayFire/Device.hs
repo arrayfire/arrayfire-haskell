@@ -1,11 +1,11 @@
 module ArrayFire.Device where
 
-import Foreign.Marshal
-import Foreign.Storable
+
+
 import Foreign.C.String
 
 import ArrayFire.Internal.Device
-import ArrayFire.Internal.Defines
+
 import ArrayFire.FFI
 
 info :: IO ()

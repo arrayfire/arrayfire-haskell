@@ -1,14 +1,14 @@
 module ArrayFire.Backend where
 
-import Foreign.Marshal
-import Foreign.Storable
-import Foreign.C.String
+
+
+
 
 import ArrayFire.Internal.Backend
-import ArrayFire.Exception
+
 import ArrayFire.FFI
 import ArrayFire.Types
-import ArrayFire.Internal.Defines
+
 
 setBackend :: Backend -> IO ()
 setBackend = afCall . af_set_backend . toAFBackend

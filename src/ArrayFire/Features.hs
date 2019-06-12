@@ -1,10 +1,10 @@
 {-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Features where
 
-import Control.Exception hiding (TypeError)
-import Data.Typeable
-import Control.Monad
-import Foreign.C.String
+
+
+
+
 import Foreign.Marshal
 import Foreign.Storable
 import Foreign.ForeignPtr
@@ -14,7 +14,7 @@ import ArrayFire.Internal.Features
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Exception
-import ArrayFire.Internal.Defines
+
 
 createFeatures
   :: Int

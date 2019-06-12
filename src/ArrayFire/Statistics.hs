@@ -1,14 +1,8 @@
 {-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Statistics where
 
-import Foreign.Marshal
-import Foreign.Storable
-import Foreign.C.String
-
 import ArrayFire.Internal.Statistics
 import ArrayFire.Internal.Defines
-
-import ArrayFire.Exception
 import ArrayFire.Types
 import ArrayFire.FFI
 
@@ -17,8 +11,8 @@ mean
   => Array a
   -> Int
   -> Array a
-mean x n =
-  x `op1` (\x y ->
+mean a n =
+  a `op1` (\x y ->
     af_mean x y (fromIntegral n))
 
 meanWeighted
@@ -56,8 +50,8 @@ stdev
   => Array a
   -> Int
   -> Array a
-stdev x n =
-  x `op1` (\x y ->
+stdev a n =
+  a `op1` (\x y ->
     af_stdev x y (fromIntegral n))
 
 cov
@@ -75,8 +69,8 @@ median
   => Array a
   -> Int
   -> Array a
-median x n =
-  x `op1` (\x y ->
+median a n =
+  a `op1` (\x y ->
     af_median x y (fromIntegral n))
 
 meanAll

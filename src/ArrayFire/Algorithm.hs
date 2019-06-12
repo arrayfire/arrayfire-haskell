@@ -1,15 +1,9 @@
 {-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Algorithm where
 
-import Foreign.Marshal
-import Foreign.Storable
-import Foreign.C.String
-
-import ArrayFire.Exception
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
-import ArrayFire.Internal.Defines
 
 sum
   :: AFType a
@@ -167,7 +161,7 @@ accum
   => Array a
   -> Int
   -> Array a
-accum x n = x `op1` (\x y -> af_accum x y n)
+accum a n = a `op1` (\x y -> af_accum x y n)
 
 scan
   :: AFType a
@@ -202,14 +196,14 @@ diff1
   => Array a
   -> Int
   -> Array a
-diff1 a n = a `op1` (\p a -> af_diff1 p a n)
+diff1 a n = a `op1` (\p x -> af_diff1 p x n)
 
 diff2
   :: AFType a
   => Array a
   -> Int
   -> Array a
-diff2 a n = a `op1` (\p a -> af_diff2 p a n)
+diff2 a n = a `op1` (\p x -> af_diff2 p x n)
 
 sort
   :: AFType a
@@ -218,7 +212,7 @@ sort
   -> Bool
   -> Array a
 sort a (fromIntegral -> n) b =
-  a `op1` (\p a -> af_sort p a n b)
+  a `op1` (\p x -> af_sort p x n b)
 
 sortIndex
   :: AFType a

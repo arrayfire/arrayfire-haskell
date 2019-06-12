@@ -1,15 +1,10 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
 module ArrayFire.Arith where
 
-import Foreign.Marshal
-import Foreign.Storable
-import Foreign.C.String
 import Data.Proxy
 import Data.Coerce
 
-import ArrayFire.Exception
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith

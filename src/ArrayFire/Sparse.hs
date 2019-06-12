@@ -4,7 +4,7 @@ module ArrayFire.Sparse where
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Sparse
-import ArrayFire.Internal.Defines
+
 
 createSparseArray
   :: AFType a
@@ -46,8 +46,8 @@ sparseGetInfo
   :: AFType a
   => Array a
   -> (Array a, Array a, Array a, Storage)
-sparseGetInfo a = do
-  let (a,b,c,d) = a `op3p1` af_sparse_get_info
+sparseGetInfo x = do
+  let (a,b,c,d) = x `op3p1` af_sparse_get_info
   (a,b,c,fromStorage d)
 
 sparseGetValues

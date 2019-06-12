@@ -3,21 +3,18 @@
 {-# LANGUAGE ViewPatterns        #-}
 module ArrayFire.Vision where
 
-import Control.Exception hiding (TypeError)
+import Control.Exception           hiding (TypeError)
 import Data.Typeable
-import Control.Monad
-import Foreign.C.String
+import Foreign.ForeignPtr
 import Foreign.Marshal
 import Foreign.Storable
-import Foreign.ForeignPtr
 import System.IO.Unsafe
 
-import ArrayFire.Internal.Features
-import ArrayFire.Types
-import ArrayFire.FFI
 import ArrayFire.Exception
-import ArrayFire.Internal.Defines
+import ArrayFire.FFI
+import ArrayFire.Internal.Features
 import ArrayFire.Internal.Vision
+import ArrayFire.Types
 
 fast
   :: Array a
@@ -61,12 +58,12 @@ orb
   -> (Features, Array a)
 orb (Array fptr) thr (fromIntegral -> feat) scl (fromIntegral -> levels) blur
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
-      do (feat, arr) <-
+      do (feature, arr) <-
            alloca $ \aptr -> do
              alloca $ \bptr -> do
                throwAFError =<< af_orb aptr bptr inptr thr feat scl levels blur
                (,) <$> peek aptr <*> peek bptr
-         feats <- Features <$> newForeignPtr af_release_features feat
+         feats <- Features <$> newForeignPtr af_release_features feature
          array <- Array <$> newForeignPtr af_release_array_finalizer arr
          pure (feats, array)
 

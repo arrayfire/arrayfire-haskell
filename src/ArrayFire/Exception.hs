@@ -5,10 +5,7 @@ import Control.Exception hiding (TypeError)
 import Data.Typeable
 import Control.Monad
 import Foreign.C.String
-import Foreign.Marshal
-import Foreign.Storable
 import Foreign.Ptr
-
 import ArrayFire.Internal.Exception
 import ArrayFire.Internal.Defines
 

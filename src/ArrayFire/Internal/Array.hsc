@@ -2,9 +2,6 @@
 module ArrayFire.Internal.Array where
 
 import ArrayFire.Internal.Defines
-import ArrayFire.Internal.Types
-import Data.Word
-import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 

@@ -3,7 +3,6 @@
 {-# LANGUAGE RecordWildCards #-}
 module ArrayFire.Internal.Defines where
 
-import Foreign.ForeignPtr
 import Foreign.Ptr
 import Foreign.C.Types
 import Foreign.Storable
@@ -18,6 +17,7 @@ import Foreign.Storable
 
 type Batch = Bool
 
+afVersion :: Integer
 afVersion = #const AF_API_VERSION
 
 newtype AFErr = AFErr { afError :: Int }
@@ -73,6 +73,7 @@ newtype AFSource = AFSource Int
  , afHost = afHost
  }
 
+afMaxDims :: Integer
 afMaxDims = #const AF_MAX_DIMS
 
 -- // A handle for an internal array object

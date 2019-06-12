@@ -11,7 +11,7 @@ import ArrayFire.Internal.Graphics
 import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Types
-import ArrayFire.Internal.Defines
+
 
 createWindow :: Int -> Int -> String -> IO Window
 createWindow x y str =
@@ -81,12 +81,12 @@ drawPlot3d :: Window -> Array a -> Array a -> Array a -> Cell -> IO ()
 drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
-     withForeignPtr fptr3 $ \ptr3 ->
-     withForeignPtr w $ \wptr ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
-        throwAFError =<< af_draw_plot_3d wptr ptr1 ptr2 ptr2 cellPtr
-        free cellPtr
+      withForeignPtr fptr3 $ \ptr3 ->
+        withForeignPtr w $ \wptr ->
+          alloca $ \cellPtr -> do
+            poke cellPtr =<< cellToAFCell cell
+            throwAFError =<< af_draw_plot_3d wptr ptr1 ptr2 ptr3 cellPtr
+            free cellPtr
 
 drawScatter :: Window -> Array a -> Array a -> MarkerType -> Cell -> IO ()
 drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =

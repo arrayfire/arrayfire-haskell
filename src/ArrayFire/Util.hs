@@ -4,7 +4,7 @@
 module ArrayFire.Util where
 
 import Control.Exception
-import Control.Monad
+
 import Data.Proxy
 import Foreign.C.String
 import Foreign.ForeignPtr
@@ -12,7 +12,7 @@ import Foreign.Marshal            hiding (void)
 import Foreign.Storable
 import System.IO.Unsafe
 
-import ArrayFire.Internal.Defines
+
 import ArrayFire.Internal.Util
 
 import ArrayFire.Exception
@@ -27,8 +27,7 @@ getVersion =
     alloca $ \y ->
       alloca $ \z -> do
         throwAFError =<< af_get_version x y z
-        x <- (,,) <$> peek x <*> peek y <*> peek z
-        pure x
+        (,,) <$> peek x <*> peek y <*> peek z
 
 printArray :: Array a -> IO ()
 printArray (Array fptr) =
@@ -91,15 +90,18 @@ readArrayKeyCheck a b =
     withCString b $ \bcstr ->
       afCall1 (\p -> af_read_array_key_check p acstr bcstr)
 
+arrayString :: Array a -> String
+arrayString a = arrayToString "ArrayFire Array" a 4 False
+
 arrayToString
   :: String
   -> Array a
   -> Int
   -> Bool
   -> String
-arrayToString exp (Array fptr) prec trans =
+arrayToString expr (Array fptr) prec trans =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
-    withCString exp $ \expCstr ->
+    withCString expr $ \expCstr ->
       alloca $ \ocstr -> do
         throwAFError =<< af_array_to_string ocstr expCstr aptr prec trans
         peekCString =<< peek ocstr

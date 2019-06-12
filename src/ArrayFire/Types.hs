@@ -11,7 +11,9 @@ module ArrayFire.Types where
 
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Types
-import Data.Kind
+
+import Foreign.Storable
+
 import Data.Complex
 import Data.Proxy
 import Data.Word
@@ -27,7 +29,7 @@ newtype RandomEngine = RandomEngine (ForeignPtr ())
 newtype Window = Window (ForeignPtr ())
 
 -- | Mapping of Haskell types to ArrayFire types
-class AFType a where
+class Storable a => AFType a where
   afType :: Proxy a -> AFDtype
 
 instance AFType Double where
@@ -111,6 +113,7 @@ toBackend (AFBackend 0) = Default
 toBackend (AFBackend 1) = CPU
 toBackend (AFBackend 2) = CUDA
 toBackend (AFBackend 4) = OpenCL
+toBackend (AFBackend x) = error $ "Invalid backend: " <> show x
 
 toAFBackend :: Backend -> AFBackend
 toAFBackend Default = (AFBackend 0)
@@ -119,7 +122,6 @@ toAFBackend CUDA = (AFBackend 2)
 toAFBackend OpenCL = (AFBackend 4)
 
 toBackends :: Int -> [Backend]
-toBackends 0 = []
 toBackends 1 = [CPU]
 toBackends 2 = [CUDA]
 toBackends 3 = [CPU,CUDA]
@@ -127,6 +129,7 @@ toBackends 4 = [OpenCL]
 toBackends 5 = [CPU,OpenCL]
 toBackends 6 = [CUDA,OpenCL]
 toBackends 7 = [CPU,CUDA,OpenCL]
+toBackends _ = []
 
 data MatProp
   = None
@@ -484,6 +487,12 @@ data Index a
   , afIsSeq :: Bool
   , afIsBatch :: Bool
   }
+
+seqIdx :: Seq -> Bool -> Index a
+seqIdx s = Index (Right s) True
+
+arrIdx :: Array a -> Bool -> Index a
+arrIdx a = Index (Left a) False
 
 toAFIndex :: Index a -> IO AFIndex
 toAFIndex (Index a b c) = do
