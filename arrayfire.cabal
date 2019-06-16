@@ -14,9 +14,8 @@ extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
 
 library
-  other-modules:
-    ArrayFire.FFI
   exposed-modules:
+    ArrayFire
     ArrayFire.Algorithm
     ArrayFire.Arith
     ArrayFire.Array
@@ -30,6 +29,7 @@ library
     ArrayFire.Image
     ArrayFire.Index
     ArrayFire.LAPACK
+    ArrayFire.Orphans
     ArrayFire.Random
     ArrayFire.Signal
     ArrayFire.Sparse
@@ -37,6 +37,8 @@ library
     ArrayFire.Types
     ArrayFire.Util
     ArrayFire.Vision
+  other-modules:
+    ArrayFire.FFI
     ArrayFire.Internal.Algorithm
     ArrayFire.Internal.Arith
     ArrayFire.Internal.Array

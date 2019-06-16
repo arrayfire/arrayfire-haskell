@@ -16,38 +16,39 @@ import Foreign.ForeignPtr
 import Foreign.Marshal            hiding (void)
 import Foreign.Ptr
 import Foreign.Storable
-import GHC.TypeLits
+
 import System.IO.Unsafe
 
 import ArrayFire.Exception
-import ArrayFire.FFI              hiding (createArray)
+import ArrayFire.FFI
 import ArrayFire.Internal.Array
 import ArrayFire.Internal.Defines
 import ArrayFire.Types
 
 scalar :: AFType a => a -> Array a
-scalar x = createArray @1 [x]
+scalar x = mkArray [1] [x]
 
-vector :: forall x a . (KnownNat x, AFType a) => [a] -> Array a
-vector = createArray @x
+vector :: forall a . AFType a => Int -> [a] -> Array a
+vector n = mkArray [n]
 
-matrix :: forall x y a . (KnownNat x, KnownNat y, AFType a) => [a] -> Array a
-matrix = createArray @'(x,y)
+matrix :: forall a . AFType a => (Int,Int) -> [a] -> Array a
+matrix (x,y) = mkArray [x,y]
 
-cube :: forall x y z a . (KnownNat x, KnownNat y, KnownNat z, AFType a) => [a] -> Array a
-cube = createArray @'(x,y,z)
+cube :: AFType a => (Int,Int,Int) -> [a] -> Array a
+cube (x,y,z) = mkArray [x,y,z]
 
-createArray
-  :: forall dims array
-   . (Dims dims,  AFType array)
-  => [array]
+mkArray
+  :: forall array
+   . AFType array
+  => [Int]
+  -> [array]
   -> Array array
-createArray xs =
+mkArray dims xs =
   unsafePerformIO . mask_ $ do
     dataPtr <- castPtr <$> newArray (Prelude.take size xs)
     let ndims = fromIntegral (Prelude.length dims)
     alloca $ \arrayPtr -> do
-      dimsPtr <- newArray dims
+      dimsPtr <- newArray (DimT . fromIntegral <$> dims)
       throwAFError =<< af_create_array arrayPtr dataPtr ndims dimsPtr dType
       free dataPtr >> free dimsPtr
       arr <- peek arrayPtr
@@ -55,7 +56,6 @@ createArray xs =
     where
       size  = Prelude.product (fromIntegral <$> dims)
       dType = afType (Proxy @ array)
-      dims  = toDims (Proxy @ dims)
 
 -- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
 copyArray
@@ -210,3 +210,10 @@ getDataPtr arr = do
   throwAFError =<< af_get_data_ptr (castPtr ptr) arr
   fptr <- newForeignPtr_ ptr
   pure $ unsafeFromForeignPtr0 fptr 4
+
+getScalarBool :: AFType a => Array a -> Bool
+getScalarBool (Array fptrA) = do
+  unsafePerformIO . withForeignPtr fptrA $ \ptr -> do
+    alloca $ \newPtr -> do
+      throwAFError =<< af_get_data_ptr newPtr ptr
+      peek (castPtr newPtr)

@@ -1,10 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Features where
 
-
-
-
-
 import Foreign.Marshal
 import Foreign.Storable
 import Foreign.ForeignPtr
@@ -14,7 +10,6 @@ import ArrayFire.Internal.Features
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Exception
-
 
 createFeatures
   :: Int

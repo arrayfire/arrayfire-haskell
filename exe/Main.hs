@@ -4,35 +4,21 @@
 {-# LANGUAGE DataKinds           #-}
 module Main where
 
-import Control.Concurrent
-import Control.Exception
-import Control.Monad
-import Data.Complex
-import Prelude                    hiding (sum, product)
-import Data.Proxy
-
-import GHC.ST
-
-import ArrayFire.Internal.Defines
-
-import ArrayFire.Util
-import ArrayFire.Types
-import ArrayFire.Exception
-import ArrayFire.Device
-import ArrayFire.Types
-import ArrayFire.Data
-import ArrayFire.Arith
-import ArrayFire.Algorithm
-import ArrayFire.Array
-import ArrayFire.LAPACK
-import ArrayFire.Backend
-import ArrayFire.Statistics
-import ArrayFire.Random
-import ArrayFire.Graphics
-import ArrayFire.BLAS
+import ArrayFire
+import Prelude   hiding (sum, product)
 
 main :: IO ()
-main = printArray $ matrix @2 @2 @Int [1..]
+main = do
+  let ks = cube @Int (3,3,3) (repeat 10)
+  let z = scalar @Int (-10)
+  putStrLn "hi"
+  print ks
+  putStrLn "there"
+  print (sum ks 1)
+  print (sum ks 2)
+
+  print z
+  print (sign z)
 
 --   info >> putStrLn "ok" >> afInit
 --   -- Info things

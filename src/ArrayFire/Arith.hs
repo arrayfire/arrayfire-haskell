@@ -8,13 +8,13 @@ import Data.Coerce
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
-import ArrayFire.Internal.Defines
+-- import ArrayFire.Internal.Defines
 
 add
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 add x y batch =
   x `op2` y $ \arr arr1 arr2 ->
@@ -24,7 +24,7 @@ sub
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 sub x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -34,7 +34,7 @@ mul
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 mul x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -44,7 +44,7 @@ div
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 div x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -54,7 +54,7 @@ lt
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 lt x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -64,7 +64,7 @@ gt
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 gt x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -74,7 +74,7 @@ le
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 le x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -84,7 +84,7 @@ ge
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 ge x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -94,7 +94,7 @@ eq
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 eq x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -104,7 +104,7 @@ neq
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 neq x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -114,7 +114,7 @@ and
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 and x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -124,7 +124,7 @@ or
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 or x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -140,7 +140,7 @@ bitAnd
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 bitAnd x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -150,7 +150,7 @@ bitOr
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 bitOr x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -160,7 +160,7 @@ bitXor
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 bitXor x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -170,7 +170,7 @@ bitShiftL
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 bitShiftL x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -180,7 +180,7 @@ bitShiftR
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 bitShiftR x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -199,7 +199,7 @@ minOf
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 minOf x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -209,7 +209,7 @@ maxOf
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 maxOf x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -219,7 +219,7 @@ clamp
   :: Array a
   -> Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 clamp a b c batch =
   op3 a b c $ \arr arr1 arr2 arr3 ->
@@ -229,7 +229,7 @@ rem
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 rem x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -239,7 +239,7 @@ mod
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 mod x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -327,7 +327,7 @@ atan2
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 atan2 x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -337,7 +337,7 @@ cplx2
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 cplx2 x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -389,7 +389,7 @@ root
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 root x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -399,7 +399,7 @@ pow
   :: AFType a
   => Array a
   -> Array a
-  -> Batch
+  -> Bool
   -> Array a
 pow x y batch = do
   x `op2` y $ \arr arr1 arr2 ->

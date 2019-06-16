@@ -5,10 +5,7 @@ import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Exception
 
-
-
 import Foreign
-
 
 import System.IO.Unsafe
 import Control.Exception

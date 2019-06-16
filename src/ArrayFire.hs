@@ -19,7 +19,6 @@ module ArrayFire
   , module ArrayFire.Types
   , module ArrayFire.Util
   , module ArrayFire.Vision
-  , module ArrayFire.FFI
   ) where
 
 import ArrayFire.Algorithm
@@ -42,15 +41,4 @@ import ArrayFire.Statistics
 import ArrayFire.Types
 import ArrayFire.Util
 import ArrayFire.Vision
-import ArrayFire.FFI hiding (createArray)
-
--- newtype Array a = Array (A.Array a)
-
--- instance A.AFType a => Num (Array a) where
---   Array x + Array y = add x y True
---   Array x * Array y = mul x y True
---   abs (Array x) = ArrayFire.Arith.abs a
---   signum (Array x) = ArrayFire.Arith.sign (Array x)
---   negate (Array x) = negate x
---   Array x - Array y = sub x y True
---   fromInteger n = error "ok"
+import ArrayFire.Orphans ()
