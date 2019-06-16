@@ -1,28 +1,37 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeOperators       #-}
+{-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE PolyKinds           #-}
+{-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE TypeApplications     #-}
-{-# LANGUAGE ViewPatterns         #-}
-{-# LANGUAGE KindSignatures       #-}
-module ArrayFire.Random where
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE ViewPatterns        #-}
+{-# LANGUAGE KindSignatures      #-}
+module ArrayFire.Random
+  ( createRandomEngine
+  , retainRandomEngine
+  , setRandomEngine
+  , getRandomEngine
+  , randomEngineSetSeed
+  , getDefaultRandomEngine
+  , setDefaultRandomEngineType
+  , randomEngineGetSeed
+  , setSeed
+  , getSeed
+  , randn
+  , randu
+  , randomUniform
+  , randomNormal
+  ) where
 
 import Control.Exception
-
-
-
+import Data.Proxy
 import Foreign.C.Types
-import Foreign.Marshal            hiding (void)
-
 import Foreign.ForeignPtr
+import Foreign.Marshal            hiding (void)
 import Foreign.Ptr
 import Foreign.Storable
-
-import Data.Proxy
-
-
 
 import ArrayFire.Exception
 import ArrayFire.Types
@@ -31,7 +40,7 @@ import ArrayFire.Internal.Random
 import ArrayFire.FFI
 
 createRandomEngine
-  :: IntL
+  :: Int
   -> RandomEngineType
   -> IO RandomEngine
 createRandomEngine (fromIntegral -> n) typ =
@@ -52,17 +61,17 @@ retainRandomEngine =
 foreign import ccall unsafe "af_random_engine_set_type_"
   af_random_engine_set_type_ :: AFRandomEngine -> AFRandomEngineType -> IO AFErr
 
-randomEngineSetType
+setRandomEngine
   :: RandomEngine
   -> RandomEngineType
   -> IO ()
-randomEngineSetType r t =
+setRandomEngine r t =
   r `inPlaceEng` (`af_random_engine_set_type_` (fromRandomEngine t))
 
-randomEngineGetType
+getRandomEngine
   :: RandomEngine
   -> IO RandomEngineType
-randomEngineGetType r =
+getRandomEngine r =
   toRandomEngine <$>
     r `infoFromRandomEngine` af_random_engine_get_type
 
@@ -71,7 +80,7 @@ foreign import ccall unsafe "af_random_engine_set_seed_"
 
 randomEngineSetSeed
   :: RandomEngine
-  -> IntL
+  -> Int
   -> IO ()
 randomEngineSetSeed r t =
   r `inPlaceEng` (`af_random_engine_set_seed_` (fromIntegral t))
@@ -95,7 +104,7 @@ setDefaultRandomEngineType n =
 
 randomEngineGetSeed
   :: RandomEngine
-  -> IO IntL
+  -> IO Int
 randomEngineGetSeed r =
   fromIntegral <$>
     r `infoFromRandomEngine` af_random_engine_get_seed

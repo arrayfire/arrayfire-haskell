@@ -37,6 +37,9 @@ matrix (x,y) = mkArray [x,y]
 cube :: AFType a => (Int,Int,Int) -> [a] -> Array a
 cube (x,y,z) = mkArray [x,y,z]
 
+tensor :: AFType a => (Int, Int,Int,Int) -> [a] -> Array a
+tensor (w,x,y,z) = mkArray [w,x,y,z]
+
 mkArray
   :: forall array
    . AFType array

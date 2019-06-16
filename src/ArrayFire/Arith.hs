@@ -8,7 +8,6 @@ import Data.Coerce
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
--- import ArrayFire.Internal.Defines
 
 add
   :: AFType a

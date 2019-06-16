@@ -279,6 +279,16 @@ afCall1 op =
     throwAFError =<< op ptrInput
     peek ptrInput
 
+afCall1'
+  :: Storable a
+  => (Ptr a -> IO AFErr)
+  -> a
+afCall1' op =
+  unsafePerformIO . mask_ $ do
+    alloca $ \ptrInput -> do
+      throwAFError =<< op ptrInput
+      peek ptrInput
+
 featuresToArray
   :: Features
   -> (Ptr AFArray -> AFFeatures -> IO AFErr)

@@ -1,25 +1,33 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE PolyKinds           #-}
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE FlexibleInstances   #-}
-{-# LANGUAGE TypeApplications    #-}
-{-# LANGUAGE ViewPatterns        #-}
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE RecordWildCards     #-}
-module ArrayFire.Types where
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE PolyKinds            #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE AllowAmbiguousTypes  #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE ViewPatterns         #-}
+{-# LANGUAGE KindSignatures       #-}
+{-# LANGUAGE RecordWildCards      #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE TypeFamilies         #-}
+module ArrayFire.Types
+  ( module ArrayFire.Types
+  , AFException (..)
+  , AFExceptionType (..)
+  ) where
 
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Types
-
-import Foreign.Storable
+import ArrayFire.Exception
 
 import Data.Complex
 import Data.Proxy
 import Data.Word
-import Foreign.C.Types
 import Foreign.C.String
+import Foreign.C.Types
 import Foreign.ForeignPtr
+import Foreign.Storable
 import GHC.Int
 import GHC.TypeLits
 

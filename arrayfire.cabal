@@ -23,13 +23,11 @@ library
     ArrayFire.BLAS
     ArrayFire.Data
     ArrayFire.Device
-    ArrayFire.Exception
     ArrayFire.Features
     ArrayFire.Graphics
     ArrayFire.Image
     ArrayFire.Index
     ArrayFire.LAPACK
-    ArrayFire.Orphans
     ArrayFire.Random
     ArrayFire.Signal
     ArrayFire.Sparse
@@ -39,6 +37,8 @@ library
     ArrayFire.Vision
   other-modules:
     ArrayFire.FFI
+    ArrayFire.Exception
+    ArrayFire.Orphans
     ArrayFire.Internal.Algorithm
     ArrayFire.Internal.Arith
     ArrayFire.Internal.Array
@@ -108,3 +108,30 @@ executable gen
     Parse
     Print
     Types
+
+test-suite test
+  type:
+    exitcode-stdio-1.0
+  main-is:
+    Main.hs
+  hs-source-dirs:
+    test
+  build-depends:
+    arrayfire,
+    base < 5,
+    hspec,
+    hspec-discover
+  default-language:
+    Haskell2010
+  other-modules:
+    Spec
+    ArrayFire.ArithSpec
+    ArrayFire.ArraySpec
+    ArrayFire.FeaturesSpec
+    ArrayFire.RandomSpec
+    ArrayFire.BackendSpec
+    ArrayFire.StatisticsSpec
+    ArrayFire.BLASSpec
+
+
+-- ag -l | entr sh -c 'cabal build test && dist/build/test/test

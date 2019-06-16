@@ -1,11 +1,6 @@
 module ArrayFire.LAPACK where
 
-
-
-
-
 import ArrayFire.Internal.LAPACK
-
 import ArrayFire.FFI
 import ArrayFire.Types
 import ArrayFire.Internal.Defines
@@ -123,5 +118,5 @@ norm
 norm arr a b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
 
-isLAPACKAvailable :: IO Bool
-isLAPACKAvailable = afCall1 af_is_lapack_available
+isLAPACKAvailable :: Bool
+isLAPACKAvailable = afCall1' af_is_lapack_available

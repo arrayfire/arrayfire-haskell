@@ -1,32 +1,31 @@
 module ArrayFire.BLAS where
 
-
-
-
-
-import ArrayFire.Internal.BLAS
+import Data.Complex
 
 import ArrayFire.FFI
+import ArrayFire.Internal.BLAS
 import ArrayFire.Types
-import ArrayFire.Internal.Defines
 
 matmul :: Array a -> Array a -> MatProp -> MatProp -> Array a
 matmul arr1 arr2 prop1 prop2 = do
   op2 arr1 arr2 (\p a b -> af_matmul p a b (toMatProp prop1) (toMatProp prop2))
 
-dot :: Array a -> Array a -> AFMatProp -> AFMatProp -> Array a
+dot :: Array a -> Array a -> MatProp -> MatProp -> Array a
 dot arr1 arr2 prop1 prop2 = do
-  op2 arr1 arr2 (\p a b -> af_dot p a b prop1 prop2)
+  op2 arr1 arr2 (\p a b -> af_dot p a b (toMatProp prop1) (toMatProp prop2))
 
+-- | Scalar dot product between two vectors
 dotAll
   :: Array a
   -> Array a
   -> MatProp
   -> MatProp
-  -> (Double, Double)
-dotAll arr1 arr2 prop1 prop2 =
-  infoFromArray22 arr1 arr2 $ \a b c d ->
-    af_dot_all a b c d (toMatProp prop1) (toMatProp prop2)
+  -> Complex Double
+dotAll arr1 arr2 prop1 prop2 = do
+  let (real,imag) =
+        infoFromArray22 arr1 arr2 $ \a b c d ->
+          af_dot_all a b c d (toMatProp prop1) (toMatProp prop2)
+  real :+ imag
 
 transpose :: Array a -> Bool -> Array a
 transpose arr1 b =

@@ -6,7 +6,6 @@ module ArrayFire
   , module ArrayFire.BLAS
   , module ArrayFire.Data
   , module ArrayFire.Device
-  , module ArrayFire.Exception
   , module ArrayFire.Features
   , module ArrayFire.Graphics
   , module ArrayFire.Image
@@ -28,7 +27,6 @@ import ArrayFire.Backend
 import ArrayFire.BLAS
 import ArrayFire.Data
 import ArrayFire.Device
-import ArrayFire.Exception
 import ArrayFire.Features
 import ArrayFire.Graphics
 import ArrayFire.Image

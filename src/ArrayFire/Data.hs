@@ -151,8 +151,8 @@ iota = do
 identity
   :: forall dims a
    . (Dims dims, AFType a)
-  => IO (Array a)
-identity = do
+  => Array a
+identity = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     dimArray <- newArray dimt
     throwAFError =<< af_identity ptrPtr n dimArray typ

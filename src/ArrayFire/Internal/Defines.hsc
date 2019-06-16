@@ -7,15 +7,10 @@ import Foreign.Ptr
 import Foreign.C.Types
 import Foreign.Storable
 
--- #include "arrayfire.h"
 #include "af/defines.h"
 #include "af/seq.h"
 #include "af/index.h"
 #include "af/complex.h"
--- #include "af/opencl.h"
--- #include "defines.h"
-
-type Batch = Bool
 
 afVersion :: Integer
 afVersion = #const AF_API_VERSION

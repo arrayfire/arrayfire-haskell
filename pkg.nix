@@ -1,4 +1,5 @@
 { mkDerivation, base, directory, parsec, stdenv, text, vector
+, hspec, hspec-discover
 }:
 mkDerivation {
   pname = "arrayfire";
@@ -8,6 +9,7 @@ mkDerivation {
   isExecutable = true;
   libraryHaskellDepends = [ base vector ];
   executableHaskellDepends = [ base directory parsec text ];
+  testHaskellDepends = [ hspec hspec-discover ];
   homepage = "https://github.com/arrayfire/arrayfire-haskell";
   description = "Haskell bindings to ArrayFire";
   license = stdenv.lib.licenses.bsd3;

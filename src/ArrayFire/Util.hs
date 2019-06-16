@@ -12,7 +12,6 @@ import Foreign.Marshal            hiding (void)
 import Foreign.Storable
 import System.IO.Unsafe
 
-
 import ArrayFire.Internal.Util
 
 import ArrayFire.Exception

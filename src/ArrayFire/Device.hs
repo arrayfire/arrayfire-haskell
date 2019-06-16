@@ -1,11 +1,7 @@
 module ArrayFire.Device where
 
-
-
 import Foreign.C.String
-
 import ArrayFire.Internal.Device
-
 import ArrayFire.FFI
 
 info :: IO ()
@@ -24,8 +20,8 @@ getDeviceCount = afCall1 af_get_device_count
 
 -- af_err af_get_dbl_support(bool* available, const int device);
 
-getSetDevice :: Int -> IO ()
-getSetDevice = afCall . af_set_device
+setDevice :: Int -> IO ()
+setDevice = afCall . af_set_device
 
 getDevice :: IO Int
 getDevice = afCall1 af_get_device
