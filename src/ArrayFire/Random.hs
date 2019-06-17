@@ -116,71 +116,69 @@ getSeed :: IO Int
 getSeed = fromIntegral <$> afCall1 af_get_seed
 
 randEng
-  :: forall dims a
-   . (Dims dims, AFType a)
-   => (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> AFRandomEngine -> IO AFErr)
-   -> RandomEngine
-   -> IO (Array a)
-randEng f (RandomEngine fptr) = mask_ $
+  :: forall a . AFType a
+  => [Int]
+  -> (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> AFRandomEngine -> IO AFErr)
+  -> RandomEngine
+  -> IO (Array a)
+randEng dims f (RandomEngine fptr) = mask_ $
   withForeignPtr fptr $ \rptr -> do
     ptr <- alloca $ \ptrPtr -> do
-      dimArray <- newArray dimt
-      throwAFError =<< f ptrPtr n dimArray typ rptr
-      free dimArray
-      peek ptrPtr
+      withArray (fromIntegral <$> dims) $ \dimArray -> do
+        throwAFError =<< f ptrPtr n dimArray typ rptr
+        peek ptrPtr
     Array <$>
       newForeignPtr
         af_release_array_finalizer
           ptr
   where
-    n = fromIntegral (length dimt)
-    dimt :: [DimT] = toDims (Proxy @ dims)
+    n = fromIntegral (length dims)
     typ = afType (Proxy @ a)
 
 rand
-  :: forall dims a
-   . (Dims dims, AFType a)
-   => (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr)
-   -> IO (Array a)
-rand f = mask_ $ do
+  :: forall a . AFType a
+  => [Int]
+  -> (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr)
+  -> IO (Array a)
+rand dims f = mask_ $ do
   ptr <- alloca $ \ptrPtr -> do
-    dimArray <- newArray dimt
-    throwAFError =<< f ptrPtr n dimArray typ
-    free dimArray
-    peek ptrPtr
+    withArray (fromIntegral <$> dims) $ \dimArray -> do
+      throwAFError =<< f ptrPtr n dimArray typ
+      peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt :: [DimT] = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
 randn
-  :: forall dims a
-   . (Dims dims, AFType a)
-  => IO (Array a)
-randn = rand @dims @a af_randn
+  :: forall a
+   . AFType a
+  => [Int]
+  -> IO (Array a)
+randn dims = rand @a dims af_randn
 
 randu
-  :: forall dims a
-   . (Dims dims, AFType a)
-  => IO (Array a)
-randu = rand @dims @a af_randu
+  :: forall a . AFType a
+  => [Int]
+  -> IO (Array a)
+randu dims = rand @a dims af_randu
 
 randomUniform
-  :: forall dims a
-   . (Dims dims, AFType a)
-  => RandomEngine
+  :: forall a . AFType a
+  => [Int]
+  -> RandomEngine
   -> IO (Array a)
-randomUniform eng =
-  randEng @dims @a af_random_uniform eng
+randomUniform dims eng =
+  randEng @a dims af_random_uniform eng
 
 randomNormal
-  :: forall dims a
-   . (Dims dims, AFType a)
-  => RandomEngine
+  :: forall a
+   . AFType a
+  => [Int]
+  -> RandomEngine
   -> IO (Array a)
-randomNormal eng =
-  randEng @dims @a af_random_normal eng
+randomNormal dims eng =
+  randEng @a dims af_random_normal eng

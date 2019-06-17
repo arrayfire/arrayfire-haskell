@@ -4,7 +4,6 @@ module ArrayFire.ArraySpec where
 
 import Control.Exception
 import Data.Complex
-import Data.Vector.Storable
 import Data.Word
 import Foreign.C.Types
 import GHC.Int
@@ -48,10 +47,10 @@ spec =
     it "Should return the number of elements" $ do
       let arr = mkArray @Int [9,9,1,1] []
       getElements arr `shouldBe` 81
---    it "Should give an empty array" $ do
---      let arr = mkArray @Int [0,1,1,1] []
---      getElements arr `shouldBe` 0 -- uhhh this is wrong
---      isEmpty arr `shouldBe` True -- this is wrong too ...
+--  it "Should give an empty array" $ do
+--    let arr = mkArray @Int [0,1,1,1] []
+--    getElements arr `shouldBe` 0 -- uhhh this is wrong
+--    isEmpty arr `shouldBe` True -- this is wrong too ...
     it "Should create a scalar array" $ do
       let arr = mkArray @Int [1] [1]
       isScalar arr `shouldBe` True
@@ -118,34 +117,40 @@ spec =
 
     it "Should convert an array to a list" $ do
       let arr = mkArray @Double [30,30] (repeat 1)
-      toList (toVector arr) `shouldBe` (Prelude.replicate (30 * 30) 1)
+      toList arr `shouldBe` Prelude.replicate (30 * 30) 1
+
+      let arr = mkArray @Float [10,10] (repeat (5.5))
+      toList arr `shouldBe` Prelude.replicate 100 5.5
 
       let arr = mkArray @CBool [4] [1,1,0,1]
-      toList (toVector arr) `shouldBe` [1,1,0,1]
-
-      let arr = mkArray @Int [100] [1..100]
-      toList (toVector arr) `shouldBe` [1..100]
-
-      let arr = mkArray @Int32 [100] [1..100]
-      toList (toVector arr) `shouldBe` [1..100]
-
-      let arr = mkArray @Int64 [100] [1..100]
-      toList (toVector arr) `shouldBe` [1..100]
-
-      let arr = mkArray @(Complex Float) [1] [1 :+ 1]
-      toList (toVector arr) `shouldBe` [1 :+ 1]
-
-      let arr = mkArray @(Complex Double) [1] [1 :+ 1]
-      toList (toVector arr) `shouldBe` [1 :+ 1]
+      toList arr `shouldBe` [1,1,0,1]
 
       let arr = mkArray @Int16 [10] [1..]
-      toList (toVector arr) `shouldBe` [1..10]
+      toList arr `shouldBe` [1..10]
+
+      let arr = mkArray @Int32 [100] [1..100]
+      toList arr `shouldBe` [1..100]
+
+      let arr = mkArray @Int64 [100] [1..100]
+      toList arr `shouldBe` [1..100]
+
+      let arr = mkArray @Int [100] [1..100]
+      toList arr `shouldBe` [1..100]
+
+      let arr = mkArray @(Complex Float) [1] [1 :+ 1]
+      toList arr `shouldBe` [1 :+ 1]
+
+      let arr = mkArray @(Complex Double) [1] [1 :+ 1]
+      toList arr `shouldBe` [1 :+ 1]
 
       let arr = mkArray @Word16 [10] [1..10]
-      toList (toVector arr) `shouldBe` [1..10]
+      toList arr `shouldBe` [1..10]
 
       let arr = mkArray @Word32 [10] [1..10]
-      toList (toVector arr) `shouldBe` [1..10]
+      toList arr `shouldBe` [1..10]
 
       let arr = mkArray @Word64 [10] [1..10]
-      toList (toVector arr) `shouldBe` [1..10]
+      toList arr `shouldBe` [1..10]
+
+      let arr = mkArray @Word [10] [1..10]
+      toList arr `shouldBe` [1..10]

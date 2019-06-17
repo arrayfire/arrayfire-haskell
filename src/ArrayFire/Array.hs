@@ -9,22 +9,23 @@
 {-# LANGUAGE KindSignatures      #-}
 module ArrayFire.Array where
 
-import Control.Exception
-import Data.Proxy
-import Data.Vector.Storable       hiding (mapM_)
-import Foreign.ForeignPtr
-import Foreign.Marshal            hiding (void)
-import Foreign.Ptr
-import Foreign.Storable
+import           Control.Exception
+import           Data.Proxy
+import           Data.Vector.Storable       hiding (mapM_)
+import qualified Data.Vector.Storable       as V
+import           Foreign.ForeignPtr
+import           Foreign.Marshal            hiding (void)
+import           Foreign.Ptr
+import           Foreign.Storable
 
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
-import ArrayFire.Exception
-import ArrayFire.FFI
-import ArrayFire.Util
-import ArrayFire.Internal.Array
-import ArrayFire.Internal.Defines
-import ArrayFire.Types
+import           ArrayFire.Exception
+import           ArrayFire.FFI
+import           ArrayFire.Util
+import           ArrayFire.Internal.Array
+import           ArrayFire.Internal.Defines
+import           ArrayFire.Types
 
 scalar :: AFType a => a -> Array a
 scalar x = mkArray [1] [x]
@@ -217,3 +218,6 @@ toVector arr@(Array fptr) = do
     throwAFError =<< af_get_data_ptr (castPtr ptr) arrPtr
     newFptr <- newForeignPtr finalizerFree ptr
     pure $ unsafeFromForeignPtr0 newFptr len
+
+toList :: forall a . AFType a => Array a -> [a]
+toList = V.toList . toVector

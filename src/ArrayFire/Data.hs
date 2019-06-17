@@ -20,7 +20,6 @@ import Foreign.ForeignPtr
 import Foreign.Marshal         hiding (void)
 import Foreign.Storable
 import GHC.Int
-import GHC.TypeLits
 import System.IO.Unsafe
 
 import ArrayFire.Exception
@@ -28,143 +27,119 @@ import ArrayFire.FFI
 import ArrayFire.Types
 import ArrayFire.Internal.Data
 
-constant
-  :: forall dims
-   . (Dims dims)
-  => Double -> IO (Array Double)
-constant val = do
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    throwAFError =<< af_constant ptrPtr val n dimArray typ
-    free dimArray
-    peek ptrPtr
-  Array <$>
-    newForeignPtr
-      af_release_array_finalizer
-        ptr
+constant :: [Int] -> Double -> Array Double
+constant dims val =
+  unsafePerformIO . mask_ $ do
+    ptr <- alloca $ \ptrPtr ->
+      withArray (fromIntegral <$> dims) $ \dimArray -> do
+        throwAFError =<< af_constant ptrPtr val n dimArray typ
+        peek ptrPtr
+    Array <$>
+      newForeignPtr
+        af_release_array_finalizer
+          ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
         typ = afType (Proxy @ Double)
 
 constantComplex
-  :: forall dims
-   . (Dims dims)
-  => Complex Double
-  -> IO (Array (Complex Double))
-constantComplex val = do
+  :: [Int]
+  -> Complex Double
+  -> Array (Complex Double)
+constantComplex dims val = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    throwAFError =<< af_constant_complex ptrPtr (realPart val) (imagPart val) n dimArray typ
-    free dimArray
-    peek ptrPtr
+    withArray (fromIntegral <$> dims) $ \dimArray -> do
+      throwAFError =<< af_constant_complex ptrPtr (realPart val) (imagPart val) n dimArray typ
+      peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
         typ = afType (Proxy @ (Complex Double))
 
 constantLong
-  :: forall dims
-   . (Dims dims)
-  => Int64
-  -> IO (Array Int64)
-constantLong val = do
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    throwAFError =<< af_constant_long ptrPtr (fromIntegral val) n dimArray
-    free dimArray
-    peek ptrPtr
+  :: [Int]
+  -> Int64
+  -> Array Int64
+constantLong dims val = unsafePerformIO . mask_ $ do
+  ptr <- alloca $ \ptrPtr ->
+    withArray (fromIntegral <$> dims) $ \dimArray -> do
+      throwAFError =<< af_constant_long ptrPtr (fromIntegral val) n dimArray
+      peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
 
 constantULong
-  :: forall dims
-   . (Dims dims)
-  => Word64
-  -> IO (Array Word64)
-constantULong val = do
+  :: [Int]
+  -> Word64
+  -> Array Word64
+constantULong dims val = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    throwAFError =<< af_constant_ulong ptrPtr (fromIntegral val) n dimArray
-    free dimArray
-    peek ptrPtr
+    withArray (fromIntegral <$> dims) $ \dimArray -> do
+      throwAFError =<< af_constant_ulong ptrPtr (fromIntegral val) n dimArray
+      peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
 
 range
-  :: forall dims a
-   . (Dims dims, AFType a)
-  => Int
+  :: forall a
+   . AFType a
+  => [Int]
+  -> Int
   -> IO (Array a)
-range k = do
+range dims k = do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    throwAFError =<< af_range ptrPtr n dimArray k typ
-    free dimArray
-
-    peek ptrPtr
+    withArray (fromIntegral <$> dims) $ \dimArray -> do
+      throwAFError =<< af_range ptrPtr n dimArray k typ
+      peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
 iota
-  :: forall dims tdims a
-   . (Dims dims, Dims tdims, AFType a, KnownNat tdims)
-  => IO (Array a)
-iota = do
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    tdimArray <- newArray tdimt
-    throwAFError =<< af_iota ptrPtr n dimArray tn tdimArray typ
-    free dimArray
-    peek ptrPtr
+  :: forall a . AFType a
+  => [Int] -> [Int] -> IO (Array a)
+iota dims tdims = do
+  ptr <- alloca $ \ptrPtr -> mask_ $
+    withArray (fromIntegral <$> dims) $ \dimArray ->
+      withArray (fromIntegral <$> tdims) $ \tdimArray -> do
+        throwAFError =<< af_iota ptrPtr n dimArray tn tdimArray typ
+        peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
-        tn = fromIntegral (length dimt)
-        tdimt = toDims (Proxy @ tdims)
+        n = fromIntegral (length dims)
+        tn = fromIntegral (length tdims)
         typ = afType (Proxy @ a)
 
-identity
-  :: forall dims a
-   . (Dims dims, AFType a)
-  => Array a
-identity = unsafePerformIO . mask_ $ do
+identity :: forall a . AFType a => [Int] -> Array a
+identity dims = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
-    dimArray <- newArray dimt
-    throwAFError =<< af_identity ptrPtr n dimArray typ
-    free dimArray
-    peek ptrPtr
+    withArray (fromIntegral <$> dims) $ \dimArray -> do
+      throwAFError =<< af_identity ptrPtr n dimArray typ
+      peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dimt)
-        dimt = toDims (Proxy @ dims)
+        n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
 diagCreate
@@ -239,20 +214,18 @@ shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegra
   a `op1` (\p k -> af_shift p k x y z w)
 
 moddims
-  :: forall a dims
-   . Dims dims
-  => Array (a :: *)
+  :: forall a
+   . [Int]
+  -> Array (a :: *)
   -> Array a
-moddims (Array fptr) =
+moddims dims (Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
     newPtr <- alloca $ \aPtr -> do
-      dimsPtr <- newArray dims
-      throwAFError =<< af_moddims aPtr ptr n dimsPtr
-      free dimsPtr
-      peek aPtr
+      withArray (fromIntegral <$> dims) $ \dimsPtr -> do
+        throwAFError =<< af_moddims aPtr ptr n dimsPtr
+        peek aPtr
     Array <$> newForeignPtr af_release_array_finalizer newPtr
   where
-    dims = toDims (Proxy @ dims)
     n = fromIntegral (length dims)
 
 flat
