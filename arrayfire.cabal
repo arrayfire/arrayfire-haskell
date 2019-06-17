@@ -120,7 +120,8 @@ test-suite test
     arrayfire,
     base < 5,
     hspec,
-    hspec-discover
+    hspec-discover,
+    vector
   default-language:
     Haskell2010
   other-modules:

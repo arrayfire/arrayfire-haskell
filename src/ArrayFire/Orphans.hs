@@ -7,15 +7,20 @@ module ArrayFire.Orphans where
 
 import           Prelude
 
-import qualified ArrayFire.Arith as A
-import qualified ArrayFire.Array as A
-import qualified ArrayFire.BLAS  as A
+import qualified ArrayFire.Arith    as A
+import qualified ArrayFire.Array    as A
+import qualified ArrayFire.BLAS     as A
 import           ArrayFire.Types
 import           ArrayFire.Util
+import           ArrayFire.Internal.Array
+import           ArrayFire.Exception
+
+import           Foreign
+import           System.IO.Unsafe
 
 instance (AFType a, Eq a) => Eq (Array a) where
-  x == y = A.getScalarBool (A.eq x y False)
-  x /= y = A.getScalarBool (A.neq x y False)
+  x == y = getScalarBool (A.eq x y False)
+  x /= y = getScalarBool (A.neq x y False)
 
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y False
@@ -27,10 +32,10 @@ instance (Num a, AFType a) => Num (Array a) where
   fromInteger = A.scalar . fromIntegral
 
 instance (Ord a, AFType a) => Ord (Array a) where
-  x < y  = A.getScalarBool (A.lt x y False)
-  x > y  = A.getScalarBool (A.gt x y False)
-  x <= y = A.getScalarBool (A.le x y False)
-  x >= y = A.getScalarBool (A.ge x y False)
+  x < y  = getScalarBool (A.lt x y False)
+  x > y  = getScalarBool (A.gt x y False)
+  x <= y = getScalarBool (A.le x y False)
+  x >= y = getScalarBool (A.ge x y False)
 
 instance AFType a => Semigroup (Array a) where
   x <> y = A.matmul x y None None
@@ -41,6 +46,13 @@ instance Show (Array a) where
 instance forall a . (Fractional a, AFType a) => Fractional (Array a) where
   x / y  = A.div x y False
   fromRational n = A.scalar @a (fromRational n)
+
+getScalarBool :: AFType a => Array a -> Bool
+getScalarBool (Array fptrA) = do
+  unsafePerformIO . withForeignPtr fptrA $ \ptr -> do
+    alloca $ \newPtr -> do
+      throwAFError =<< af_get_data_ptr newPtr ptr
+      peek (castPtr newPtr)
 
 -- instance Bits (Array Bool) where
 --   x .&. y = A.bitAnd x y False

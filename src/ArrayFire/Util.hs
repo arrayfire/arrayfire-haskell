@@ -107,8 +107,8 @@ arrayToString expr (Array fptr) prec trans =
 
 -- af_err af_example_function(af_array* out, const af_array in, const af_someenum_t param);
 
-getSizeOf :: forall a . AFType a => Proxy a -> IO Int
+getSizeOf :: forall a . AFType a => Proxy a -> Int
 getSizeOf proxy =
-  mask_ . alloca $ \csize -> do
+  unsafePerformIO . mask_ . alloca $ \csize -> do
     throwAFError =<< af_get_size_of csize (afType proxy)
     fromIntegral <$> peek csize

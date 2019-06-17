@@ -49,7 +49,10 @@ instance AFType Float where
 instance AFType (Complex Double) where
   afType Proxy = c64
 
-instance AFType Bool where
+instance AFType (Complex Float) where
+  afType Proxy = c32
+
+instance AFType Bool where  -- TODO: FIX ME
   afType Proxy = b8
 
 instance AFType CBool where
