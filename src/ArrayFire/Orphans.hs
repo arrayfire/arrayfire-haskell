@@ -19,8 +19,8 @@ import           Foreign
 import           System.IO.Unsafe
 
 instance (AFType a, Eq a) => Eq (Array a) where
-  x == y = getScalarBool (A.eq x y False)
-  x /= y = getScalarBool (A.neq x y False)
+  x == y = getScalarBool $! A.eq x y False
+  x /= y = getScalarBool $! A.neq x y False
 
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y False
@@ -49,6 +49,20 @@ instance forall a . (Fractional a, AFType a) => Fractional (Array a) where
 
 getScalarBool :: AFType a => Array a -> Bool
 getScalarBool (Array fptrA) = do
+  unsafePerformIO . withForeignPtr fptrA $ \ptr -> do
+    alloca $ \newPtr -> do
+      throwAFError =<< af_get_data_ptr newPtr ptr
+      peek (castPtr newPtr)
+
+getSingleValue :: AFType a => Array a -> a
+getSingleValue (Array fptrA) = do
+  unsafePerformIO . withForeignPtr fptrA $ \ptr -> do
+    alloca $ \newPtr -> do
+      throwAFError =<< af_get_data_ptr newPtr ptr
+      peek (castPtr newPtr)
+
+getSingleInt :: AFType a => Array a -> Int
+getSingleInt (Array fptrA) = do
   unsafePerformIO . withForeignPtr fptrA $ \ptr -> do
     alloca $ \newPtr -> do
       throwAFError =<< af_get_data_ptr newPtr ptr

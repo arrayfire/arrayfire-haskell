@@ -51,10 +51,6 @@ instance AFType (Complex Double) where
 instance AFType (Complex Float) where
   afType Proxy = c32
 
-  -- TODO: FIX ME, Bool's storable uses Int size, use CBool for now.
-instance AFType Bool where
-  afType Proxy = b8
-
 instance AFType CBool where
   afType Proxy = b8
 
@@ -457,9 +453,9 @@ toHomographyType (AFHomographyType x) = toEnum x
 
 data Seq
   = Seq
-  { seqBegin :: Double
-  , seqEnd :: Double
-  , seqStep :: Double
+  { seqBegin :: !Double
+  , seqEnd :: !Double
+  , seqStep :: !Double
   } deriving (Show, Eq, Ord)
 
 toAFSeq :: Seq -> AFSeq
@@ -468,8 +464,8 @@ toAFSeq (Seq x y z) = (AFSeq x y z)
 data Index a
   = Index
   { afIdx :: Either (Array a) Seq
-  , afIsSeq :: Bool
-  , afIsBatch :: Bool
+  , afIsSeq :: !Bool
+  , afIsBatch :: !Bool
   }
 
 seqIdx :: Seq -> Bool -> Index a

@@ -12,15 +12,14 @@ import Control.Exception
 
 index :: Array a -> Int -> [Seq] -> Array a
 index (Array fptr) n seqs =
-  unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr ->
-    alloca $ \aptr -> do
+  unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
+    k <- alloca $ \aptr -> do
       sptr <- newArray (toAFSeq <$> seqs)
       throwAFError =<< af_index aptr ptr (fromIntegral n) sptr
       free sptr
-      Array <$> do
-        newForeignPtr
-          af_release_array_finalizer
-            =<< peek aptr
+      peek aptr
+    Array <$>
+      newForeignPtr af_release_array_finalizer k
 
 lookup :: Array a -> Array a -> Int -> Array a
 lookup a b n = op2 a b $ \p x y -> af_lookup p x y (fromIntegral n)

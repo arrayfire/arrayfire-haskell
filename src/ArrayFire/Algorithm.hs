@@ -3,72 +3,95 @@ module ArrayFire.Algorithm where
 
 import ArrayFire.Types
 import ArrayFire.FFI
+import ArrayFire.Orphans
 import ArrayFire.Internal.Algorithm
 
 sum
   :: AFType a
   => Array a
+  -- ^ Array to sum
   -> Int
-  -> Array a
-sum x n = x `op1` (\p a -> af_sum p a n)
+  -- ^ Dimension along which to perform sum
+  -> a
+sum x n = getSingleValue (x `op1` (\p a -> af_sum p a n))
 
 sumNaN
-  :: AFType a
+  :: (Fractional a, AFType a)
   => Array a
+  -- ^ Array to sum
   -> Int
+  -- ^ Dimension along which to perform sum
   -> Double
-  -> Array a
-sumNaN n i d = n `op1` (\p a -> af_sum_nan p a i d)
+  -- ^ Default value to use in the case of NaN
+  -> a
+sumNaN n i d = getSingleValue (n `op1` (\p a -> af_sum_nan p a i d))
 
 product
   :: AFType a
   => Array a
+  -- ^ Array to product
   -> Int
-  -> Array a
-product x n = x `op1` (\p a -> af_product p a n)
+  -- ^ Dimension along which to perform product
+  -> a
+product x n = getSingleValue (x `op1` (\p a -> af_product p a n))
 
 productNaN
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
+  -- ^ Array to product
   -> Int
+  -- ^ Dimension along which to perform product
   -> Double
-  -> Array a
-productNaN n i d = n `op1` (\p a -> af_product_nan p a i d)
+  -- ^ Default value to use in the case of NaN
+  -> a
+  -- ^ Scalar value containing product
+productNaN n i d = getSingleValue (n `op1` (\p a -> af_product_nan p a i d))
 
 min
   :: AFType a
   => Array a
+  -- ^ Array input
   -> Int
-  -> Array a
-min x n = x `op1` (\p a -> af_min p a n)
+  -- ^ Dimension along which to retrieve the min element
+  -> a
+min x n = getSingleValue (x `op1` (\p a -> af_min p a n))
 
 max
   :: AFType a
   => Array a
+  -- ^ Array input
   -> Int
-  -> Array a
-max x n = x `op1` (\p a -> af_max p a n)
+  -- ^ Dimension along which to retrieve the max element
+  -> a
+max x n = getSingleValue (x `op1` (\p a -> af_max p a n))
 
 allTrue
   :: AFType a
   => Array a
+  -- ^ Array input
   -> Int
-  -> Array a
-allTrue x n = x `op1` (\p a -> af_all_true p a n)
+  -- ^ Dimension along which to see if all elements are True
+  -> Bool
+allTrue x n = getScalarBool (x `op1` (\p a -> af_all_true p a n))
 
 anyTrue
   :: AFType a
   => Array a
+  -- ^ Array input
   -> Int
-  -> Array a
-anyTrue x n = x `op1` (\p a -> af_any_true p a n)
+  -- ^ Dimension along which to see if all elements are True
+  -> Bool
+anyTrue x n = getScalarBool (x `op1` (\p a -> af_any_true p a n))
 
 count
   :: AFType a
   => Array a
+  -- ^ Array input
   -> Int
-  -> Array a
-count x n = x `op1` (\p a -> af_count p a n)
+  -- ^ Dimension along which to count
+  -> Int
+  -- ^ Count of all elements along dimension
+count x n = getSingleInt (x `op1` (\p a -> af_count p a n))
 
 sumAll
   :: AFType a

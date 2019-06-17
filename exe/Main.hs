@@ -10,10 +10,10 @@ import Prelude   hiding (sum, product)
 main :: IO ()
 main = do
   info
-  ks <- randn @'(100,100) @Double
-  saveArray 0 "key" ks "array.txt" False
-  !ks' <- readArrayKey "array.txt" "key"
-  print ks'
+--  ks <- randn @'(100,100) @Double
+--  saveArray 0 "key" ks "array.txt" False
+--  !ks' <- readArrayKey "array.txt" "key"
+--  print ks'
 
 --   info >> putStrLn "ok" >> afInit
 --   -- Info things

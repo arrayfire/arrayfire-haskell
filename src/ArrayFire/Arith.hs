@@ -27,7 +27,7 @@ sub
   -> Array a
 sub x y batch = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_add arr arr1 arr2 batch
+    af_sub arr arr1 arr2 batch
 
 mul
   :: AFType a

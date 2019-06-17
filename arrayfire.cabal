@@ -127,12 +127,20 @@ test-suite test
   other-modules:
     Spec
     ArrayFire.ArithSpec
+    ArrayFire.AlgorithmSpec
     ArrayFire.ArraySpec
-    ArrayFire.FeaturesSpec
-    ArrayFire.RandomSpec
-    ArrayFire.BackendSpec
-    ArrayFire.StatisticsSpec
     ArrayFire.BLASSpec
+    ArrayFire.BackendSpec
+    ArrayFire.DeviceSpec
+    ArrayFire.FeaturesSpec
+    ArrayFire.IndexSpec
+    ArrayFire.LAPACKSpec
+    ArrayFire.RandomSpec
+    ArrayFire.SignalSpec
+    ArrayFire.StatisticsSpec
+    ArrayFire.SparseSpec
+    ArrayFire.UtilSpec
+    ArrayFire.VisionSpec
 
 
 -- ag -l | entr sh -c 'cabal build test && dist/build/test/test

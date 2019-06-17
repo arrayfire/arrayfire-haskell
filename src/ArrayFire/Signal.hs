@@ -1,10 +1,12 @@
 {-# LANGUAGE ViewPatterns #-}
 module ArrayFire.Signal where
 
-import ArrayFire.Types
+import Data.Complex
+
 import ArrayFire.FFI
-import ArrayFire.Internal.Signal
 import ArrayFire.Internal.Defines
+import ArrayFire.Internal.Signal
+import ArrayFire.Types
 
 approx1
   :: AFType a
@@ -58,20 +60,20 @@ approx2Uniform arr1 arr2 i1 d1 d2 arr3 i2 d3 d4 (fromInterpType -> interp) f =
   op3 arr1 arr2 arr3 (\p x y z -> af_approx2_uniform p x y i1 d1 d2 z i2 d3 d4 interp f)
 
 fft
-  :: AFType a
-  => Array a
+  :: (AFType a, Fractional a)
+  => Array (Complex a)
   -> Double
   -> Int
-  -> Array a
+  -> Array (Complex a)
 fft a d x =
   op1 a (\j k -> af_fft j k d (fromIntegral x))
 
-fft_inplace
-  :: AFType a
-  => Array a
+fftInPlace
+  :: (AFType a, Fractional a)
+  => Array (Complex a)
   -> Double
   -> IO ()
-fft_inplace a d = a `inPlace` (flip af_fft_inplace d)
+fftInPlace a d = a `inPlace` (flip af_fft_inplace d)
 
 fft2
   :: AFType a
