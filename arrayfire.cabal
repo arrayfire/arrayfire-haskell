@@ -126,19 +126,22 @@ test-suite test
     Haskell2010
   other-modules:
     Spec
-    ArrayFire.ArithSpec
     ArrayFire.AlgorithmSpec
+    ArrayFire.ArithSpec
     ArrayFire.ArraySpec
     ArrayFire.BLASSpec
     ArrayFire.BackendSpec
+    ArrayFire.DataSpec
     ArrayFire.DeviceSpec
     ArrayFire.FeaturesSpec
+    ArrayFire.GraphicsSpec
+    ArrayFire.ImageSpec
     ArrayFire.IndexSpec
     ArrayFire.LAPACKSpec
     ArrayFire.RandomSpec
     ArrayFire.SignalSpec
-    ArrayFire.StatisticsSpec
     ArrayFire.SparseSpec
+    ArrayFire.StatisticsSpec
     ArrayFire.UtilSpec
     ArrayFire.VisionSpec
 
