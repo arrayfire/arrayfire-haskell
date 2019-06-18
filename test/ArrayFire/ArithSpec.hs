@@ -11,6 +11,8 @@ spec =
   describe "Arith tests" $ do
     it "Should add two scalar arrays" $ do
       scalar @Int 1 + 2 `shouldBe` 3
+    it "Should add two scalar bool arrays" $ do
+      scalar @CBool 1 + 0 `shouldBe` 1
     it "Should subtract two scalar arrays" $ do
       scalar @Int 4 - 2 `shouldBe` 2
     it "Should multiply two scalar arrays" $ do

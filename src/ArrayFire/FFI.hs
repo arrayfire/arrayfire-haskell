@@ -1,5 +1,15 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.FFI
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.FFI where
 
 import ArrayFire.Exception

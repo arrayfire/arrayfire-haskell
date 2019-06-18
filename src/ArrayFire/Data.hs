@@ -9,6 +9,16 @@
 {-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE FlexibleContexts    #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.Data
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.Data where
 
 import Control.Exception

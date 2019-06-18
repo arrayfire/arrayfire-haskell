@@ -1,3 +1,13 @@
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.LAPACK
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.LAPACK where
 
 import ArrayFire.Internal.LAPACK

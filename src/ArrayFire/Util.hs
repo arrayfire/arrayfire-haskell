@@ -1,6 +1,16 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.Util
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.Util where
 
 import Control.Exception

@@ -1,3 +1,13 @@
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire
   ( module ArrayFire.Algorithm
   , module ArrayFire.Arith
@@ -18,6 +28,10 @@ module ArrayFire
   , module ArrayFire.Types
   , module ArrayFire.Util
   , module ArrayFire.Vision
+  , module Foreign.C.Types
+  , module Data.Int
+  , module Data.Word
+  , module Data.Complex
   ) where
 
 import ArrayFire.Algorithm
@@ -40,3 +54,7 @@ import ArrayFire.Types
 import ArrayFire.Util
 import ArrayFire.Vision
 import ArrayFire.Orphans ()
+import Foreign.C.Types
+import Data.Int
+import Data.Complex
+import Data.Word

@@ -7,6 +7,16 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
 {-# LANGUAGE KindSignatures      #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.Array
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.Array where
 
 import           Control.Exception
@@ -70,7 +80,7 @@ copyArray
 copyArray = (`op1` af_copy_array)
 -- af_err af_write_array(af_array arr, const void *data, const size_t bytes, af_source src);
 -- af_err af_get_data_ptr(void *data, const af_array arr);
--- af_err af_release_array(af_array arr);
+
 retainArray
   :: AFType a
   => Array a
@@ -221,3 +231,11 @@ toVector arr@(Array fptr) = do
 
 toList :: forall a . AFType a => Array a -> [a]
 toList = V.toList . toVector
+
+getScalar :: forall a b . (Storable a, AFType b) => Array b -> a
+getScalar (Array fptr) =
+  unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
+    alloca $ \ptr -> do
+      throwAFError =<< af_get_scalar (castPtr ptr) arrPtr
+      peek ptr
+

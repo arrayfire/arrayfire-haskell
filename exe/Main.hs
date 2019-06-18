@@ -8,8 +8,15 @@ import ArrayFire
 import Prelude   hiding (sum, product)
 -- import GHC.RTS
 
+foreign import ccall safe "test_bool"
+  testBool :: IO ()
+
+foreign import ccall safe "test_window"
+  testWindow :: IO ()
+
 main :: IO ()
-main = print =<< getAvailableBackends
+main = do
+  testBool >> testWindow
 --  ks <- randn @'(100,100) @Double
 --  saveArray 0 "key" ks "array.txt" False
 --  !ks' <- readArrayKey "array.txt" "key"

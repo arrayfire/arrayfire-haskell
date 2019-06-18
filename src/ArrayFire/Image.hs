@@ -1,6 +1,16 @@
 {-# LANGUAGE ViewPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.Image
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.Image where
 
 import Data.Proxy
@@ -337,4 +347,3 @@ inverseDeconv
   -> Array a
 inverseDeconv in1 in2 f1 (fromInverseDeconvAlgo -> algo) =
   op2 in1 in2 (\p a k -> af_inverse_deconv p a k f1 algo)
-

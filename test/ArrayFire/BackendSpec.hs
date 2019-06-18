@@ -14,7 +14,8 @@ spec =
       backends <- getAvailableBackends
       backends `shouldSatisfy` (CPU `elem`)
     it "Should set backend to CPU" $ do
-      setBackend OpenCL
-      (`shouldBe` OpenCL) =<< getActiveBackend
+      backend <- getActiveBackend
+      setBackend backend
+      (`shouldBe` backend) =<< getActiveBackend
       let arr = matrix @Int (2,2) [1..]
-      getBackendID arr `shouldBe` OpenCL
+      getBackendID arr `shouldBe` backend

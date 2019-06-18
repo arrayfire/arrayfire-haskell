@@ -1,13 +1,23 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.Arith
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Data.Proxy
 import Data.Coerce
+import Data.Proxy
 
-import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
+import ArrayFire.Types
 
 add
   :: AFType a

@@ -1,4 +1,14 @@
 {-# LANGUAGE ViewPatterns #-}
+--------------------------------------------------------------------------------
+-- |
+-- Module      : ArrayFire.Graphics
+-- Copyright   : David Johnson (c) 2019-2020
+-- License     : BSD 3
+-- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Stability   : Experimental
+-- Portability : GHC
+--
+--------------------------------------------------------------------------------
 module ArrayFire.Graphics where
 
 import Control.Exception
@@ -11,7 +21,6 @@ import ArrayFire.Internal.Graphics
 import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Types
-
 
 createWindow :: Int -> Int -> String -> IO Window
 createWindow x y str =
@@ -252,4 +261,3 @@ isWindowClosed = (`opw1` af_is_window_closed)
 
 setVisibility :: Window -> Bool -> IO ()
 setVisibility w b = w `opw` (`af_set_visibility` b)
-

@@ -91,6 +91,8 @@ executable main
     Main.hs
   build-depends:
     base < 5, arrayfire, vector
+  c-sources:
+    cbits/wrapper.c
   default-language:
     Haskell2010
 
