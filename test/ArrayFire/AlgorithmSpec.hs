@@ -19,8 +19,6 @@ spec =
     it "Should product a vector" $ do
       A.product (A.vector @Int 5 [1..]) 0 `shouldBe` 120
       A.product (A.vector @Double 5 [1..]) 0 `shouldBe` 120
-      A.product (A.vector @CBool 10 (repeat 0)) 0 `shouldBe` 0
-      -- A.product (A.vector @CBool 10 (repeat 1)) 0 `shouldBe` A.scalar 1
     it "Should product a default value to replace NaN" $ do
       A.productNaN (A.vector @Float 5 [1..]) 0 1.0 `shouldBe` 120
       A.productNaN (A.vector @Double 2 [acos 2, acos 2]) 0 50 `shouldBe` 2500

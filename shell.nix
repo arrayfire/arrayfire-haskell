@@ -10,7 +10,7 @@ in
       function test-runner () {
          ${pkgs.ag}/bin/ag -l | \
            ${pkgs.entr}/bin/entr sh -c \
-             'cabal build test && dist/build/test/test'
+             'cabal build test && dist/build/test/test +RTS -N -RTS'
       }
     '';
   })

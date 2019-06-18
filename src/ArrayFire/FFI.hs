@@ -294,13 +294,13 @@ featuresToArray
   -> (Ptr AFArray -> AFFeatures -> IO AFErr)
   -> Array a
 featuresToArray (Features fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
-      y <- alloca $ \ptrInput -> do
+      alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
-        peek ptrInput
-      fptr <- newForeignPtr af_release_array_finalizer y
-      pure (Array fptr)
+        Array <$> do
+          newForeignPtr af_release_array_finalizer
+            =<< peek ptrInput
 
 infoFromFeatures
   :: Storable a

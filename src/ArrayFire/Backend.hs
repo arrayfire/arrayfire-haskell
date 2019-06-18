@@ -1,14 +1,8 @@
 module ArrayFire.Backend where
 
-
-
-
-
-import ArrayFire.Internal.Backend
-
 import ArrayFire.FFI
+import ArrayFire.Internal.Backend
 import ArrayFire.Types
-
 
 setBackend :: Backend -> IO ()
 setBackend = afCall . af_set_backend . toAFBackend

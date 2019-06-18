@@ -1,21 +1,13 @@
 {-# LANGUAGE ViewPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
-
 module ArrayFire.Image where
 
-
-
-import Data.Typeable
-
-
-
-
+import Data.Proxy
 
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Image
-
 
 gradient :: Array a -> (Array a, Array a)
 gradient a = a `op2p` af_gradient

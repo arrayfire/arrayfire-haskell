@@ -10,16 +10,20 @@ import Foreign
 import System.IO.Unsafe
 import Control.Exception
 
-index :: Array a -> Int -> [Seq] -> Array a
-index (Array fptr) n seqs =
+(!) :: Array a -> Int -> Array a
+(!) = undefined
+
+index :: Array a -> [Seq] -> Array a
+index (Array fptr) seqs =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
-    k <- alloca $ \aptr -> do
-      sptr <- newArray (toAFSeq <$> seqs)
-      throwAFError =<< af_index aptr ptr (fromIntegral n) sptr
-      free sptr
-      peek aptr
-    Array <$>
-      newForeignPtr af_release_array_finalizer k
+    alloca $ \aptr ->
+      withArray (toAFSeq <$> seqs) $ \sptr -> do
+        throwAFError =<< af_index aptr ptr n sptr
+        Array <$> do
+          newForeignPtr af_release_array_finalizer
+            =<< peek aptr
+   where
+     n = fromIntegral (length seqs)
 
 lookup :: Array a -> Array a -> Int -> Array a
 lookup a b n = op2 a b $ \p x y -> af_lookup p x y (fromIntegral n)

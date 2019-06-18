@@ -6,10 +6,10 @@ module Main where
 
 import ArrayFire
 import Prelude   hiding (sum, product)
+-- import GHC.RTS
 
 main :: IO ()
-main = do
-  info
+main = print =<< getAvailableBackends
 --  ks <- randn @'(100,100) @Double
 --  saveArray 0 "key" ks "array.txt" False
 --  !ks' <- readArrayKey "array.txt" "key"

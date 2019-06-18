@@ -47,10 +47,10 @@ spec =
     it "Should return the number of elements" $ do
       let arr = mkArray @Int [9,9,1,1] []
       getElements arr `shouldBe` 81
---  it "Should give an empty array" $ do
---    let arr = mkArray @Int [0,1,1,1] []
---    getElements arr `shouldBe` 0 -- uhhh this is wrong
---    isEmpty arr `shouldBe` True -- this is wrong too ...
+--    it "Should give an empty array" $ do
+--      let arr = mkArray @Int [-1,1,1,1] []
+--      getElements arr `shouldBe` 0
+--      isEmpty arr `shouldBe` True
     it "Should create a scalar array" $ do
       let arr = mkArray @Int [1] [1]
       isScalar arr `shouldBe` True

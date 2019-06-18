@@ -28,5 +28,5 @@ spec =
       A.getSizeOf (Proxy @ (Complex Float)) `shouldBe` 8
       A.getSizeOf (Proxy @ (Complex Double)) `shouldBe` 16
     it "Should get version" $ do
-      _ <- A.getVersion -- TODO: fix me
-      1 `shouldBe` 1
+      x <- A.getVersion
+      x `shouldBe` (3,6,4)
