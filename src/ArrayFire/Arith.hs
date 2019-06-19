@@ -23,9 +23,13 @@ import ArrayFire.Types
 add
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of add
 add x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
     af_add arr arr1 arr2 batch
@@ -33,9 +37,13 @@ add x y (fromIntegral . fromEnum -> batch) =
 sub
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of sub
 sub x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_sub arr arr1 arr2 batch
@@ -43,9 +51,13 @@ sub x y (fromIntegral . fromEnum -> batch) = do
 mul
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of mul
 mul x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mul arr arr1 arr2 batch
@@ -53,9 +65,13 @@ mul x y (fromIntegral . fromEnum -> batch) = do
 div
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of div
 div x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_div arr arr1 arr2 batch
@@ -63,9 +79,13 @@ div x y (fromIntegral . fromEnum -> batch) = do
 lt
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of less than
 lt x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_lt arr arr1 arr2 batch
@@ -73,9 +93,13 @@ lt x y (fromIntegral . fromEnum -> batch) = do
 gt
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of gt
 gt x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_gt arr arr1 arr2 batch
@@ -83,9 +107,13 @@ gt x y (fromIntegral . fromEnum -> batch) = do
 le
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of less than or equal
 le x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_le arr arr1 arr2 batch
@@ -93,9 +121,13 @@ le x y (fromIntegral . fromEnum -> batch) = do
 ge
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of greater than or equal
 ge x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 batch
