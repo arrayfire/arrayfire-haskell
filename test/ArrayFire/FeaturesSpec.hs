@@ -2,7 +2,6 @@
 module ArrayFire.FeaturesSpec where
 
 import ArrayFire
-
 import Test.Hspec
 
 spec :: Spec
