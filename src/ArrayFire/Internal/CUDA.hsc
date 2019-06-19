@@ -10,8 +10,8 @@ import Foreign.C.Types
 
 #include "af/cuda.h"
 foreign import ccall unsafe "afcu_get_stream"
-    afcu_get_stream :: Ptr CudaStreamT -> Int -> IO AFErr
+    afcu_get_stream :: Ptr CudaStreamT -> CInt -> IO AFErr
 foreign import ccall unsafe "afcu_get_native_id"
-    afcu_get_native_id :: Ptr Int -> Int -> IO AFErr
+    afcu_get_native_id :: Ptr CInt -> CInt -> IO AFErr
 foreign import ccall unsafe "afcu_set_native_id"
-    afcu_set_native_id :: Int -> IO AFErr
+    afcu_set_native_id :: CInt -> IO AFErr

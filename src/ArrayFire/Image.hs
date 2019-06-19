@@ -39,7 +39,8 @@ saveImageNative :: Array a -> String -> IO ()
 saveImageNative a s = afSaveImage a s af_save_image_native
 
 isImageIOAvailable :: IO Bool
-isImageIOAvailable = afCall1 af_is_image_io_available
+isImageIOAvailable = 
+  toEnum . fromIntegral <$> afCall1 af_is_image_io_available
 
 resize
   :: Array a
@@ -58,7 +59,7 @@ transform
   -> InterpType
   -> Bool
   -> Array a
-transform inp trans (fromIntegral -> d0) (fromIntegral -> d1) (fromInterpType -> interp) inverse =
+transform inp trans (fromIntegral -> d0) (fromIntegral -> d1) (fromInterpType -> interp) (fromIntegral . fromEnum -> inverse) =
   op2 inp trans (\ptr a1 a2 -> af_transform ptr a1 a2 d0 d1 interp inverse)
 
 transformCoordinates
@@ -75,7 +76,7 @@ rotate
   -> Bool
   -> InterpType
   -> Array a
-rotate a theta crop (fromInterpType -> interp) =
+rotate a theta (fromIntegral . fromEnum -> crop) (fromInterpType -> interp) =
   a `op1` (\ptr x -> af_rotate ptr x theta crop interp)
 
 translate
@@ -109,7 +110,7 @@ skew
   -> InterpType
   -> Bool
   -> Array a
-skew a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterpType -> interp) b =
+skew a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterpType -> interp) (fromIntegral . fromEnum -> b) =
   a `op1` (\ptr x -> af_skew ptr x trans0 trans1 odim0 odim1 interp b)
 
 histogram
@@ -151,7 +152,7 @@ bilateral
   -> Float
   -> Bool
   -> Array a
-bilateral in' a b c = in' `op1` (\ptr k -> af_bilateral ptr k a b c)
+bilateral in' a b (fromIntegral . fromEnum -> c) = in' `op1` (\ptr k -> af_bilateral ptr k a b c)
 
 meanShift
   :: Array a
@@ -160,7 +161,7 @@ meanShift
   -> Int
   -> Bool
   -> Array a
-meanShift in' a b (fromIntegral -> c) d = in' `op1` (\ptr k -> af_mean_shift ptr k a b c d)
+meanShift in' a b (fromIntegral -> c) (fromIntegral . fromEnum -> d) = in' `op1` (\ptr k -> af_mean_shift ptr k a b c d)
 
 minFilt
   :: Array a
@@ -226,7 +227,7 @@ gaussianKernel
   -> Double
   -> Double
   -> Array a
-gaussianKernel i1 i2 d1 d2 =
+gaussianKernel (fromIntegral -> i1) (fromIntegral -> i2) d1 d2 =
   createArray (\ptr -> af_gaussian_kernel ptr i1 i2 d1 d2)
 
 hsv2rgb
@@ -257,7 +258,7 @@ unwrap
   -> Int
   -> Bool
   -> Array a
-unwrap in' (fromIntegral -> wx) (fromIntegral -> wy) (fromIntegral -> sx) (fromIntegral ->  sy) (fromIntegral -> px) (fromIntegral -> py) b
+unwrap in' (fromIntegral -> wx) (fromIntegral -> wy) (fromIntegral -> sx) (fromIntegral ->  sy) (fromIntegral -> px) (fromIntegral -> py) (fromIntegral . fromEnum -> b)
   = in' `op1` (\ptr a -> af_unwrap ptr a wx wy sx sy px py b)
 
 wrap
@@ -273,7 +274,7 @@ wrap
   -> Bool
   -> Array a
 wrap in' (fromIntegral -> ox) (fromIntegral -> oy) (fromIntegral -> wx) (fromIntegral -> wy)
-         (fromIntegral -> sx) (fromIntegral -> sy) (fromIntegral -> px) (fromIntegral -> py) b
+         (fromIntegral -> sx) (fromIntegral -> sy) (fromIntegral -> px) (fromIntegral -> py) (fromIntegral . fromEnum -> b)
   = in' `op1` (\ptr a -> af_wrap ptr a ox oy wx wy sx sy px py b)
 
 sat
@@ -315,7 +316,7 @@ canny
   -> Int
   -> Bool
   -> Array a
-canny in' (fromCannyThreshold -> canny') low high (fromIntegral -> window) fast =
+canny in' (fromCannyThreshold -> canny') low high (fromIntegral -> window) (fromIntegral . fromEnum -> fast) =
   in' `op1` (\p a -> af_canny p a canny' low high window fast)
 
 anisotropicDiffusion

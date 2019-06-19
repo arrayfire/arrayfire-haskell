@@ -107,7 +107,7 @@ range
   => [Int]
   -> Int
   -> IO (Array a)
-range dims k = do
+range dims (fromIntegral -> k) = do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< af_range ptrPtr n dimArray k typ
@@ -157,7 +157,7 @@ diagCreate
   => Array a
   -> Int
   -> Array a
-diagCreate x n =
+diagCreate x (fromIntegral -> n) =
   x `op1` (\p a -> af_diag_create p a n)
 
 diagExtract
@@ -165,7 +165,7 @@ diagExtract
   => Array a
   -> Int
   -> Array a
-diagExtract x n =
+diagExtract x (fromIntegral -> n) =
   x `op1` (\p a -> af_diag_extract p a n)
 
 join
@@ -173,13 +173,13 @@ join
   -> Array (a :: *)
   -> Array a
   -> Array a
-join n arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
+join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
 joinMany
   :: Int
   -> [Array a]
   -> Array a
-joinMany n arrays = unsafePerformIO . mask_ $ do
+joinMany (fromIntegral -> n) arrays = unsafePerformIO . mask_ $ do
   fptrs <- forM arrays $ \(Array fptr) -> pure fptr
   newPtr <-
     alloca $ \fPtrsPtr -> do
@@ -254,14 +254,14 @@ lower
   :: Array (a :: *)
   -> Bool
   -> Array a
-lower a b =
+lower a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_lower p k b)
 
 upper
   :: Array (a :: *)
   -> Bool
   -> Array a
-upper a b =
+upper a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_upper p k b)
 
 select

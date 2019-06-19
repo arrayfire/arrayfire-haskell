@@ -2,61 +2,61 @@
 module ArrayFire.Internal.Arith where
 
 import ArrayFire.Internal.Defines
-
-
-
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
-
+import Foreign.C.Types
 
 #include "af/arith.h"
 foreign import ccall unsafe "af_add"
-    af_add :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_add :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_sub"
-    af_sub :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_sub :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_mul"
-    af_mul :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_mul :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_div"
-    af_div :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_div :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_lt"
-    af_lt :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_lt :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_gt"
-    af_gt :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_gt :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_le"
-    af_le :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_le :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_ge"
-    af_ge :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_ge :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_eq"
-    af_eq :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_eq :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_neq"
-    af_neq :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_neq :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_and"
-    af_and :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_and :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_or"
-    af_or :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_or :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_not"
     af_not :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_bitand"
-    af_bitand :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_bitand :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_bitor"
-    af_bitor :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_bitor :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_bitxor"
-    af_bitxor :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_bitxor :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_bitshiftl"
-    af_bitshiftl :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_bitshiftl :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_bitshiftr"
-    af_bitshiftr :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_bitshiftr :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_cast"
     af_cast :: Ptr AFArray -> AFArray -> AFDtype -> IO AFErr
 foreign import ccall unsafe "af_minof"
-    af_minof :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_minof :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_maxof"
-    af_maxof :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_maxof :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_clamp"
-    af_clamp :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_clamp :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_rem"
-    af_rem :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_rem :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_mod"
-    af_mod :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_mod :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_abs"
     af_abs :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_arg"
@@ -72,7 +72,7 @@ foreign import ccall unsafe "af_floor"
 foreign import ccall unsafe "af_ceil"
     af_ceil :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_hypot"
-    af_hypot :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_hypot :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_sin"
     af_sin :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_cos"
@@ -86,9 +86,9 @@ foreign import ccall unsafe "af_acos"
 foreign import ccall unsafe "af_atan"
     af_atan :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_atan2"
-    af_atan2 :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_atan2 :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_cplx2"
-    af_cplx2 :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_cplx2 :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_cplx"
     af_cplx :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_real"
@@ -110,9 +110,9 @@ foreign import ccall unsafe "af_acosh"
 foreign import ccall unsafe "af_atanh"
     af_atanh :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_root"
-    af_root :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_root :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_pow"
-    af_pow :: Ptr AFArray -> AFArray -> AFArray -> Bool -> IO AFErr
+    af_pow :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_pow2"
     af_pow2 :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_exp"

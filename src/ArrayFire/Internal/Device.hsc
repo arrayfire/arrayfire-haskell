@@ -2,9 +2,9 @@
 module ArrayFire.Internal.Device where
 
 import ArrayFire.Internal.Defines
-
-
-
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -14,19 +14,19 @@ foreign import ccall unsafe "af_info"
 foreign import ccall unsafe "af_init"
     af_init :: IO AFErr
 foreign import ccall unsafe "af_info_string"
-    af_info_string :: Ptr (Ptr CChar) -> Bool -> IO AFErr
+    af_info_string :: Ptr (Ptr CChar) -> CBool -> IO AFErr
 foreign import ccall unsafe "af_device_info"
     af_device_info :: Ptr CChar -> Ptr CChar -> Ptr CChar -> Ptr CChar -> IO AFErr
 foreign import ccall unsafe "af_get_device_count"
-    af_get_device_count :: Ptr Int -> IO AFErr
+    af_get_device_count :: Ptr CInt -> IO AFErr
 foreign import ccall unsafe "af_get_dbl_support"
-    af_get_dbl_support :: Ptr Bool -> Int -> IO AFErr
+    af_get_dbl_support :: Ptr CBool -> CInt -> IO AFErr
 foreign import ccall unsafe "af_set_device"
-    af_set_device :: Int -> IO AFErr
+    af_set_device :: CInt -> IO AFErr
 foreign import ccall unsafe "af_get_device"
-    af_get_device :: Ptr Int -> IO AFErr
+    af_get_device :: Ptr CInt -> IO AFErr
 foreign import ccall unsafe "af_sync"
-    af_sync :: Int -> IO AFErr
+    af_sync :: CInt -> IO AFErr
 foreign import ccall unsafe "af_alloc_device"
     af_alloc_device :: Ptr (Ptr ()) -> DimT -> IO AFErr
 foreign import ccall unsafe "af_free_device"
@@ -44,7 +44,7 @@ foreign import ccall unsafe "af_device_array"
 foreign import ccall unsafe "af_device_mem_info"
     af_device_mem_info :: Ptr CSize -> Ptr CSize -> Ptr CSize -> Ptr CSize -> IO AFErr
 foreign import ccall unsafe "af_print_mem_info"
-    af_print_mem_info :: Ptr CChar -> Int -> IO AFErr
+    af_print_mem_info :: Ptr CChar -> CInt -> IO AFErr
 foreign import ccall unsafe "af_device_gc"
     af_device_gc :: IO AFErr
 foreign import ccall unsafe "af_set_mem_step_size"
@@ -58,6 +58,6 @@ foreign import ccall unsafe "af_unlock_device_ptr"
 foreign import ccall unsafe "af_lock_array"
     af_lock_array :: AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_locked_array"
-    af_is_locked_array :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_locked_array :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_device_ptr"
     af_get_device_ptr :: Ptr (Ptr ()) -> AFArray -> IO AFErr

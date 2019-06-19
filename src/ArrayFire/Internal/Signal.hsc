@@ -2,9 +2,9 @@
 module ArrayFire.Internal.Signal where
 
 import ArrayFire.Internal.Defines
-
-
-
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -14,9 +14,9 @@ foreign import ccall unsafe "af_approx1"
 foreign import ccall unsafe "af_approx2"
     af_approx2 :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_approx1_uniform"
-    af_approx1_uniform :: Ptr AFArray -> AFArray -> AFArray -> Int -> Double -> Double -> AFInterpType -> Float -> IO AFErr
+    af_approx1_uniform :: Ptr AFArray -> AFArray -> AFArray -> CInt -> Double -> Double -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_approx2_uniform"
-    af_approx2_uniform :: Ptr AFArray -> AFArray -> AFArray -> Int -> Double -> Double -> AFArray -> Int -> Double -> Double -> AFInterpType -> Float -> IO AFErr
+    af_approx2_uniform :: Ptr AFArray -> AFArray -> AFArray -> CInt -> Double -> Double -> AFArray -> CInt -> Double -> Double -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_fft"
     af_fft :: Ptr AFArray -> AFArray -> Double -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft_inplace"
@@ -48,11 +48,11 @@ foreign import ccall unsafe "af_fft2_r2c"
 foreign import ccall unsafe "af_fft3_r2c"
     af_fft3_r2c :: Ptr AFArray -> AFArray -> Double -> DimT -> DimT -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft_c2r"
-    af_fft_c2r :: Ptr AFArray -> AFArray -> Double -> Bool -> IO AFErr
+    af_fft_c2r :: Ptr AFArray -> AFArray -> Double -> CBool -> IO AFErr
 foreign import ccall unsafe "af_fft2_c2r"
-    af_fft2_c2r :: Ptr AFArray -> AFArray -> Double -> Bool -> IO AFErr
+    af_fft2_c2r :: Ptr AFArray -> AFArray -> Double -> CBool -> IO AFErr
 foreign import ccall unsafe "af_fft3_c2r"
-    af_fft3_c2r :: Ptr AFArray -> AFArray -> Double -> Bool -> IO AFErr
+    af_fft3_c2r :: Ptr AFArray -> AFArray -> Double -> CBool -> IO AFErr
 foreign import ccall unsafe "af_convolve1"
     af_convolve1 :: Ptr AFArray -> AFArray -> AFArray -> AFConvMode -> AFConvDomain -> IO AFErr
 foreign import ccall unsafe "af_convolve2"

@@ -58,6 +58,7 @@ mkArray
   => [Int]
   -> [array]
   -> Array array
+{-# NOINLINE mkArray #-}
 mkArray dims xs =
   unsafePerformIO . mask_ $ do
     dataPtr <- castPtr <$> newArray (Prelude.take size xs)
@@ -93,20 +94,20 @@ getDataRefCount
   => Array a
   -> Int
 getDataRefCount =
-  (`infoFromArray` af_get_data_ref_count)
+  fromIntegral . (`infoFromArray` af_get_data_ref_count)
 
 -- af_err af_eval(af_array in);
 -- af_err af_eval_multiple(const int num, af_array *arrays);
 
 setManualEvalFlag
   :: Bool -> IO ()
-setManualEvalFlag =
-  afCall . af_set_manual_eval_flag
+setManualEvalFlag (fromIntegral . fromEnum -> b) =
+  afCall (af_set_manual_eval_flag b)
 
 getManualEvalFlag
   :: IO Bool
 getManualEvalFlag =
-  afCall1 af_get_manual_eval_flag
+  toEnum . fromIntegral <$> afCall1 af_get_manual_eval_flag
 
 getElements
   :: AFType a
@@ -139,85 +140,85 @@ isEmpty
   :: AFType a
   => Array a
   -> Bool
-isEmpty = (`infoFromArray` af_is_empty)
+isEmpty a = toEnum . fromIntegral $ (a `infoFromArray` af_is_empty)
 
 isScalar
   :: AFType a
   => Array a
   -> Bool
-isScalar = (`infoFromArray` af_is_scalar)
+isScalar a = toEnum . fromIntegral $ (a `infoFromArray` af_is_scalar)
 
 isRow
   :: AFType a
   => Array a
   -> Bool
-isRow = (`infoFromArray` af_is_row)
+isRow a = toEnum . fromIntegral $ (a `infoFromArray` af_is_row)
 
 isColumn
   :: AFType a
   => Array a
   -> Bool
-isColumn = (`infoFromArray` af_is_column)
+isColumn a = toEnum . fromIntegral $ (a `infoFromArray` af_is_column)
 
 isVector
   :: AFType a
   => Array a
   -> Bool
-isVector = (`infoFromArray` af_is_vector)
+isVector a = toEnum . fromIntegral $ (a `infoFromArray` af_is_vector)
 
 isComplex
   :: AFType a
   => Array a
   -> Bool
-isComplex = (`infoFromArray` af_is_complex)
+isComplex a = toEnum . fromIntegral $ (a `infoFromArray` af_is_complex)
 
 isReal
   :: AFType a
   => Array a
   -> Bool
-isReal = (`infoFromArray` af_is_real)
+isReal a = toEnum . fromIntegral $ (a `infoFromArray` af_is_real)
 
 isDouble
   :: AFType a
   => Array a
   -> Bool
-isDouble = (`infoFromArray` af_is_double)
+isDouble a = toEnum . fromIntegral $ (a `infoFromArray` af_is_double)
 
 isSingle
   :: AFType a
   => Array a
   -> Bool
-isSingle = (`infoFromArray` af_is_single)
+isSingle a = toEnum . fromIntegral $ (a `infoFromArray` af_is_single)
 
 isRealFloating
   :: AFType a
   => Array a
   -> Bool
-isRealFloating = (`infoFromArray` af_is_realfloating)
+isRealFloating a = toEnum . fromIntegral $ (a `infoFromArray` af_is_realfloating)
 
 isFloating
   :: AFType a
   => Array a
   -> Bool
-isFloating = (`infoFromArray` af_is_floating)
+isFloating a = toEnum . fromIntegral $ (a `infoFromArray` af_is_floating)
 
 isInteger
   :: AFType a
   => Array a
   -> Bool
-isInteger = (`infoFromArray` af_is_integer)
+isInteger a = toEnum . fromIntegral $ (a `infoFromArray` af_is_integer)
 
 isBool
   :: AFType a
   => Array a
   -> Bool
-isBool = (`infoFromArray` af_is_bool)
+isBool a = toEnum . fromIntegral $ (a `infoFromArray` af_is_bool)
 
 isSparse
   :: AFType a
   => Array a
   -> Bool
-isSparse = (`infoFromArray` af_is_sparse)
+isSparse a = toEnum . fromIntegral $ (a `infoFromArray` af_is_sparse)
 
 toVector :: forall a . AFType a => Array a -> Vector a
 toVector arr@(Array fptr) = do

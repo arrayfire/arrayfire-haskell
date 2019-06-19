@@ -3,8 +3,8 @@ module ArrayFire.Internal.Index where
 
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Types
-
-
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -24,8 +24,8 @@ foreign import ccall unsafe "af_create_indexers"
 foreign import ccall unsafe "af_set_array_indexer"
     af_set_array_indexer :: Ptr AFIndex -> AFArray -> DimT -> IO AFErr
 foreign import ccall unsafe "af_set_seq_indexer"
-    af_set_seq_indexer :: Ptr AFIndex -> Ptr AFSeq -> DimT -> Bool -> IO AFErr
+    af_set_seq_indexer :: Ptr AFIndex -> Ptr AFSeq -> DimT -> CBool -> IO AFErr
 foreign import ccall unsafe "af_set_seq_param_indexer"
-    af_set_seq_param_indexer :: Ptr AFIndex -> Double -> Double -> Double -> DimT -> Bool -> IO AFErr
+    af_set_seq_param_indexer :: Ptr AFIndex -> Double -> Double -> Double -> DimT -> CBool -> IO AFErr
 foreign import ccall unsafe "af_release_indexers"
     af_release_indexers :: Ptr AFIndex -> IO AFErr

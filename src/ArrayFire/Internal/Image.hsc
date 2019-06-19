@@ -2,9 +2,9 @@
 module ArrayFire.Internal.Image where
 
 import ArrayFire.Internal.Defines
-
-
-
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -12,7 +12,7 @@ import Foreign.C.Types
 foreign import ccall unsafe "af_gradient"
     af_gradient :: Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_load_image"
-    af_load_image :: Ptr AFArray -> Ptr CChar -> Bool -> IO AFErr
+    af_load_image :: Ptr AFArray -> Ptr CChar -> CBool -> IO AFErr
 foreign import ccall unsafe "af_save_image"
     af_save_image :: Ptr CChar -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_load_image_memory"
@@ -26,21 +26,21 @@ foreign import ccall unsafe "af_load_image_native"
 foreign import ccall unsafe "af_save_image_native"
     af_save_image_native :: Ptr CChar -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_image_io_available"
-    af_is_image_io_available :: Ptr Bool -> IO AFErr
+    af_is_image_io_available :: Ptr CBool -> IO AFErr
 foreign import ccall unsafe "af_resize"
     af_resize :: Ptr AFArray -> AFArray -> DimT -> DimT -> AFInterpType -> IO AFErr
 foreign import ccall unsafe "af_transform"
-    af_transform :: Ptr AFArray -> AFArray -> AFArray -> DimT -> DimT -> AFInterpType -> Bool -> IO AFErr
+    af_transform :: Ptr AFArray -> AFArray -> AFArray -> DimT -> DimT -> AFInterpType -> CBool -> IO AFErr
 foreign import ccall unsafe "af_transform_coordinates"
     af_transform_coordinates :: Ptr AFArray -> AFArray -> Float -> Float -> IO AFErr
 foreign import ccall unsafe "af_rotate"
-    af_rotate :: Ptr AFArray -> AFArray -> Float -> Bool -> AFInterpType -> IO AFErr
+    af_rotate :: Ptr AFArray -> AFArray -> Float -> CBool -> AFInterpType -> IO AFErr
 foreign import ccall unsafe "af_translate"
     af_translate :: Ptr AFArray -> AFArray -> Float -> Float -> DimT -> DimT -> AFInterpType -> IO AFErr
 foreign import ccall unsafe "af_scale"
     af_scale :: Ptr AFArray -> AFArray -> Float -> Float -> DimT -> DimT -> AFInterpType -> IO AFErr
 foreign import ccall unsafe "af_skew"
-    af_skew :: Ptr AFArray -> AFArray -> Float -> Float -> DimT -> DimT -> AFInterpType -> Bool -> IO AFErr
+    af_skew :: Ptr AFArray -> AFArray -> Float -> Float -> DimT -> DimT -> AFInterpType -> CBool -> IO AFErr
 foreign import ccall unsafe "af_histogram"
     af_histogram :: Ptr AFArray -> AFArray -> CUInt -> Double -> Double -> IO AFErr
 foreign import ccall unsafe "af_dilate"
@@ -52,9 +52,9 @@ foreign import ccall unsafe "af_erode"
 foreign import ccall unsafe "af_erode3"
     af_erode3 :: Ptr AFArray -> AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_bilateral"
-    af_bilateral :: Ptr AFArray -> AFArray -> Float -> Float -> Bool -> IO AFErr
+    af_bilateral :: Ptr AFArray -> AFArray -> Float -> Float -> CBool -> IO AFErr
 foreign import ccall unsafe "af_mean_shift"
-    af_mean_shift :: Ptr AFArray -> AFArray -> Float -> Float -> CUInt -> Bool -> IO AFErr
+    af_mean_shift :: Ptr AFArray -> AFArray -> Float -> Float -> CUInt -> CBool -> IO AFErr
 foreign import ccall unsafe "af_minfilt"
     af_minfilt :: Ptr AFArray -> AFArray -> DimT -> DimT -> AFBorderType -> IO AFErr
 foreign import ccall unsafe "af_maxfilt"
@@ -70,7 +70,7 @@ foreign import ccall unsafe "af_gray2rgb"
 foreign import ccall unsafe "af_hist_equal"
     af_hist_equal :: Ptr AFArray -> AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_gaussian_kernel"
-    af_gaussian_kernel :: Ptr AFArray -> Int -> Int -> Double -> Double -> IO AFErr
+    af_gaussian_kernel :: Ptr AFArray -> CInt -> CInt -> Double -> Double -> IO AFErr
 foreign import ccall unsafe "af_hsv2rgb"
     af_hsv2rgb :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_rgb2hsv"
@@ -78,9 +78,9 @@ foreign import ccall unsafe "af_rgb2hsv"
 foreign import ccall unsafe "af_color_space"
     af_color_space :: Ptr AFArray -> AFArray -> AFCSpace -> AFCSpace -> IO AFErr
 foreign import ccall unsafe "af_unwrap"
-    af_unwrap :: Ptr AFArray -> AFArray -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> Bool -> IO AFErr
+    af_unwrap :: Ptr AFArray -> AFArray -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> CBool -> IO AFErr
 foreign import ccall unsafe "af_wrap"
-    af_wrap :: Ptr AFArray -> AFArray -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> Bool -> IO AFErr
+    af_wrap :: Ptr AFArray -> AFArray -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> DimT -> CBool -> IO AFErr
 foreign import ccall unsafe "af_sat"
     af_sat :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_ycbcr2rgb"
@@ -92,7 +92,7 @@ foreign import ccall unsafe "af_moments"
 foreign import ccall unsafe "af_moments_all"
     af_moments_all :: Ptr Double -> AFArray -> AFMomentType -> IO AFErr
 foreign import ccall unsafe "af_canny"
-    af_canny :: Ptr AFArray -> AFArray -> AFCannyThreshold -> Float -> Float -> CUInt -> Bool -> IO AFErr
+    af_canny :: Ptr AFArray -> AFArray -> AFCannyThreshold -> Float -> Float -> CUInt -> CBool -> IO AFErr
 foreign import ccall unsafe "af_anisotropic_diffusion"
     af_anisotropic_diffusion :: Ptr AFArray -> AFArray -> Float -> Float -> CUInt -> AFFluxFunction -> AFDiffusionEq -> IO AFErr
 foreign import ccall unsafe "af_iterative_deconv"

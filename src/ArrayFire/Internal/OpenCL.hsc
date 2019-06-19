@@ -10,9 +10,9 @@ import Foreign.C.Types
 
 #include "af/opencl.h"
 foreign import ccall unsafe "afcl_get_context"
-    afcl_get_context :: Ptr ClContext -> Bool -> IO AFErr
+    afcl_get_context :: Ptr ClContext -> CBool -> IO AFErr
 foreign import ccall unsafe "afcl_get_queue"
-    afcl_get_queue :: Ptr ClCommandQueue -> Bool -> IO AFErr
+    afcl_get_queue :: Ptr ClCommandQueue -> CBool -> IO AFErr
 foreign import ccall unsafe "afcl_get_device_id"
     afcl_get_device_id :: Ptr ClDeviceId -> IO AFErr
 foreign import ccall unsafe "afcl_set_device_id"

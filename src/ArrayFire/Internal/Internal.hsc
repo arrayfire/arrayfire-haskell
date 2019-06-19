@@ -2,9 +2,9 @@
 module ArrayFire.Internal.Internal where
 
 import ArrayFire.Internal.Defines
-
-
-
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -18,8 +18,8 @@ foreign import ccall unsafe "af_get_offset"
 foreign import ccall unsafe "af_get_raw_ptr"
     af_get_raw_ptr :: Ptr (Ptr ()) -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_linear"
-    af_is_linear :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_linear :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_owner"
-    af_is_owner :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_owner :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_allocated_bytes"
     af_get_allocated_bytes :: Ptr CSize -> AFArray -> IO AFErr

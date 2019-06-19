@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.BLAS
@@ -38,9 +39,9 @@ dotAll arr1 arr2 prop1 prop2 = do
   real :+ imag
 
 transpose :: Array a -> Bool -> Array a
-transpose arr1 b =
+transpose arr1 (fromIntegral . fromEnum -> b) =
   arr1 `op1` (\x y -> af_transpose x y b)
 
 transposeInPlace :: Array a -> Bool -> IO ()
-transposeInPlace arr b =
+transposeInPlace arr (fromIntegral . fromEnum -> b) =
   arr `inPlace` (`af_transpose_inplace` b)

@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.LAPACK
@@ -38,7 +39,7 @@ luInPlace
   => Array a
   -> Bool
   -> Array a
-luInPlace a b = a `op1` (\x y -> af_lu_inplace x y b)
+luInPlace a (fromIntegral . fromEnum -> b) = a `op1` (\x y -> af_lu_inplace x y b)
 
 qr
   :: AFType a
@@ -57,16 +58,17 @@ cholesky
   => Array a
   -> Bool
   -> (Int, Array a)
-cholesky a b =
-  op1b a (\x y z -> af_cholesky x y z b)
-
+cholesky a (fromIntegral . fromEnum -> b) = do
+  let (x',y') = op1b a (\x y z -> af_cholesky x y z b)
+  (fromIntegral x', y')
+  
 choleskyInplace
   :: AFType a
   => Array a
   -> Bool
   -> Int
-choleskyInplace a b =
-  infoFromArray a (\x y -> af_cholesky_inplace x y b)
+choleskyInplace a (fromIntegral . fromEnum -> b) =
+  fromIntegral $ infoFromArray a (\x y -> af_cholesky_inplace x y b)
 
 solve
   :: AFType a
@@ -129,4 +131,5 @@ norm arr a b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
 
 isLAPACKAvailable :: Bool
-isLAPACKAvailable = afCall1' af_is_lapack_available
+isLAPACKAvailable = 
+  toEnum . fromIntegral $ afCall1' af_is_lapack_available

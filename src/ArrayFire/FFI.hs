@@ -1,5 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.FFI
@@ -31,6 +32,7 @@ op3
   -> Array a
   -> (Ptr AFArray -> AFArray -> AFArray -> AFArray -> IO AFErr)
   -> Array a
+{-# NOINLINE op3 #-}
 op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 ->
@@ -48,6 +50,7 @@ op2
   -> Array a
   -> (Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
   -> Array a
+{-# NOINLINE op2 #-}
 op2 (Array fptr1) (Array fptr2) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 ->
@@ -63,6 +66,7 @@ op2p
   :: Array a
   -> (Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr)
   -> (Array a, Array a)
+{-# NOINLINE op2p #-}
 op2p (Array fptr1) op =
   unsafePerformIO $ do
     (x,y) <- withForeignPtr fptr1 $ \ptr1 -> do
@@ -78,6 +82,7 @@ op3p
   :: Array a
   -> (Ptr AFArray -> Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr)
   -> (Array a, Array a, Array a)
+{-# NOINLINE op3p #-}
 op3p (Array fptr1) op =
   unsafePerformIO $ do
     (x,y,z) <- withForeignPtr fptr1 $ \ptr1 -> do
@@ -96,6 +101,7 @@ op3p1
   => Array a
   -> (Ptr AFArray -> Ptr AFArray -> Ptr AFArray -> Ptr b -> AFArray -> IO AFErr)
   -> (Array a, Array a, Array a, b)
+{-# NOINLINE op3p1 #-}
 op3p1 (Array fptr1) op =
   unsafePerformIO $ do
     (x,y,z,g) <- withForeignPtr fptr1 $ \ptr1 -> do
@@ -118,6 +124,7 @@ op2p2
   -> Array a
   -> (Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
   -> (Array a, Array a)
+{-# NOINLINE op2p2 #-}
 op2p2 (Array fptr1) (Array fptr2) op =
   unsafePerformIO $ do
     (x,y) <-
@@ -134,6 +141,7 @@ op2p2 (Array fptr1) (Array fptr2) op =
 createArray'
   :: (Ptr AFArray -> IO AFErr)
   -> IO (Array a)
+{-# NOINLINE createArray' #-}
 createArray' op =
   mask_ $ do
     ptr <-
@@ -146,6 +154,7 @@ createArray' op =
 createArray
   :: (Ptr AFArray -> IO AFErr)
   -> Array a
+{-# NOINLINE createArray #-}
 createArray op =
   unsafePerformIO . mask_ $ do
     ptr <-
@@ -179,6 +188,7 @@ opw1
   => Window
   -> (Ptr a -> AFWindow -> IO AFErr)
   -> IO a
+{-# NOINLINE opw1 #-}
 opw1 (Window fptr) op
   = mask_ . withForeignPtr fptr $ \ptr -> do
        alloca $ \p -> do
@@ -189,6 +199,7 @@ op1
   :: Array a
   -> (Ptr AFArray -> AFArray -> IO AFErr)
   -> Array a
+{-# NOINLINE op1 #-}
 op1 (Array fptr1) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -203,6 +214,7 @@ op1f
   :: Features
   -> (Ptr AFFeatures -> AFFeatures -> IO AFErr)
   -> Features
+{-# NOINLINE op1f #-}
 op1f (Features x) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr x $ \ptr1 -> do
@@ -231,6 +243,7 @@ op1b
   => Array a
   -> (Ptr AFArray -> Ptr b -> AFArray -> IO AFErr)
   -> (b, Array a)
+{-# NOINLINE op1b #-}
 op1b (Array fptr1) op =
   unsafePerformIO $
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -250,9 +263,9 @@ afCall = mask_ . (throwAFError =<<)
 loadAFImage
   :: String
   -> Bool
-  -> (Ptr AFArray -> CString -> Bool -> IO AFErr)
+  -> (Ptr AFArray -> CString -> CBool -> IO AFErr)
   -> IO (Array a)
-loadAFImage s b op = mask_ $
+loadAFImage s (fromIntegral . fromEnum -> b) op = mask_ $
   withCString s $ \cstr -> do
     p <- alloca $ \ptr -> do
       throwAFError =<< op ptr cstr b
@@ -293,6 +306,7 @@ afCall1'
   :: Storable a
   => (Ptr a -> IO AFErr)
   -> a
+{-# NOINLINE afCall1' #-}
 afCall1' op =
   unsafePerformIO . mask_ $ do
     alloca $ \ptrInput -> do
@@ -303,6 +317,7 @@ featuresToArray
   :: Features
   -> (Ptr AFArray -> AFFeatures -> IO AFErr)
   -> Array a
+{-# NOINLINE featuresToArray #-}
 featuresToArray (Features fptr1) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -317,6 +332,7 @@ infoFromFeatures
   => Features
   -> (Ptr a -> AFFeatures -> IO AFErr)
   -> a
+{-# NOINLINE infoFromFeatures #-}
 infoFromFeatures (Features fptr1) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -351,6 +367,7 @@ infoFromArray
   => Array b
   -> (Ptr a -> AFArray -> IO AFErr)
   -> a
+{-# NOINLINE infoFromArray #-}
 infoFromArray (Array fptr1) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -363,6 +380,7 @@ infoFromArray2
   => Array arr
   -> (Ptr a -> Ptr b -> AFArray -> IO AFErr)
   -> (a,b)
+{-# NOINLINE infoFromArray2 #-}
 infoFromArray2 (Array fptr1) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -377,6 +395,7 @@ infoFromArray22
   -> Array arr
   -> (Ptr a -> Ptr b -> AFArray -> AFArray -> IO AFErr)
   -> (a,b)
+{-# NOINLINE infoFromArray22 #-}
 infoFromArray22 (Array fptr1) (Array fptr2) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -391,6 +410,7 @@ infoFromArray3
   => Array arr
   -> (Ptr a -> Ptr b -> Ptr c -> AFArray -> IO AFErr)
   -> (a,b,c)
+{-# NOINLINE infoFromArray3 #-}
 infoFromArray3 (Array fptr1) op =
   unsafePerformIO $
     withForeignPtr fptr1 $ \ptr1 -> do
@@ -407,6 +427,7 @@ infoFromArray4
   => Array arr
   -> (Ptr a -> Ptr b -> Ptr c -> Ptr d -> AFArray -> IO AFErr)
   -> (a,b,c,d)
+{-# NOINLINE infoFromArray4 #-}
 infoFromArray4 (Array fptr1) op =
   unsafePerformIO $
     withForeignPtr fptr1 $ \ptr1 ->

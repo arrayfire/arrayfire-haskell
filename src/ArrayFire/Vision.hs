@@ -34,7 +34,7 @@ fast
   -> Float
   -> Int
   -> Features
-fast (Array fptr) thr (fromIntegral -> arc) non ratio (fromIntegral -> edge)
+fast (Array fptr) thr (fromIntegral -> arc) (fromIntegral . fromEnum -> non) ratio (fromIntegral -> edge)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
       do feat <- alloca $ \ptr -> do
            throwAFError =<< af_fast ptr aptr thr arc non ratio edge
@@ -66,7 +66,7 @@ orb
   -> Int
   -> Bool
   -> (Features, Array a)
-orb (Array fptr) thr (fromIntegral -> feat) scl (fromIntegral -> levels) blur
+orb (Array fptr) thr (fromIntegral -> feat) scl (fromIntegral -> levels) (fromIntegral . fromEnum -> blur)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do (feature, arr) <-
            alloca $ \aptr -> do
@@ -87,7 +87,7 @@ sift
   -> Float
   -> Float
   -> (Features, Array a)
-sift (Array fptr) (fromIntegral -> a) b c d e f g
+sift (Array fptr) (fromIntegral -> a) b c d (fromIntegral . fromEnum -> e) f g
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do (feat, arr) <-
            alloca $ \aptr -> do
@@ -108,7 +108,7 @@ gloh
   -> Float
   -> Float
   -> (Features, Array a)
-gloh (Array fptr) (fromIntegral -> a) b c d e f g
+gloh (Array fptr) (fromIntegral -> a) b c d (fromIntegral . fromEnum -> e) f g
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do (feat, arr) <-
            alloca $ \aptr -> do
@@ -167,7 +167,8 @@ dog
  -> Int
  -> Int
  -> Array a
-dog a x y = op1 a (\p c -> af_dog p c x y)
+dog a (fromIntegral -> x) (fromIntegral -> y) = 
+  op1 a (\p c -> af_dog p c x y)
 
 homography
  :: forall a . AFType a
@@ -207,7 +208,7 @@ homography
                       iterations
                       dtype
                   arrayPtr <- peek outPtrA
-                  (,) <$> peek outPtrI
+                  (,) <$> do fromIntegral <$> peek outPtrI
                       <*> do Array <$> newForeignPtr af_release_array_finalizer arrayPtr
     where
       dtype = afType (Proxy @ a)

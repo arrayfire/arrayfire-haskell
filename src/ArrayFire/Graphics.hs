@@ -23,7 +23,7 @@ import ArrayFire.FFI
 import ArrayFire.Types
 
 createWindow :: Int -> Int -> String -> IO Window
-createWindow x y str =
+createWindow (fromIntegral -> x) (fromIntegral -> y) str =
   withCString str $ \cstr ->
     createWindow' (\p -> af_create_window p x y cstr)
 
@@ -206,12 +206,12 @@ drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fp
               free cellPtr
 
 grid :: Window -> Int -> Int -> IO ()
-grid (Window w) rows cols =
+grid (Window w) (fromIntegral -> rows) (fromIntegral -> cols) =
   mask_ . withForeignPtr w $ \wptr ->
     throwAFError =<< af_grid wptr rows cols
 
 setAxesLimitsCompute :: Window -> Array a -> Array a -> Array a -> Bool -> Cell -> IO ()
-setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) exact cell =
+setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
     withForeignPtr fptr1 $ \ptr1 ->
@@ -223,7 +223,7 @@ setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) exact 
             free cellPtr
 
 setAxesLimits2d :: Window -> Float -> Float -> Float -> Float -> Bool -> Cell -> IO ()
-setAxesLimits2d (Window w) xmin xmax ymin ymax exact cell =
+setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
     alloca $ \cellPtr -> do
@@ -232,7 +232,7 @@ setAxesLimits2d (Window w) xmin xmax ymin ymax exact cell =
       free cellPtr
 
 setAxesLimits3d :: Window -> Float -> Float -> Float -> Float -> Float -> Float -> Bool -> Cell -> IO ()
-setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax exact cell =
+setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
     alloca $ \cellPtr -> do
@@ -257,7 +257,9 @@ showWindow :: Window -> IO ()
 showWindow = (`opw` af_show)
 
 isWindowClosed :: Window -> IO Bool
-isWindowClosed = (`opw1` af_is_window_closed)
+isWindowClosed w = 
+  toEnum . fromIntegral 
+    <$> (w `opw1` af_is_window_closed)
 
 setVisibility :: Window -> Bool -> IO ()
-setVisibility w b = w `opw` (`af_set_visibility` b)
+setVisibility w (fromIntegral . fromEnum -> b) = w `opw` (`af_set_visibility` b)

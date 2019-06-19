@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Device
@@ -21,20 +22,20 @@ afInit :: IO ()
 afInit = afCall af_init
 
 getInfoString :: IO String
-getInfoString = peekCString =<< afCall1 (flip af_info_string True)
+getInfoString = peekCString =<< afCall1 (flip af_info_string 1)
 
 -- af_err af_device_info(char* d_name, char* d_platform, char *d_toolkit, char* d_compute);
 
 getDeviceCount :: IO Int
-getDeviceCount = afCall1 af_get_device_count
+getDeviceCount = fromIntegral <$> afCall1 af_get_device_count
 
 -- af_err af_get_dbl_support(bool* available, const int device);
 
 setDevice :: Int -> IO ()
-setDevice = afCall . af_set_device
+setDevice (fromIntegral -> x) = afCall (af_set_device x)
 
 getDevice :: IO Int
-getDevice = afCall1 af_get_device
+getDevice = fromIntegral <$> afCall1 af_get_device
 
 -- af_err af_sync(const int device);
 -- af_err af_alloc_device(void **ptr, const dim_t bytes);

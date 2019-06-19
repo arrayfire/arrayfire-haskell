@@ -24,7 +24,8 @@ getBackendCount =
 
 getAvailableBackends :: IO [Backend]
 getAvailableBackends =
-  toBackends <$> afCall1 af_get_available_backends
+  toBackends . fromIntegral <$>
+    afCall1 af_get_available_backends
 
 getBackendID :: Array a -> Backend
 getBackendID = toBackend . flip infoFromArray af_get_backend_id
@@ -33,4 +34,4 @@ getActiveBackend :: IO Backend
 getActiveBackend = toBackend <$> afCall1 af_get_active_backend
 
 getDeviceID :: Array a -> Int
-getDeviceID = flip infoFromArray af_get_device_id
+getDeviceID = fromIntegral . flip infoFromArray af_get_device_id

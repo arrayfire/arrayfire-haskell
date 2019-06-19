@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Arith
@@ -25,7 +26,7 @@ add
   -> Array a
   -> Bool
   -> Array a
-add x y batch =
+add x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
     af_add arr arr1 arr2 batch
 
@@ -35,7 +36,7 @@ sub
   -> Array a
   -> Bool
   -> Array a
-sub x y batch = do
+sub x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_sub arr arr1 arr2 batch
 
@@ -45,7 +46,7 @@ mul
   -> Array a
   -> Bool
   -> Array a
-mul x y batch = do
+mul x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mul arr arr1 arr2 batch
 
@@ -55,7 +56,7 @@ div
   -> Array a
   -> Bool
   -> Array a
-div x y batch = do
+div x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_div arr arr1 arr2 batch
 
@@ -65,7 +66,7 @@ lt
   -> Array a
   -> Bool
   -> Array a
-lt x y batch = do
+lt x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_lt arr arr1 arr2 batch
 
@@ -75,7 +76,7 @@ gt
   -> Array a
   -> Bool
   -> Array a
-gt x y batch = do
+gt x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_gt arr arr1 arr2 batch
 
@@ -85,7 +86,7 @@ le
   -> Array a
   -> Bool
   -> Array a
-le x y batch = do
+le x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_le arr arr1 arr2 batch
 
@@ -95,7 +96,7 @@ ge
   -> Array a
   -> Bool
   -> Array a
-ge x y batch = do
+ge x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 batch
 
@@ -105,7 +106,7 @@ eq
   -> Array a
   -> Bool
   -> Array a
-eq x y batch = do
+eq x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_eq arr arr1 arr2 batch
 
@@ -115,7 +116,7 @@ neq
   -> Array a
   -> Bool
   -> Array a
-neq x y batch = do
+neq x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_neq arr arr1 arr2 batch
 
@@ -125,7 +126,7 @@ and
   -> Array a
   -> Bool
   -> Array a
-and x y batch = do
+and x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_and arr arr1 arr2 batch
 
@@ -135,7 +136,7 @@ or
   -> Array a
   -> Bool
   -> Array a
-or x y batch = do
+or x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_or arr arr1 arr2 batch
 
@@ -151,7 +152,7 @@ bitAnd
   -> Array a
   -> Bool
   -> Array a
-bitAnd x y batch = do
+bitAnd x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 batch
 
@@ -161,7 +162,7 @@ bitOr
   -> Array a
   -> Bool
   -> Array a
-bitOr x y batch = do
+bitOr x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 batch
 
@@ -171,7 +172,7 @@ bitXor
   -> Array a
   -> Bool
   -> Array a
-bitXor x y batch = do
+bitXor x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 batch
 
@@ -181,7 +182,7 @@ bitShiftL
   -> Array a
   -> Bool
   -> Array a
-bitShiftL x y batch = do
+bitShiftL x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
 
@@ -191,7 +192,7 @@ bitShiftR
   -> Array a
   -> Bool
   -> Array a
-bitShiftR x y batch = do
+bitShiftR x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
 
@@ -210,7 +211,7 @@ minOf
   -> Array a
   -> Bool
   -> Array a
-minOf x y batch = do
+minOf x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_minof arr arr1 arr2 batch
 
@@ -220,7 +221,7 @@ maxOf
   -> Array a
   -> Bool
   -> Array a
-maxOf x y batch = do
+maxOf x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_maxof arr arr1 arr2 batch
 
@@ -230,7 +231,7 @@ clamp
   -> Array a
   -> Bool
   -> Array a
-clamp a b c batch =
+clamp a b c (fromIntegral . fromEnum -> batch) =
   op3 a b c $ \arr arr1 arr2 arr3 ->
     af_clamp arr arr1 arr2 arr3 batch
 
@@ -240,7 +241,7 @@ rem
   -> Array a
   -> Bool
   -> Array a
-rem x y batch = do
+rem x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_rem arr arr1 arr2 batch
 
@@ -250,7 +251,7 @@ mod
   -> Array a
   -> Bool
   -> Array a
-mod x y batch = do
+mod x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mod arr arr1 arr2 batch
 
@@ -338,7 +339,7 @@ atan2
   -> Array a
   -> Bool
   -> Array a
-atan2 x y batch = do
+atan2 x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_atan2 arr arr1 arr2 batch
 
@@ -348,7 +349,7 @@ cplx2
   -> Array a
   -> Bool
   -> Array a
-cplx2 x y batch = do
+cplx2 x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_cplx2 arr arr1 arr2 batch
 
@@ -400,7 +401,7 @@ root
   -> Array a
   -> Bool
   -> Array a
-root x y batch = do
+root x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_root arr arr1 arr2 batch
 
@@ -410,7 +411,7 @@ pow
   -> Array a
   -> Bool
   -> Array a
-pow x y batch = do
+pow x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_pow arr arr1 arr2 batch
 

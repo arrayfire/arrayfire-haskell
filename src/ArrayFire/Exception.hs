@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns    #-}
 {-# LANGUAGE RecordWildCards #-}
 --------------------------------------------------------------------------------
 -- |
@@ -81,7 +82,7 @@ toAFExceptionType (AFErr _) = UnhandledError
 throwAFError :: AFErr -> IO ()
 throwAFError exitCode =
   unless (exitCode == afSuccess) $ do
-    let AFErr afExceptionCode = exitCode
+    let AFErr (fromIntegral -> afExceptionCode) = exitCode
         afExceptionType = toAFExceptionType exitCode
     afExceptionMsg <- errorToString exitCode
     throwIO AFException {..}

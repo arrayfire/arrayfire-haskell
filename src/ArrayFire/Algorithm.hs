@@ -26,7 +26,7 @@ sum
   -- ^ Dimension along which to perform sum
   -> a
   -- ^ Will return the sum of all values in the input array along the specified dimension
-sum x n = getScalar (x `op1` (\p a -> af_sum p a n))
+sum x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_sum p a n))
 
 sumNaN
   :: (Fractional a, AFType a)
@@ -38,7 +38,7 @@ sumNaN
   -- ^ Default value to use in the case of NaN
   -> a
   -- ^ Will return the sum of all values in the input array along the specified dimension, substituted with the default value
-sumNaN n i d = getScalar (n `op1` (\p a -> af_sum_nan p a i d))
+sumNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_sum_nan p a i d))
 
 product
   :: AFType a
@@ -48,7 +48,7 @@ product
   -- ^ Dimension along which to perform product
   -> a
   -- ^ Will return the product of all values in the input array along the specified dimension
-product x n = getScalar (x `op1` (\p a -> af_product p a n))
+product x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_product p a n))
 
 productNaN
   :: (AFType a, Fractional a)
@@ -60,7 +60,7 @@ productNaN
   -- ^ Default value to use in the case of NaN
   -> a
   -- ^ Will return the product of all values in the input array along the specified dimension, substituted with the default value
-productNaN n i d = getScalar (n `op1` (\p a -> af_product_nan p a i d))
+productNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_product_nan p a i d))
 
 min
   :: AFType a
@@ -70,7 +70,7 @@ min
   -- ^ Dimension along which to retrieve the min element
   -> a
   -- ^ Will contain the minimum of all values in the input array along dim
-min x n = getScalar (x `op1` (\p a -> af_min p a n))
+min x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_min p a n))
 
 max
   :: AFType a
@@ -80,7 +80,7 @@ max
   -- ^ Dimension along which to retrieve the max element
   -> a
   -- ^ Will contain the maximum of all values in the input array along dim
-max x n = getScalar (x `op1` (\p a -> af_max p a n))
+max x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_max p a n))
 
 allTrue
   :: forall a. AFType a
@@ -90,7 +90,7 @@ allTrue
   -- ^ Dimension along which to see if all elements are True
   -> Bool
   -- ^ Will contain the maximum of all values in the input array along dim
-allTrue x n = getScalar @Bool @a (x `op1` (\p a -> af_all_true p a n))
+allTrue x (fromIntegral -> n) = getScalar @Bool @a (x `op1` (\p a -> af_all_true p a n))
 
 anyTrue
   :: forall a . AFType a
@@ -100,7 +100,7 @@ anyTrue
   -- ^ Dimension along which to see if all elements are True
   -> Bool
   -- ^ Returns if all elements are true
-anyTrue x n = getScalar @Bool @a (x `op1` (\p a -> af_any_true p a n))
+anyTrue x (fromIntegral -> n) = getScalar @Bool @a (x `op1` (\p a -> af_any_true p a n))
 
 count
   :: forall a . AFType a
@@ -110,7 +110,7 @@ count
   -- ^ Dimension along which to count
   -> Int
   -- ^ Count of all elements along dimension
-count x n = getScalar @Int @a (x `op1` (\p a -> af_count p a n))
+count x (fromIntegral -> n) = getScalar @Int @a (x `op1` (\p a -> af_count p a n))
 
 -- | Note: imag is always set to 0 when in is real
 sumAll
@@ -197,7 +197,7 @@ imin
   -- ^ The dimension along which the minimum value is extracted
   -> (Array a, Array a)
   -- ^ will contain the minimum of all values in in along dim, will also contain the location of minimum of all values in in along dim
-imin a n = op2p a (\x y z -> af_imin x y z n)
+imin a (fromIntegral -> n) = op2p a (\x y z -> af_imin x y z n)
 
 imax
   :: AFType a
@@ -207,7 +207,7 @@ imax
   -- ^ The dimension along which the minimum value is extracted
   -> (Array a, Array a)
   -- ^ will contain the maximum of all values in in along dim, will also contain the location of maximum of all values in in along dim
-imax a n = op2p a (\x y z -> af_imax x y z n)
+imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 
 iminAll
   :: AFType a
@@ -237,7 +237,7 @@ accum
   -- ^ Dimension along which to calculate the sum
   -> Array a
   -- ^ Contains inclusive sum
-accum a n = a `op1` (\x y -> af_accum x y n)
+accum a (fromIntegral -> n) = a `op1` (\x y -> af_accum x y n)
 
 scan
   :: AFType a
@@ -251,7 +251,7 @@ scan
   -- ^ Should the scan be inclusive or not
   -> Array a
   -- ^ The scan of the input
-scan a d op batch =
+scan a (fromIntegral -> d) op (fromIntegral . fromEnum -> batch) =
   a `op1` (\x y -> af_scan x y d (toBinaryOp op) batch)
 
 scanByKey
@@ -267,7 +267,7 @@ scanByKey
   -> Bool
   -- ^ Is the scan incluside or not
   -> Array a
-scanByKey a b d op batch =
+scanByKey a b (fromIntegral -> d) op (fromIntegral . fromEnum -> batch) =
   op2 a b (\x y z -> af_scan_by_key x y z d (toBinaryOp op) batch)
 
 where'
@@ -286,7 +286,7 @@ diff1
   -- ^ Dimension along which numerical difference is performed
   -> Array a
   -- ^ Will contain first order numerical difference
-diff1 a n = a `op1` (\p x -> af_diff1 p x n)
+diff1 a (fromIntegral -> n) = a `op1` (\p x -> af_diff1 p x n)
 
 diff2
   :: AFType a
@@ -296,7 +296,7 @@ diff2
   -- ^ Dimension along which numerical difference is performed
   -> Array a
   -- ^ Will contain second order numerical difference
-diff2 a n = a `op1` (\p x -> af_diff2 p x n)
+diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 
 sort
   :: AFType a
@@ -308,7 +308,7 @@ sort
   -- ^ Return results in ascending order
   -> Array a
   -- ^ Will contain sorted input
-sort a (fromIntegral -> n) b =
+sort a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op1` (\p x -> af_sort p x n b)
 
 sortIndex
@@ -321,7 +321,7 @@ sortIndex
   -- ^ Return results in ascending order
   -> (Array a, Array a)
   -- ^ Contains the sorted, contains indices for original input
-sortIndex a (fromIntegral -> n) b =
+sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
 
 sortByKey
@@ -335,7 +335,7 @@ sortByKey
   -> Bool
   -- ^ Return results in ascending order
   -> (Array a, Array a)
-sortByKey a1 a2 (fromIntegral -> n) b =
+sortByKey a1 a2 (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   op2p2 a1 a2 (\w x y z -> af_sort_by_key w x y z n b)
 
 setUnique
@@ -346,7 +346,7 @@ setUnique
   -- ^ if true, skips the sorting steps internally
   -> Array a
   -- ^ Will contain the unique values from in
-setUnique a b =
+setUnique a (fromIntegral . fromEnum -> b) =
   op1 a (\x y -> af_set_unique x y b)
 
 setUnion
@@ -358,7 +358,7 @@ setUnion
   -> Bool
   -- ^ If true, skips calling unique internally
   -> Array a
-setUnion a1 a2 b =
+setUnion a1 a2 (fromIntegral . fromEnum -> b) =
   op2 a1 a2 (\x y z -> af_set_union x y z b)
 
 setIntersect
@@ -371,5 +371,5 @@ setIntersect
   -- ^ If true, skips calling unique internally
   -> Array a
   -- ^ Intersection of first and second array
-setIntersect a1 a2 b =
+setIntersect a1 a2 (fromIntegral . fromEnum -> b) =
   op2 a1 a2 (\x y z -> af_set_intersect x y z b)

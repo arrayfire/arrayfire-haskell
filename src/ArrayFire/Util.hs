@@ -36,7 +36,9 @@ getVersion =
     alloca $ \y ->
       alloca $ \z -> do
         throwAFError =<< af_get_version x y z
-        (,,) <$> peek x <*> peek y <*> peek z
+        (,,) <$> (fromIntegral <$> peek x)
+             <*> (fromIntegral <$> peek y)
+             <*> (fromIntegral <$> peek z)
 
 printArray :: Array a -> IO ()
 printArray (Array fptr) =
@@ -51,7 +53,7 @@ printArrayGen
   -> Array a
   -> Int
   -> IO ()
-printArrayGen s (Array fptr) prec = do
+printArrayGen s (Array fptr) (fromIntegral -> prec) = do
   mask_ . withForeignPtr fptr $ \ptr ->
     withCString s $ \cstr ->
       throwAFError =<< af_print_array_gen cstr ptr prec
@@ -63,7 +65,7 @@ saveArray
   -> String
   -> Bool
   -> IO ()
-saveArray idx key (Array fptr) filename append = do
+saveArray (fromIntegral -> idx) key (Array fptr) filename (fromIntegral . fromEnum -> append) = do
   mask_ . withForeignPtr fptr $ \ptr ->
     alloca $ \ptrIdx -> do
       poke ptrIdx idx
@@ -97,7 +99,8 @@ readArrayKeyCheck
 readArrayKeyCheck a b =
   withCString a $ \acstr ->
     withCString b $ \bcstr ->
-      afCall1 (\p -> af_read_array_key_check p acstr bcstr)
+      fromIntegral <$> 
+        afCall1 (\p -> af_read_array_key_check p acstr bcstr)
 
 arrayString :: Array a -> String
 arrayString a = arrayToString "ArrayFire Array" a 4 False
@@ -108,7 +111,7 @@ arrayToString
   -> Int
   -> Bool
   -> String
-arrayToString expr (Array fptr) prec trans =
+arrayToString expr (Array fptr) (fromIntegral -> prec) (fromIntegral . fromEnum -> trans) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
     withCString expr $ \expCstr ->
       alloca $ \ocstr -> do

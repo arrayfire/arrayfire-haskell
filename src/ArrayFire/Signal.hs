@@ -49,7 +49,7 @@ approx1Uniform
   -> InterpType
   -> Float
   -> Array a
-approx1Uniform arr1 arr2 i1 d1 d2 (fromInterpType -> interp) f =
+approx1Uniform arr1 arr2 (fromIntegral -> i1) d1 d2 (fromInterpType -> interp) f =
   op2 arr1 arr2 (\p x y -> af_approx1_uniform p x y i1 d1 d2 interp f)
 
 approx2Uniform
@@ -66,7 +66,7 @@ approx2Uniform
   -> InterpType
   -> Float
   -> Array a
-approx2Uniform arr1 arr2 i1 d1 d2 arr3 i2 d3 d4 (fromInterpType -> interp) f =
+approx2Uniform arr1 arr2 (fromIntegral -> i1) d1 d2 arr3 (fromIntegral -> i2) d3 d4 (fromInterpType -> interp) f =
   op3 arr1 arr2 arr3 (\p x y z -> af_approx2_uniform p x y i1 d1 d2 z i2 d3 d4 interp f)
 
 fft
@@ -75,8 +75,8 @@ fft
   -> Double
   -> Int
   -> Array (Complex a)
-fft a d x =
-  op1 a (\j k -> af_fft j k d (fromIntegral x))
+fft a d (fromIntegral -> x) =
+  op1 a (\j k -> af_fft j k d x)
 
 fftInPlace
   :: (AFType a, Fractional a)
@@ -207,7 +207,7 @@ fftc2r
   -> Double
   -> Bool
   -> Array a
-fftc2r a cm cd = op1 a (\x y -> af_fft_c2r x y cm cd)
+fftc2r a cm (fromIntegral . fromEnum -> cd) = op1 a (\x y -> af_fft_c2r x y cm cd)
 
 fft2C2r
   :: AFType a
@@ -215,7 +215,7 @@ fft2C2r
   -> Double
   -> Bool
   -> Array a
-fft2C2r a cm cd = op1 a (\x y -> af_fft2_c2r x y cm cd)
+fft2C2r a cm (fromIntegral . fromEnum -> cd) = op1 a (\x y -> af_fft2_c2r x y cm cd)
 
 fft3C2r
   :: AFType a
@@ -223,7 +223,7 @@ fft3C2r
   -> Double
   -> Bool
   -> Array a
-fft3C2r a cm cd = op1 a (\x y -> af_fft3_c2r x y cm cd)
+fft3C2r a cm (fromIntegral . fromEnum -> cd) = op1 a (\x y -> af_fft3_c2r x y cm cd)
 
 convolve1
   :: AFType a

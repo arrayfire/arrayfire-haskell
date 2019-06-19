@@ -197,10 +197,10 @@ data Storage
   deriving (Show, Eq, Ord, Enum)
 
 toStorage :: Storage -> AFStorage
-toStorage = AFStorage . fromEnum
+toStorage = AFStorage . fromIntegral . fromEnum
 
 fromStorage :: AFStorage -> Storage
-fromStorage (AFStorage x)
+fromStorage (AFStorage (fromIntegral -> x))
   | x `elem` [0..3] = toEnum x
   | otherwise = error $ "Invalid Storage " <> (show x)
 
@@ -236,10 +236,10 @@ data InterpType
   deriving (Show, Eq, Ord, Enum)
 
 toInterpType :: AFInterpType -> InterpType
-toInterpType (AFInterpType x) = toEnum x
+toInterpType (AFInterpType (fromIntegral -> x)) = toEnum x
 
 fromInterpType :: InterpType -> AFInterpType
-fromInterpType = AFInterpType . fromEnum
+fromInterpType = AFInterpType . fromIntegral . fromEnum
 
 data BorderType
   = PadZero
@@ -247,10 +247,10 @@ data BorderType
   deriving (Show, Ord, Enum, Eq)
 
 toBorderType :: AFBorderType -> BorderType
-toBorderType (AFBorderType x) = toEnum x
+toBorderType (AFBorderType (fromIntegral -> x)) = toEnum x
 
 fromBorderType :: BorderType -> AFBorderType
-fromBorderType = AFBorderType . fromEnum
+fromBorderType = AFBorderType . fromIntegral . fromEnum
 
 data Connectivity
   = Conn4
@@ -274,10 +274,10 @@ data CSpace
   deriving (Show, Eq, Ord, Enum)
 
 toCSpace :: AFCSpace -> CSpace
-toCSpace (AFCSpace x) = toEnum x
+toCSpace (AFCSpace (fromIntegral -> x)) = toEnum x
 
 fromCSpace :: CSpace -> AFCSpace
-fromCSpace = AFCSpace . fromEnum
+fromCSpace = AFCSpace . fromIntegral . fromEnum
 
 data YccStd
   = Ycc601
@@ -326,10 +326,10 @@ data CannyThreshold
   deriving (Show, Eq, Ord, Enum)
 
 toCannyThreshold :: AFCannyThreshold -> CannyThreshold
-toCannyThreshold (AFCannyThreshold x) = toEnum x
+toCannyThreshold (AFCannyThreshold (fromIntegral -> x)) = toEnum x
 
 fromCannyThreshold :: CannyThreshold -> AFCannyThreshold
-fromCannyThreshold = AFCannyThreshold . fromEnum
+fromCannyThreshold = AFCannyThreshold . fromIntegral . fromEnum
 
 data FluxFunction
   = FluxDefault
@@ -338,10 +338,10 @@ data FluxFunction
   deriving (Show, Eq, Ord, Enum)
 
 toFluxFunction :: AFFluxFunction -> FluxFunction
-toFluxFunction (AFFluxFunction x) = toEnum x
+toFluxFunction (AFFluxFunction (fromIntegral -> x)) = toEnum x
 
 fromFluxFunction :: FluxFunction -> AFFluxFunction
-fromFluxFunction = AFFluxFunction . fromEnum
+fromFluxFunction = AFFluxFunction . fromIntegral . fromEnum
 
 data DiffusionEq
   = DiffusionDefault
@@ -350,10 +350,10 @@ data DiffusionEq
   deriving (Show, Eq, Ord, Enum)
 
 toDiffusionEq :: AFDiffusionEq -> DiffusionEq
-toDiffusionEq (AFDiffusionEq x) = toEnum x
+toDiffusionEq (AFDiffusionEq (fromIntegral -> x)) = toEnum x
 
 fromDiffusionEq :: DiffusionEq -> AFDiffusionEq
-fromDiffusionEq = AFDiffusionEq . fromEnum
+fromDiffusionEq = AFDiffusionEq . fromIntegral . fromEnum
 
 data IterativeDeconvAlgo
   = DeconvDefault
@@ -362,10 +362,10 @@ data IterativeDeconvAlgo
   deriving (Show, Eq, Ord, Enum)
 
 toIterativeDeconvAlgo :: AFIterativeDeconvAlgo -> IterativeDeconvAlgo
-toIterativeDeconvAlgo (AFIterativeDeconvAlgo x) = toEnum x
+toIterativeDeconvAlgo (AFIterativeDeconvAlgo (fromIntegral -> x)) = toEnum x
 
 fromIterativeDeconvAlgo :: IterativeDeconvAlgo -> AFIterativeDeconvAlgo
-fromIterativeDeconvAlgo = AFIterativeDeconvAlgo . fromEnum
+fromIterativeDeconvAlgo = AFIterativeDeconvAlgo . fromIntegral . fromEnum
 
 data InverseDeconvAlgo
   = InverseDeconvDefault
@@ -373,10 +373,10 @@ data InverseDeconvAlgo
   deriving (Show, Eq, Ord, Enum)
 
 toInverseDeconvAlgo :: AFInverseDeconvAlgo -> InverseDeconvAlgo
-toInverseDeconvAlgo (AFInverseDeconvAlgo x) = toEnum x
+toInverseDeconvAlgo (AFInverseDeconvAlgo (fromIntegral -> x)) = toEnum x
 
 fromInverseDeconvAlgo :: InverseDeconvAlgo -> AFInverseDeconvAlgo
-fromInverseDeconvAlgo = AFInverseDeconvAlgo . fromEnum
+fromInverseDeconvAlgo = AFInverseDeconvAlgo . fromIntegral . fromEnum
 
 data Cell
   = Cell
@@ -410,10 +410,10 @@ data ColorMap
   deriving (Show, Eq, Ord, Enum)
 
 fromColorMap :: ColorMap -> AFColorMap
-fromColorMap = AFColorMap . fromEnum
+fromColorMap = AFColorMap . fromIntegral . fromEnum
 
 toColorMap :: AFColorMap -> ColorMap
-toColorMap (AFColorMap x) = toEnum x
+toColorMap (AFColorMap (fromIntegral -> x)) = toEnum x
 
 data MarkerType
   = MarkerTypeNone
@@ -427,10 +427,10 @@ data MarkerType
   deriving (Show, Eq, Ord, Enum)
 
 fromMarkerType :: MarkerType -> AFMarkerType
-fromMarkerType = AFMarkerType . fromEnum
+fromMarkerType = AFMarkerType . fromIntegral . fromEnum
 
 toMarkerType :: AFMarkerType -> MarkerType
-toMarkerType (AFMarkerType x) = toEnum x
+toMarkerType (AFMarkerType (fromIntegral -> x)) = toEnum x
 
 data MatchType
   = MatchTypeSAD
@@ -445,10 +445,10 @@ data MatchType
   deriving (Show, Eq, Ord, Enum)
 
 fromMatchType :: MatchType -> AFMatchType
-fromMatchType = AFMatchType . fromEnum
+fromMatchType = AFMatchType . fromIntegral . fromEnum
 
 toMatchType :: AFMatchType -> MatchType
-toMatchType (AFMatchType x) = toEnum x
+toMatchType (AFMatchType (fromIntegral -> x)) = toEnum x
 
 data HomographyType
   = RANSAC
@@ -456,10 +456,10 @@ data HomographyType
   deriving (Show, Eq, Ord, Enum)
 
 fromHomographyType :: HomographyType -> AFHomographyType
-fromHomographyType = AFHomographyType . fromEnum
+fromHomographyType = AFHomographyType . fromIntegral . fromEnum
 
 toHomographyType :: AFHomographyType -> HomographyType
-toHomographyType (AFHomographyType x) = toEnum x
+toHomographyType (AFHomographyType (fromIntegral -> x)) = toEnum x
 
 data Seq
   = Seq

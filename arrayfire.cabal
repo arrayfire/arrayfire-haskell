@@ -114,8 +114,6 @@ executable gen
 test-suite test
   type:
     exitcode-stdio-1.0
-  ghc-options:
-    -threaded -rtsopts
   main-is:
     Main.hs
   hs-source-dirs:
@@ -148,6 +146,3 @@ test-suite test
     ArrayFire.StatisticsSpec
     ArrayFire.UtilSpec
     ArrayFire.VisionSpec
-
-
--- ag -l | entr sh -c 'cabal build test && dist/build/test/test

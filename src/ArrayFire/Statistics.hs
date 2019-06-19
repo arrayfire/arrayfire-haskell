@@ -41,7 +41,7 @@ var
   -> Bool
   -> Int
   -> Array a
-var arr b d =
+var arr (fromIntegral . fromEnum -> b) d =
   arr `op1` (\p x ->
     af_var p x b (fromIntegral d))
 
@@ -70,7 +70,7 @@ cov
   -> Array a
   -> Bool
   -> Array a
-cov x y n =
+cov x y (fromIntegral . fromEnum -> n) =
   op2 x y $ \a b c ->
     af_cov a b c n
 
@@ -102,7 +102,7 @@ varAll
   => Array a
   -> Bool
   -> (Double, Double)
-varAll a b =
+varAll a (fromIntegral . fromEnum -> b) =
   infoFromArray2 a $ \x y z ->
     af_var_all x y z b
 
@@ -141,5 +141,5 @@ topk
   -> Int
   -> AFTopkFunction
   -> (Array a, Array a)
-topk a x y f
+topk a (fromIntegral -> x) (fromIntegral -> y) f
   = a `op2p` (\b c d -> af_topk b c d x y f)

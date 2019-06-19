@@ -2,6 +2,9 @@
 module ArrayFire.Internal.Array where
 
 import ArrayFire.Internal.Defines
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -21,15 +24,15 @@ foreign import ccall unsafe "af_release_array"
 foreign import ccall unsafe "af_retain_array"
     af_retain_array :: Ptr AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_data_ref_count"
-    af_get_data_ref_count :: Ptr Int -> AFArray -> IO AFErr
+    af_get_data_ref_count :: Ptr CInt -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_eval"
     af_eval :: AFArray -> IO AFErr
 foreign import ccall unsafe "af_eval_multiple"
-    af_eval_multiple :: Int -> Ptr AFArray -> IO AFErr
+    af_eval_multiple :: CInt -> Ptr AFArray -> IO AFErr
 foreign import ccall unsafe "af_set_manual_eval_flag"
-    af_set_manual_eval_flag :: Bool -> IO AFErr
+    af_set_manual_eval_flag :: CBool -> IO AFErr
 foreign import ccall unsafe "af_get_manual_eval_flag"
-    af_get_manual_eval_flag :: Ptr Bool -> IO AFErr
+    af_get_manual_eval_flag :: Ptr CBool -> IO AFErr
 foreign import ccall unsafe "af_get_elements"
     af_get_elements :: Ptr DimT -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_type"
@@ -39,32 +42,32 @@ foreign import ccall unsafe "af_get_dims"
 foreign import ccall unsafe "af_get_numdims"
     af_get_numdims :: Ptr CUInt -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_empty"
-    af_is_empty :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_empty :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_scalar"
-    af_is_scalar :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_scalar :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_row"
-    af_is_row :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_row :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_column"
-    af_is_column :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_column :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_vector"
-    af_is_vector :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_vector :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_complex"
-    af_is_complex :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_complex :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_real"
-    af_is_real :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_real :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_double"
-    af_is_double :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_double :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_single"
-    af_is_single :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_single :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_realfloating"
-    af_is_realfloating :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_realfloating :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_floating"
-    af_is_floating :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_floating :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_integer"
-    af_is_integer :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_integer :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_bool"
-    af_is_bool :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_bool :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_is_sparse"
-    af_is_sparse :: Ptr Bool -> AFArray -> IO AFErr
+    af_is_sparse :: Ptr CBool -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_get_scalar"
     af_get_scalar :: Ptr () -> AFArray -> IO AFErr

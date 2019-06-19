@@ -2,9 +2,9 @@
 module ArrayFire.Internal.Sparse where
 
 import ArrayFire.Internal.Defines
-
-
-
+import ArrayFire.Internal.Types
+import Data.Word
+import Data.Int
 import Foreign.Ptr
 import Foreign.C.Types
 
@@ -12,7 +12,7 @@ import Foreign.C.Types
 foreign import ccall unsafe "af_create_sparse_array"
     af_create_sparse_array :: Ptr AFArray -> DimT -> DimT -> AFArray -> AFArray -> AFArray -> AFStorage -> IO AFErr
 foreign import ccall unsafe "af_create_sparse_array_from_ptr"
-    af_create_sparse_array_from_ptr :: Ptr AFArray -> DimT -> DimT -> DimT -> Ptr () -> Ptr Int -> Ptr Int -> AFDtype -> AFStorage -> AFSource -> IO AFErr
+    af_create_sparse_array_from_ptr :: Ptr AFArray -> DimT -> DimT -> DimT -> Ptr () -> Ptr CInt -> Ptr CInt -> AFDtype -> AFStorage -> AFSource -> IO AFErr
 foreign import ccall unsafe "af_create_sparse_array_from_dense"
     af_create_sparse_array_from_dense :: Ptr AFArray -> AFArray -> AFStorage -> IO AFErr
 foreign import ccall unsafe "af_sparse_convert_to"
