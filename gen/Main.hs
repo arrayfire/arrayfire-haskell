@@ -71,8 +71,6 @@ file a = T.pack $ printf
   \module ArrayFire.Internal.%s where\n\n\
   \import ArrayFire.Internal.Defines\n\
   \import ArrayFire.Internal.Types\n\
-  \import Data.Word\n\
-  \import Data.Int\n\
   \import Foreign.Ptr\n\
   \import Foreign.C.Types\n\n\
   \#include \"af/%s.h\"\n\
