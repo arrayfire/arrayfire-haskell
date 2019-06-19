@@ -122,7 +122,7 @@ sumAll
 sumAll = (`infoFromArray2` af_sum_all)
 
 sumNaNAll
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Double
@@ -140,7 +140,7 @@ productAll
 productAll = (`infoFromArray2` af_product_all)
 
 productNaNAll
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Double
