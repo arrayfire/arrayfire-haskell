@@ -70,7 +70,7 @@ spec =
       isSparse arr `shouldBe` False
 
     it "Should make a Bit array" $ do
-      let arr = mkArray @CBool [2,2] [1,1,1,1]
+      let arr = mkArray @Bool [2,2] (repeat True)
       isBool arr `shouldBe` True
 
     it "Should make an integer array" $ do
@@ -80,7 +80,7 @@ spec =
     it "Should make a Floating array" $ do
       let arr = mkArray @Double [2,2] (repeat 1)
       isFloating arr `shouldBe` True
-      let arr = mkArray @CBool [2,2] (repeat 1)
+      let arr = mkArray @Bool [2,2] (repeat True)
       isFloating arr `shouldBe` False
 
     it "Should make a Complex array" $ do
@@ -122,8 +122,8 @@ spec =
       let arr = mkArray @Float [10,10] (repeat (5.5))
       toList arr `shouldBe` Prelude.replicate 100 5.5
 
-      let arr = mkArray @CBool [4] [1,1,0,1]
-      toList arr `shouldBe` [1,1,0,1]
+      let arr = mkArray @Bool [4] [True,True,False,True]
+      toList arr `shouldBe` [True,True,False,True]
 
       let arr = mkArray @Int16 [10] [1..]
       toList arr `shouldBe` [1..10]

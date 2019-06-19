@@ -22,7 +22,7 @@ spec =
       A.getSizeOf (Proxy @ Word32) `shouldBe` 4
       A.getSizeOf (Proxy @ Word16) `shouldBe` 2
       A.getSizeOf (Proxy @ Word8) `shouldBe` 1
-      A.getSizeOf (Proxy @ CBool) `shouldBe` 1
+      A.getSizeOf (Proxy @ Bool) `shouldBe` 1
       A.getSizeOf (Proxy @ Double) `shouldBe` 8
       A.getSizeOf (Proxy @ Float) `shouldBe` 4
       A.getSizeOf (Proxy @ (Complex Float)) `shouldBe` 8

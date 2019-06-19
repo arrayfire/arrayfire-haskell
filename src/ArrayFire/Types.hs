@@ -35,7 +35,6 @@ import Data.Complex
 import Data.Proxy
 import Data.Word
 import Foreign.C.String
-import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.Storable
 import GHC.Int
@@ -61,7 +60,7 @@ instance AFType (Complex Double) where
 instance AFType (Complex Float) where
   afType Proxy = c32
 
-instance AFType CBool where
+instance AFType Bool where
   afType Proxy = b8
 
 instance AFType Int32 where

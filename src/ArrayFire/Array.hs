@@ -27,8 +27,10 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal            hiding (void)
 import           Foreign.Ptr
 import           Foreign.Storable
+import           Foreign.C.Types
 
 import           System.IO.Unsafe
+import           Unsafe.Coerce
 
 import           ArrayFire.Exception
 import           ArrayFire.FFI
@@ -64,7 +66,16 @@ mkArray
 {-# NOINLINE mkArray #-}
 mkArray dims xs =
   unsafePerformIO . mask_ $ do
-    dataPtr <- castPtr <$> newArray (Prelude.take size xs)
+    dataPtr <-
+      case dType of
+        x | x == b8 -> do
+            let cs :: [CBool] =
+                  fromIntegral . fromEnum <$>
+                    Prelude.take size (unsafeCoerce xs :: [Bool])
+            mapM_ print cs >> print "cbools!"
+            castPtr <$> newArray cs
+          | otherwise ->
+            castPtr <$> newArray (Prelude.take size xs)
     let ndims = fromIntegral (Prelude.length dims)
     alloca $ \arrayPtr -> do
       dimsPtr <- newArray (DimT . fromIntegral <$> dims)
@@ -232,6 +243,11 @@ toVector arr@(Array fptr) = do
     throwAFError =<< af_get_data_ptr (castPtr ptr) arrPtr
     newFptr <- newForeignPtr finalizerFree ptr
     pure $ unsafeFromForeignPtr0 newFptr len
+      where
+        go 0 = False
+        go 1 = True
+        go _ = error "Invalid Ptr CBool"
+        typ = afType (Proxy @ a)
 
 toList :: forall a . AFType a => Array a -> [a]
 toList = V.toList . toVector
@@ -241,5 +257,16 @@ getScalar (Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     alloca $ \ptr -> do
       throwAFError =<< af_get_scalar (castPtr ptr) arrPtr
-      peek ptr
+      if typ == b8
+        then do
+          b :: CBool <- peek (castPtr ptr)
+          pure . unsafeCoerce $ case b of
+            0 -> False
+            1 -> True
+            _ -> error "Invalid Ptr CBool"
+        else
+          peek ptr
+    where
+      typ = afType (Proxy @b)
+
 

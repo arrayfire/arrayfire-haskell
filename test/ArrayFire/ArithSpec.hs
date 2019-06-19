@@ -11,8 +11,6 @@ spec =
   describe "Arith tests" $ do
     it "Should add two scalar arrays" $ do
       scalar @Int 1 + 2 `shouldBe` 3
-    it "Should add two scalar bool arrays" $ do
-      scalar @CBool 1 + 0 `shouldBe` 1
     it "Should subtract two scalar arrays" $ do
       scalar @Int 4 - 2 `shouldBe` 2
     it "Should multiply two scalar arrays" $ do
@@ -38,13 +36,13 @@ spec =
     it "Should eq Array" $ do
       3 == (3 :: Array Double) `shouldBe` True
     it "Should and Array" $ do
-      ((mkArray @CBool [1] [0] `and` (mkArray [1] [1])) False)
-         `shouldBe` mkArray [1] [0]
+      ((mkArray @Bool [1] [False] `and` (mkArray [1] [True])) False)
+         `shouldBe` mkArray [1] [False]
     it "Should and Array" $ do
-      ((mkArray @CBool [2] [0,0] `and` (mkArray [2] [1,0])) False)
-         `shouldBe` mkArray [2] [0, 0]
+      ((mkArray @Bool [2] [False,False] `and` (mkArray [2] [True,False])) False)
+         `shouldBe` mkArray [2] [False, False]
     it "Should or Array" $ do
-      ((mkArray @CBool [2] [0,0] `or` (mkArray [2] [1,0])) False)
-         `shouldBe` mkArray [2] [1, 0]
+      ((mkArray @Bool [2] [False,False] `or` (mkArray [2] [True,False])) False)
+         `shouldBe` mkArray [2] [True, False]
     it "Should not Array" $ do
-      not (mkArray @CBool [2] [1,1]) `shouldBe` mkArray [2] [0,0]
+      not (mkArray @Bool [2] [True, True]) `shouldBe` mkArray [2] [False,False]
