@@ -18,4 +18,4 @@ spec =
       setBackend backend
       (`shouldBe` backend) =<< getActiveBackend
       let arr = matrix @Int (2,2) [1..]
-      getBackendID arr `shouldBe` backend
+      getBackend arr `shouldBe` backend

@@ -26,14 +26,26 @@ import ArrayFire.Internal.Features
 import ArrayFire.Internal.Vision
 import ArrayFire.Types
 
+-- | FAST feature detectors
+--
+-- A circle of radius 3 pixels, translating into a total of 16 pixels, is checked for sequential segments of pixels much brighter or much darker than the central one.
+-- For a pixel p to be considered a feature, there must exist a sequential segment of arc_length pixels in the circle around it such that all are greather than (p + thr) or smaller than (p - thr).
+-- After all features in the image are detected, if nonmax is true, the non-maximal suppression is applied, checking all detected features and the features detected in its 8-neighborhood and discard it if its score is non maximal.
 fast
   :: Array a
+  -- ^ Array containing a grayscale image (color images are not supported)
   -> Float
+  -- ^ FAST threshold for which a pixel of the circle around the central pixel is considered to be greater or smaller
   -> Int
+  -- ^ Length of arc (or sequential segment) to be tested, must be within range [9-16]
   -> Bool
+  -- ^ Performs non-maximal suppression if true
   -> Float
+  -- ^ Maximum ratio of features to detect, the maximum number of features is calculated by feature_ratio * in.elements(). The maximum number of features is not based on the score, instead, features detected after the limit is reached are discarded
   -> Int
+  -- ^ Is the length of the edges in the image to be discarded by FAST (minimum is 3, as the radius of the circle)
   -> Features
+  -- ^ Struct containing arrays for x and y coordinates and score, while array orientation is set to 0 as FAST does not compute orientation, and size is set to 1 as FAST does not compute multiple scales
 fast (Array fptr) thr (fromIntegral -> arc) (fromIntegral . fromEnum -> non) ratio (fromIntegral -> edge)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
       do feat <- alloca $ \ptr -> do

@@ -14,24 +14,33 @@ import ArrayFire.FFI
 import ArrayFire.Internal.Backend
 import ArrayFire.Types
 
-setBackend :: Backend -> IO ()
+-- | Set specific 'Backend' to use
+setBackend
+  :: Backend
+  -- ^ 'Backend' to use for 'Array' construction
+  -> IO ()
 setBackend = afCall . af_set_backend . toAFBackend
 
+-- | Retrieve count of Backends available
 getBackendCount :: IO Int
 getBackendCount =
   fromIntegral <$>
     afCall1 af_get_backend_count
 
+-- | Retrieve available 'Backend's
 getAvailableBackends :: IO [Backend]
 getAvailableBackends =
   toBackends . fromIntegral <$>
     afCall1 af_get_available_backends
 
-getBackendID :: Array a -> Backend
-getBackendID = toBackend . flip infoFromArray af_get_backend_id
+-- | Retrieve 'Backend' that specific 'Array' was created from
+getBackend :: Array a -> Backend
+getBackend = toBackend . flip infoFromArray af_get_backend_id
 
+-- | Retrieve active 'Backend'
 getActiveBackend :: IO Backend
 getActiveBackend = toBackend <$> afCall1 af_get_active_backend
 
+-- | Retrieve Device ID that 'Array' was created from
 getDeviceID :: Array a -> Int
 getDeviceID = fromIntegral . flip infoFromArray af_get_device_id
