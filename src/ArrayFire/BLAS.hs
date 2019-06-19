@@ -20,10 +20,15 @@ import ArrayFire.Types
 -- | The following applies for Sparse-Dense matrix multiplication.
 --
 -- This function can be used with one sparse input. The sparse input must always be the lhs and the dense matrix must be rhs.
+--
 -- The sparse array can only be of AF_STORAGE_CSR format.
+--
 -- The returned array is always dense.
+--
 -- optLhs an only be one of AF_MAT_NONE, AF_MAT_TRANS, AF_MAT_CTRANS.
+--
 -- optRhs can only be AF_MAT_NONE.
+--
 matmul
   :: Array a
   -- ^ 2D matrix of Array a, left-hand side

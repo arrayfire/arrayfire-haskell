@@ -16,10 +16,23 @@ import ArrayFire.FFI
 import ArrayFire.Types
 import ArrayFire.Internal.Defines
 
+-- | This function factorizes a matrix A into two unitary matrices U and Vt, and a diagonal matrix S such that
+-- A=U∗S∗Vt
+--
+-- If A has M rows and N columns, U is of the size M x M , V is of size N x N, and S is of size M x N
+--
+-- The arrayfire function only returns the non zero diagonal elements of S.
+--
 svd
   :: AFType a
   => Array a
+  -- ^ Input matrix
   -> (Array a, Array a, Array a)
+  -- ^ 'u' is the output array containing U
+  --
+  -- 'v' is the output array containing the diagonal values of sigma, (singular values of the input matrix))
+  --
+  -- 'vt' is the output array containing V^H
 svd = (`op3p` af_svd)
 
 svdInPlace
@@ -131,5 +144,5 @@ norm arr a b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
 
 isLAPACKAvailable :: Bool
-isLAPACKAvailable = 
+isLAPACKAvailable =
   toEnum . fromIntegral $ afCall1' af_is_lapack_available

@@ -135,9 +135,13 @@ ge x y (fromIntegral . fromEnum -> batch) = do
 eq
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of equal
 eq x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_eq arr arr1 arr2 batch
@@ -145,9 +149,13 @@ eq x y (fromIntegral . fromEnum -> batch) = do
 neq
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of not equal
 neq x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_neq arr arr1 arr2 batch
@@ -155,9 +163,13 @@ neq x y (fromIntegral . fromEnum -> batch) = do
 and
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of and
 and x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_and arr arr1 arr2 batch
@@ -165,9 +177,13 @@ and x y (fromIntegral . fromEnum -> batch) = do
 or
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of or
 or x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_or arr arr1 arr2 batch
@@ -181,9 +197,13 @@ not = flip op1 af_not
 bitAnd
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of bitwise and
 bitAnd x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 batch
@@ -191,9 +211,13 @@ bitAnd x y (fromIntegral . fromEnum -> batch) = do
 bitOr
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of bit or
 bitOr x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 batch
@@ -201,9 +225,13 @@ bitOr x y (fromIntegral . fromEnum -> batch) = do
 bitXor
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of bit xor
 bitXor x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 batch
@@ -211,9 +239,13 @@ bitXor x y (fromIntegral . fromEnum -> batch) = do
 bitShiftL
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of bit shift left
 bitShiftL x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
@@ -221,9 +253,13 @@ bitShiftL x y (fromIntegral . fromEnum -> batch) = do
 bitShiftR
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of bit shift right
 bitShiftR x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
@@ -231,7 +267,9 @@ bitShiftR x y (fromIntegral . fromEnum -> batch) = do
 cast
   :: forall a b . (AFType a, AFType b)
   => Array a
+  -- ^ Input array to cast
   -> Array b
+    -- ^ Result of cast
 cast afArr =
   coerce $ afArr `op1` (\x y -> af_cast x y dtyp)
     where
@@ -240,9 +278,13 @@ cast afArr =
 minOf
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of minimum of
 minOf x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_minof arr arr1 arr2 batch
@@ -250,9 +292,13 @@ minOf x y (fromIntegral . fromEnum -> batch) = do
 maxOf
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of maximum of
 maxOf x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_maxof arr arr1 arr2 batch
@@ -270,9 +316,13 @@ clamp a b c (fromIntegral . fromEnum -> batch) =
 rem
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of remainder
 rem x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_rem arr arr1 arr2 batch
@@ -280,9 +330,13 @@ rem x y (fromIntegral . fromEnum -> batch) = do
 mod
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of mod
 mod x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mod arr arr1 arr2 batch
@@ -368,9 +422,13 @@ atan = flip op1 af_atan
 atan2
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of atan2
 atan2 x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_atan2 arr arr1 arr2 batch
@@ -378,9 +436,13 @@ atan2 x y (fromIntegral . fromEnum -> batch) = do
 cplx2
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of cplx2
 cplx2 x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_cplx2 arr arr1 arr2 batch
@@ -430,9 +492,13 @@ tanh = flip op1 af_tanh
 root
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of root
 root x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_root arr arr1 arr2 batch
@@ -440,9 +506,13 @@ root x y (fromIntegral . fromEnum -> batch) = do
 pow
   :: AFType a
   => Array a
+  -- ^ First input
   -> Array a
+  -- ^ Second input
   -> Bool
+  -- ^ Use batch
   -> Array a
+  -- ^ Result of pow
 pow x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_pow arr arr1 arr2 batch

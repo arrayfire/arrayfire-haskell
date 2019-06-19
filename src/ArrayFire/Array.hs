@@ -56,8 +56,11 @@ mkArray
   :: forall array
    . AFType array
   => [Int]
+  -- ^ Dimensions
   -> [array]
+  -- ^ Array elements
   -> Array array
+  -- ^ Returned array
 {-# NOINLINE mkArray #-}
 mkArray dims xs =
   unsafePerformIO . mask_ $ do
