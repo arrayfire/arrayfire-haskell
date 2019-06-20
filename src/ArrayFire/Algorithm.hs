@@ -10,6 +10,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for aggregation, manipulation of 'Array'
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
 

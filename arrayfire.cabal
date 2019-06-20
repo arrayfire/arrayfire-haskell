@@ -1,8 +1,7 @@
 name:                arrayfire
 version:             0.1.0.0
-synopsis:            Haskell bindings to ArrayFire
-description:         High-level Haskell bindings to ArrayFire
-homepage:            https://github.com/dmjio/fire
+synopsis:            Haskell bindings to the ArrayFire general-purpose GPU library
+homepage:            https://github.com/arrayfire/arrayfire-haskell
 license:             BSD3
 license-file:        LICENSE
 author:              David Johnson
@@ -12,6 +11,12 @@ category:            Math
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
+description:         High-level Haskell bindings to the ArrayFire General-purpose GPU library
+    .
+    <<https://user-images.githubusercontent.com/875324/59819388-9ff83f00-92f5-11e9-9ac0-51eef200c716.png>>
+    .
+    <https://www.youtube.com/watch?v=tI89V1Z8QHw>
+    .
 
 library
   exposed-modules:

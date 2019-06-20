@@ -16,6 +16,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for constructing and querying metadata from 'Array'
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Array where
 
@@ -37,21 +39,57 @@ import           ArrayFire.Internal.Array
 import           ArrayFire.Internal.Defines
 import           ArrayFire.Types
 
+-- | Smart constructor for creating a scalar 'Array'
+--
+-- @
+-- >>> scalar @Double 2.0
+-- @
+--
 scalar :: AFType a => a -> Array a
 scalar x = mkArray [1] [x]
 
+-- | Smart constructor for creating a vector 'Array'
+--
+-- @
+-- >>> vector @Double 10 [1..]
+-- @
+--
 vector :: AFType a => Int -> [a] -> Array a
 vector n = mkArray [n]
 
+-- | Smart constructor for creating a matrix 'Array'
+--
+-- @
+-- >>> matrix @Double (2,2) [1,2,3,4]
+-- @
+--
 matrix :: AFType a => (Int,Int) -> [a] -> Array a
 matrix (x,y) = mkArray [x,y]
 
+-- | Smart constructor for creating a cubic 'Array'
+--
+-- @
+-- >>> cube @Double (2,2,2) [1..]
+-- @
+--
 cube :: AFType a => (Int,Int,Int) -> [a] -> Array a
 cube (x,y,z) = mkArray [x,y,z]
 
+-- | Smart constructor for creating a tensor 'Array'
+--
+-- @
+-- >>> tensor @Double (2,2,2,2) [1..]
+-- @
+--
 tensor :: AFType a => (Int, Int,Int,Int) -> [a] -> Array a
 tensor (w,x,y,z) = mkArray [w,x,y,z]
 
+-- | Internal function for 'Array' construction
+--
+-- @
+-- >>> mkArray @Double [10] [1.0 .. 10.0]
+-- @
+--
 mkArray
   :: forall array
    . AFType array
@@ -77,54 +115,72 @@ mkArray dims xs =
       dType = afType (Proxy @ array)
 
 -- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
+
+-- | Copies an 'Array' to a new 'Array'
 copyArray
   :: AFType a
   => Array a
+  -- ^ 'Array' to be copied
   -> Array a
+    -- ^ Newly copied 'Array'
 copyArray = (`op1` af_copy_array)
 -- af_err af_write_array(af_array arr, const void *data, const size_t bytes, af_source src);
 -- af_err af_get_data_ptr(void *data, const af_array arr);
 
+-- | Retains an 'Array', increases reference count
 retainArray
   :: AFType a
   => Array a
+  -- ^ Input 'Array'
   -> Array a
 retainArray =
   (`op1` af_retain_array)
 
+-- | Retrieves 'Array' reference count
 getDataRefCount
   :: AFType a
   => Array a
+  -- ^ Input 'Array'
   -> Int
+  -- ^ Reference count
 getDataRefCount =
   fromIntegral . (`infoFromArray` af_get_data_ref_count)
 
 -- af_err af_eval(af_array in);
 -- af_err af_eval_multiple(const int num, af_array *arrays);
 
+-- | Should manual evaluation occur
 setManualEvalFlag
-  :: Bool -> IO ()
+  :: Bool
+  -- ^ Whether or not to perform manual evaluation
+  -> IO ()
 setManualEvalFlag (fromIntegral . fromEnum -> b) =
   afCall (af_set_manual_eval_flag b)
 
+-- | Retrieve manual evaluation status
 getManualEvalFlag
   :: IO Bool
 getManualEvalFlag =
   toEnum . fromIntegral <$> afCall1 af_get_manual_eval_flag
 
+-- | Retrieve element count
 getElements
   :: AFType a
   => Array a
+  -- ^ Input 'Array'
   -> Int
+  -- ^ Count of elements in 'Array'
 getElements a =
   fromIntegral (a `infoFromArray` af_get_elements)
 
+-- | Retrieve type of 'Array'
 getType
   :: AFType a
   => Array a
   -> AFDtype
 getType = (`infoFromArray` af_get_type)
 
+-- | Retrieves dimensions of 'Array'
 getDims
   :: AFType a
   => Array a
@@ -133,96 +189,112 @@ getDims arr = do
   let (a,b,c,d) = arr `infoFromArray4` af_get_dims
   (fromIntegral a, fromIntegral b, fromIntegral c, fromIntegral d)
 
+-- | Retrieves number of dimensions in 'Array'
 getNumDims
   :: AFType a
   => Array a
   -> Int
 getNumDims = fromIntegral . (`infoFromArray` af_get_numdims)
 
+-- | Checks if an 'Array' is empty
 isEmpty
   :: AFType a
   => Array a
   -> Bool
 isEmpty a = toEnum . fromIntegral $ (a `infoFromArray` af_is_empty)
 
+-- | Checks if an 'Array' is a scalar (contains only one element)
 isScalar
   :: AFType a
   => Array a
   -> Bool
 isScalar a = toEnum . fromIntegral $ (a `infoFromArray` af_is_scalar)
 
+-- | Checks if an 'Array' is row-oriented
 isRow
   :: AFType a
   => Array a
   -> Bool
 isRow a = toEnum . fromIntegral $ (a `infoFromArray` af_is_row)
 
+-- | Checks if an 'Array' is a column-oriented
 isColumn
   :: AFType a
   => Array a
   -> Bool
 isColumn a = toEnum . fromIntegral $ (a `infoFromArray` af_is_column)
 
+-- | Checks if an 'Array' is a vector
 isVector
   :: AFType a
   => Array a
   -> Bool
 isVector a = toEnum . fromIntegral $ (a `infoFromArray` af_is_vector)
 
+-- | Checks if an 'Array' is a 'Complex'
 isComplex
   :: AFType a
   => Array a
   -> Bool
 isComplex a = toEnum . fromIntegral $ (a `infoFromArray` af_is_complex)
 
+-- | Checks if an 'Array' is 'Real'
 isReal
   :: AFType a
   => Array a
   -> Bool
 isReal a = toEnum . fromIntegral $ (a `infoFromArray` af_is_real)
 
+-- | Checks if an 'Array' is 'Double'
 isDouble
   :: AFType a
   => Array a
   -> Bool
 isDouble a = toEnum . fromIntegral $ (a `infoFromArray` af_is_double)
 
+-- | Checks if an 'Array' is 'Float'
 isSingle
   :: AFType a
   => Array a
   -> Bool
 isSingle a = toEnum . fromIntegral $ (a `infoFromArray` af_is_single)
 
+-- | Checks if an 'Array' is 'Double', 'Float', 'Complex Double', or 'Complex Float'
 isRealFloating
   :: AFType a
   => Array a
   -> Bool
 isRealFloating a = toEnum . fromIntegral $ (a `infoFromArray` af_is_realfloating)
 
+-- | Checks if an 'Array' is 'Double' or 'Float'
 isFloating
   :: AFType a
   => Array a
   -> Bool
 isFloating a = toEnum . fromIntegral $ (a `infoFromArray` af_is_floating)
 
+-- | Checks if an 'Array' is of type 'Int16', 'Int32', or 'Int64'
 isInteger
   :: AFType a
   => Array a
   -> Bool
 isInteger a = toEnum . fromIntegral $ (a `infoFromArray` af_is_integer)
 
+-- | Checks if an 'Array' is of type 'CBool'
 isBool
   :: AFType a
   => Array a
   -> Bool
 isBool a = toEnum . fromIntegral $ (a `infoFromArray` af_is_bool)
 
+-- | Checks if an 'Array' is sparse
 isSparse
   :: AFType a
   => Array a
   -> Bool
 isSparse a = toEnum . fromIntegral $ (a `infoFromArray` af_is_sparse)
 
+-- | Converts an 'Array' to a 'Storable' 'Vector'
 toVector :: forall a . AFType a => Array a -> Vector a
 toVector arr@(Array fptr) = do
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
@@ -233,13 +305,14 @@ toVector arr@(Array fptr) = do
     newFptr <- newForeignPtr finalizerFree ptr
     pure $ unsafeFromForeignPtr0 newFptr len
 
+-- | Converts an 'Array' to [a]
 toList :: forall a . AFType a => Array a -> [a]
 toList = V.toList . toVector
 
+-- | Retrieves single scalar value from an 'Array'
 getScalar :: forall a b . (Storable a, AFType b) => Array b -> a
 getScalar (Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     alloca $ \ptr -> do
       throwAFError =<< af_get_scalar (castPtr ptr) arrPtr
       peek ptr
-

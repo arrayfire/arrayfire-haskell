@@ -20,9 +20,11 @@ import Foreign.Ptr
 import ArrayFire.Internal.Exception
 import ArrayFire.Internal.Defines
 
+-- | String representation of ArrayFire exception
 errorToString :: AFErr -> IO String
 errorToString = peekCString <=< af_err_to_string
 
+-- | ArrayFire exception type
 data AFExceptionType
   = NoMemoryError
   | DriverError
@@ -50,12 +52,16 @@ data AFExceptionType
 data AFException
   = AFException
   { afExceptionType :: AFExceptionType
+  -- ^ The Exception type to throw
   , afExceptionCode :: Int
+  -- ^ Code representing the exception
   , afExceptionMsg  :: String
+  -- ^ Exception message
   } deriving (Show, Eq, Typeable)
 
 instance Exception AFException
 
+-- | Conversion function helper
 toAFExceptionType :: AFErr -> AFExceptionType
 toAFExceptionType (AFErr 101) = NoMemoryError
 toAFExceptionType (AFErr 102) = DriverError
@@ -79,6 +85,7 @@ toAFExceptionType (AFErr 998) = InternalError
 toAFExceptionType (AFErr 999) = UnknownError
 toAFExceptionType (AFErr _) = UnhandledError
 
+-- | Throws an ArrayFire Exception
 throwAFError :: AFErr -> IO ()
 throwAFError exitCode =
   unless (exitCode == afSuccess) $ do

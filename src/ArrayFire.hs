@@ -2,14 +2,18 @@
 -- |
 -- Module      : ArrayFire
 -- Copyright   : David Johnson (c) 2019-2020
--- License     : BSD 3
+-- License     : BSD3
 -- Maintainer  : David Johnson <djohnson.m@gmail.com>
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- <<https://user-images.githubusercontent.com/875324/59819703-0fbaf980-92f7-11e9-8f53-adebea590bfb.png>>
+--
 --------------------------------------------------------------------------------
 module ArrayFire
-  ( module ArrayFire.Algorithm
+  ( -- * Tutorial
+    -- $tutorial
+    module ArrayFire.Algorithm
   , module ArrayFire.Arith
   , module ArrayFire.Array
   , module ArrayFire.Backend
@@ -58,3 +62,37 @@ import Foreign.C.Types
 import Data.Int
 import Data.Complex
 import Data.Word
+
+-- $tutorial
+--
+-- @
+-- module Main where
+--
+-- import qualified ArrayFire as A
+--
+-- main :: IO ()
+-- main = A.printArray $ A.matrix @Double (3,3) [1.0 .. ]
+-- @
+--
+-- * Exception Handling
+--
+-- @
+-- {\-\# LANGUAGE TypeApplications \#\-}
+-- module Main where
+--
+-- import qualified ArrayFire         as A
+-- import           Control.Exception ( catch )
+--
+-- main :: IO ()
+-- main = A.printArray (action shouldBatchOperation) \`catch\` (\\(e :: A.AFException) -> print e)
+--   where
+--     action = A.matrix \@Double (3,3) [1.0 .. ] \`A.mul\` A.matrix \@Double (2,2) [1.0 .. ]
+--     shouldBatchOperation = True
+-- @
+--
+-- The above operation is invalid since the matrix multiply has improper dimensions. The caught exception produces the following error:
+--
+-- > AFException {afExceptionType = SizeError, afExceptionCode = 203, afExceptionMsg = "Invalid input size"}
+--
+
+

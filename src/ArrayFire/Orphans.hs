@@ -12,6 +12,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Various instances for 'Array'
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Orphans where
 
@@ -19,7 +21,6 @@ import           Prelude
 
 import qualified ArrayFire.Arith    as A
 import qualified ArrayFire.Array    as A
-import qualified ArrayFire.BLAS     as A
 import           ArrayFire.Types
 import           ArrayFire.Util
 
@@ -43,7 +44,7 @@ instance (Ord a, AFType a) => Ord (Array a) where
   x >= y = A.getScalar @Bool @a (A.ge x y False)
 
 instance AFType a => Semigroup (Array a) where
-  x <> y = A.matmul x y None None
+  x <> y = A.mul x y False
 
 instance Show (Array a) where
   show = arrayString

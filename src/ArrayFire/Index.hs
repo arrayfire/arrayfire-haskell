@@ -23,7 +23,13 @@ import Control.Exception
 (!) :: Array a -> Int -> Array a
 (!) = undefined
 
-index :: Array a -> [Seq] -> Array a
+-- | Index into an 'Array' by 'Seq'
+index
+  :: Array a
+  -- ^ 'Array' argument
+  -> [Seq]
+  -- ^ 'Seq' to use for indexing
+  -> Array a
 index (Array fptr) seqs =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
     alloca $ \aptr ->

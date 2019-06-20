@@ -160,15 +160,15 @@ matchTemplate a b (fromMatchType -> match)
 
 -- | SUSAN corner detector.
 --
--- SUSAN is an acronym standing for Smallest Univalue Segment Assimilating Nucleus. This method places a circular disc over the pixel to be tested (a.k.a nucleus) to compute the corner measure of that corresponding pixel. The region covered by the circular disc is M, and a pixel in this region is represented by m⃗ ∈M where m⃗ 0 is the nucleus. Every pixel in the region is compared to the nucleus using the following comparison function:
+-- SUSAN is an acronym standing for Smallest Univalue Segment Assimilating Nucleus. This method places a circular disc over the pixel to be tested (a.k.a nucleus) to compute the corner measure of that corresponding pixel. The region covered by the circular disc is M, and a pixel in this region is represented by m   M where m  0 is the nucleus. Every pixel in the region is compared to the nucleus using the following comparison function:
 --
--- c(m⃗ )=e−((I(m⃗ )−I(m⃗ 0))/t)6
+-- c(m  )=e ((I(m  ) I(m  0))/t)6
 -- where t is radius of the region, I is the brightness of the pixel.
 --
 -- Response of SUSAN operator is given by the following equation:
 --
--- R(M)={g−n(M)if n(M)<g0otherwise,
--- where n(M)=∑m⃗ ∈Mc(m⃗ ), g is named the geometric threshold and n is the number of pixels in the mask which are within t of the nucleus.
+-- R(M)={g n(M)if n(M)<g0otherwise,
+-- where n(M)= m   Mc(m  ), g is named the geometric threshold and n is the number of pixels in the mask which are within t of the nucleus.
 --
 -- Importance of the parameters, t and g is explained below:
 --

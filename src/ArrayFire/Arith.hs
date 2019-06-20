@@ -10,6 +10,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Arithmetic functions over 'Array'
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
@@ -20,6 +22,12 @@ import ArrayFire.FFI
 import ArrayFire.Internal.Arith
 import ArrayFire.Types
 
+-- | Adds two 'Array' objects
+--
+-- @
+-- >>> (scalar \@Int 1 \`add\` scalar \@Int 1) True
+-- @
+--
 add
   :: AFType a
   => Array a
@@ -34,6 +42,12 @@ add x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
     af_add arr arr1 arr2 batch
 
+-- | Subtracts two 'Array' objects
+--
+-- @
+-- >>> (scalar @Int 1 \`sub\` scalar @Int 1) True
+-- @
+--
 sub
   :: AFType a
   => Array a
@@ -48,6 +62,12 @@ sub x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_sub arr arr1 arr2 batch
 
+-- | Multiply two 'Array' objects
+--
+-- @
+-- >>> (scalar @Int 1 \`mul\` scalar @Int 1) True
+-- @
+--
 mul
   :: AFType a
   => Array a
@@ -62,6 +82,12 @@ mul x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mul arr arr1 arr2 batch
 
+-- | Divide two 'Array' objects
+--
+-- @
+-- >>> (scalar @Int 1 \`mul\` scalar @Int 1) True
+-- @
+--
 div
   :: AFType a
   => Array a
@@ -76,6 +102,12 @@ div x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_div arr arr1 arr2 batch
 
+-- | Test if on 'Array' is less than another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`lt\` scalar \@Int 1) True
+-- @
+--
 lt
   :: AFType a
   => Array a

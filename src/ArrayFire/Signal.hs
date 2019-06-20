@@ -8,6 +8,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Signal processing API
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Signal where
 

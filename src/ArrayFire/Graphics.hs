@@ -8,6 +8,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- 'Array' visualization API
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Graphics where
 
@@ -22,24 +24,62 @@ import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Types
 
-createWindow :: Int -> Int -> String -> IO Window
+-- | Create window
+createWindow
+  :: Int
+  -- ^ width
+  -> Int
+  -- ^ height
+  -> String
+  -- ^ title
+  -> IO Window
+  -- ^ 'Window' handle
 createWindow (fromIntegral -> x) (fromIntegral -> y) str =
   withCString str $ \cstr ->
     createWindow' (\p -> af_create_window p x y cstr)
 
-setPosition :: Window -> Int -> Int -> IO ()
+-- | Sets 'Window' position
+setPosition
+  :: Window
+  -- ^ 'Window' handle
+  -> Int
+  -- ^ Horizontal start coordinate
+  -> Int
+  -- ^ Vertical start coordinate
+  -> IO ()
 setPosition w (fromIntegral -> x) (fromIntegral -> y) =
   w `opw` (\p -> af_set_position p x y)
 
-setTitle :: Window -> String -> IO ()
+-- | Set 'Window' title
+setTitle
+  :: Window
+  -- ^ 'Window' handle
+  -> String
+  -- ^ title
+  -> IO ()
 setTitle w str = withCString str $ \cstr ->
   w `opw` (\p -> af_set_title p cstr)
 
-setSize :: Window -> Int -> Int -> IO ()
+-- | Set 'Window' size
+setSize
+  :: Window
+  -- ^ 'Window' handle
+  -> Int
+  -- ^ target width of the window
+  -> Int
+  -- ^ target height of the window
+  -> IO ()
 setSize w (fromIntegral -> x) (fromIntegral -> y) =
   w `opw` (\p -> af_set_size p x y)
 
-drawImage :: Window -> Array a -> Cell -> IO ()
+drawImage
+  :: Window
+  -- ^ 'Window' handle
+  -> Array a
+  -- ^ Image
+  -> Cell
+  -- ^ is structure `af_cell` that has the properties that are used for the current rendering.
+  -> IO ()
 drawImage (Window wfptr) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
     withForeignPtr wfptr $ \wptr ->
@@ -257,8 +297,8 @@ showWindow :: Window -> IO ()
 showWindow = (`opw` af_show)
 
 isWindowClosed :: Window -> IO Bool
-isWindowClosed w = 
-  toEnum . fromIntegral 
+isWindowClosed w =
+  toEnum . fromIntegral
     <$> (w `opw1` af_is_window_closed)
 
 setVisibility :: Window -> Bool -> IO ()

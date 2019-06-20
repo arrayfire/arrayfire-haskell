@@ -1,8 +1,6 @@
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE PolyKinds           #-}
 {-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE FlexibleInstances   #-}
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
@@ -18,6 +16,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for constructing and manipulating 'Array'
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Data where
 
@@ -29,7 +29,6 @@ import Data.Word
 import Foreign.ForeignPtr
 import Foreign.Marshal         hiding (void)
 import Foreign.Storable
-import GHC.Int
 import System.IO.Unsafe
 
 import ArrayFire.Exception
@@ -37,7 +36,19 @@ import ArrayFire.FFI
 import ArrayFire.Types
 import ArrayFire.Internal.Data
 
-constant :: [Int] -> Double -> Array Double
+
+-- | Creates an 'Array Double' from a scalar value
+--
+-- @
+-- >>> constant [2,2] 2.0
+-- @
+--
+constant
+  :: [Int]
+  -- ^ Dimensions
+  -> Double
+  -- ^ Scalar value
+  -> Array Double
 constant dims val =
   unsafePerformIO . mask_ $ do
     ptr <- alloca $ \ptrPtr ->
@@ -52,9 +63,17 @@ constant dims val =
         n = fromIntegral (length dims)
         typ = afType (Proxy @ Double)
 
+-- | Creates an 'Array (Complex Double)' from a scalar value
+--
+-- @
+-- >>> constantComplex [2,2] (2.0 :+ 2.0)
+-- @
+--
 constantComplex
   :: [Int]
+  -- ^ Dimensions
   -> Complex Double
+  -- ^ Scalar value
   -> Array (Complex Double)
 constantComplex dims val = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
@@ -69,10 +88,18 @@ constantComplex dims val = unsafePerformIO . mask_ $ do
         n = fromIntegral (length dims)
         typ = afType (Proxy @ (Complex Double))
 
+-- | Creates an 'Array Int64' from a scalar value
+--
+-- @
+-- >>> constantLong [2,2] 2.0
+-- @
+--
 constantLong
   :: [Int]
-  -> Int64
-  -> Array Int64
+  -- ^ Dimensions
+  -> Int
+  -- ^ Scalar value
+  -> Array Int
 constantLong dims val = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr ->
     withArray (fromIntegral <$> dims) $ \dimArray -> do
@@ -85,6 +112,12 @@ constantLong dims val = unsafePerformIO . mask_ $ do
       where
         n = fromIntegral (length dims)
 
+-- | Creates an 'Array Word64' from a scalar value
+--
+-- @
+-- >>> constantULong [2,2] 2.0
+-- @
+--
 constantULong
   :: [Int]
   -> Word64
@@ -138,7 +171,17 @@ iota dims tdims = do
         tn = fromIntegral (length tdims)
         typ = afType (Proxy @ a)
 
-identity :: forall a . AFType a => [Int] -> Array a
+-- | Creates the identity `Array` from given dimensions
+--
+-- @
+-- >>> identity [2,2] 2.0
+-- @
+--
+identity
+  :: forall a . AFType a
+  => [Int]
+  -- ^ Dimensions
+  -> Array a
 identity dims = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
@@ -239,47 +282,47 @@ moddims dims (Array fptr) =
     n = fromIntegral (length dims)
 
 flat
-  :: Array (a :: *)
+  :: Array a
   -> Array a
 flat = (`op1` af_flat)
 
 flip
-  :: Array (a :: *)
+  :: Array a
   -> Int
   -> Array a
 flip a (fromIntegral -> dim) =
   a `op1` (\p k -> af_flip p k dim)
 
 lower
-  :: Array (a :: *)
+  :: Array a
   -> Bool
   -> Array a
 lower a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_lower p k b)
 
 upper
-  :: Array (a :: *)
+  :: Array a
   -> Bool
   -> Array a
 upper a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_upper p k b)
 
 select
-  :: Array (a :: *)
+  :: Array a
   -> Array a
   -> Array a
   -> Array a
 select a b c = op3 a b c af_select
 
 selectScalarR
-  :: Array (a :: *)
+  :: Array a
   -> Array a
   -> Double
   -> Array a
 selectScalarR a b c = op2 a b (\p w x -> af_select_scalar_r p w x c)
 
 selectScalarL
-  :: Array (a :: *)
+  :: Array a
   -> Double
   -> Array a
   -> Array a

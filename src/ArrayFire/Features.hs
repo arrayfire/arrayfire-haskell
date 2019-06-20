@@ -8,6 +8,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Features API for ArrayFire
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Features where
 
@@ -21,6 +23,7 @@ import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Exception
 
+-- | Construct 'Features'
 createFeatures
   :: Int
   -> Features
@@ -33,36 +36,43 @@ createFeatures (fromIntegral -> n) =
     fptr <- newForeignPtr af_release_features ptr
     pure (Features fptr)
 
+-- | Retain 'Features'
 retainFeatures
   :: Features
   -> Features
 retainFeatures = (`op1f` af_retain_features)
 
+-- | Get number of 'Feature's
 getFeaturesNum
   :: Features
   -> Int
 getFeaturesNum = fromIntegral . (`infoFromFeatures` af_get_features_num)
 
+-- | Get 'Feature' X-position
 getFeaturesXPos
   :: Features
   -> Array a
 getFeaturesXPos = (`featuresToArray` af_get_features_xpos)
 
+-- | Get 'Feature' Y-position
 getFeaturesYPos
   :: Features
   -> Array a
 getFeaturesYPos = (`featuresToArray` af_get_features_ypos)
 
+-- | Get 'Feature' Score
 getFeaturesScore
   :: Features
   -> Array a
 getFeaturesScore = (`featuresToArray` af_get_features_score)
 
+-- | Get 'Feature' orientation
 getFeaturesOrientation
   :: Features
   -> Array a
 getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
 
+-- | Get 'Feature' size
 getFeaturesSize
   :: Features
   -> Array a

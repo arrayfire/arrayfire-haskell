@@ -8,6 +8,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Basic Linear Algebra Subprograms (BLAS) API
+--
 --------------------------------------------------------------------------------
 module ArrayFire.BLAS where
 
