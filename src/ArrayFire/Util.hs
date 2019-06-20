@@ -30,6 +30,7 @@ import ArrayFire.Types
 
 type Version = (Int,Int,Int)
 
+-- | Retrieve version for ArrayFire API
 getVersion :: IO Version
 getVersion =
   alloca $ \x ->
@@ -40,14 +41,18 @@ getVersion =
              <*> (fromIntegral <$> peek y)
              <*> (fromIntegral <$> peek z)
 
+-- | Prints array to stdout
 printArray :: Array a -> IO ()
 printArray (Array fptr) =
   mask_ . withForeignPtr fptr $ \ptr ->
     throwAFError =<< af_print_array ptr
 
+-- | Gets git revision of ArrayFire
 getRevision :: IO String
 getRevision = peekCString =<< af_get_revision
 
+
+-- | Saves 'Array' to disk
 printArrayGen
   :: String
   -> Array a
@@ -58,6 +63,7 @@ printArrayGen s (Array fptr) (fromIntegral -> prec) = do
     withCString s $ \cstr ->
       throwAFError =<< af_print_array_gen cstr ptr prec
 
+-- | Saves 'Array' to disk
 saveArray
   :: Int
   -> String
@@ -75,6 +81,7 @@ saveArray (fromIntegral -> idx) key (Array fptr) filename (fromIntegral . fromEn
             af_save_array ptrIdx keyCstr
               ptr filenameCstr append
 
+-- | Reads Array by index
 readArrayIndex
   :: String
   -> Int
@@ -83,6 +90,7 @@ readArrayIndex str (fromIntegral -> idx) =
   withCString str $ \cstr ->
     createArray' (\p -> af_read_array_index p cstr idx)
 
+-- | Reads Array by key
 readArrayKey
   :: String
   -> String
@@ -92,6 +100,7 @@ readArrayKey fn key =
     withCString key $ \kcstr ->
       createArray' (\p -> af_read_array_key p fcstr kcstr)
 
+-- | Reads Array
 readArrayKeyCheck
   :: String
   -> String
@@ -102,9 +111,11 @@ readArrayKeyCheck a b =
       fromIntegral <$> 
         afCall1 (\p -> af_read_array_key_check p acstr bcstr)
 
+-- | Convert ArrayFire Array to String, used for 'Show' instance
 arrayString :: Array a -> String
 arrayString a = arrayToString "ArrayFire Array" a 4 False
 
+-- | Convert ArrayFire Array to String
 arrayToString
   :: String
   -> Array a
@@ -120,6 +131,7 @@ arrayToString expr (Array fptr) (fromIntegral -> prec) (fromIntegral . fromEnum 
 
 -- af_err af_example_function(af_array* out, const af_array in, const af_someenum_t param);
 
+-- | Retrieve size of ArrayFire data type
 getSizeOf :: forall a . AFType a => Proxy a -> Int
 getSizeOf proxy =
   unsafePerformIO . mask_ . alloca $ \csize -> do

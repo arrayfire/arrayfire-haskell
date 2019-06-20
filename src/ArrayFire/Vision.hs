@@ -158,13 +158,36 @@ matchTemplate
 matchTemplate a b (fromMatchType -> match)
   = op2 a b (\p c d -> af_match_template p c d match)
 
+-- | SUSAN corner detector.
+--
+-- SUSAN is an acronym standing for Smallest Univalue Segment Assimilating Nucleus. This method places a circular disc over the pixel to be tested (a.k.a nucleus) to compute the corner measure of that corresponding pixel. The region covered by the circular disc is M, and a pixel in this region is represented by m⃗ ∈M where m⃗ 0 is the nucleus. Every pixel in the region is compared to the nucleus using the following comparison function:
+--
+-- c(m⃗ )=e−((I(m⃗ )−I(m⃗ 0))/t)6
+-- where t is radius of the region, I is the brightness of the pixel.
+--
+-- Response of SUSAN operator is given by the following equation:
+--
+-- R(M)={g−n(M)if n(M)<g0otherwise,
+-- where n(M)=∑m⃗ ∈Mc(m⃗ ), g is named the geometric threshold and n is the number of pixels in the mask which are within t of the nucleus.
+--
+-- Importance of the parameters, t and g is explained below:
+--
+-- t determines how similar points have to be to the nucleusbefore they are considered to be a part of the univalue segment
+--
+-- g determines the minimum size of the univalue segment. For a large enough g, SUSAN operator becomes an edge dectector.
 susan
   :: Array a
+  -- ^ is input grayscale/intensity image
   -> Int
+  -- ^ nucleus radius for each pixel neighborhood
   -> Float
+  -- ^ intensity difference threshold a.k.a t from equations in description
   -> Float
+  -- ^ geometric threshold
   -> Float
+  -- ^ is maximum number of features that will be returned by the function
   -> Int
+  -- ^ indicates how many pixels width area should be skipped for corner detection
   -> Features
 susan (Array fptr) (fromIntegral -> a) b c d (fromIntegral -> e)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
@@ -174,23 +197,58 @@ susan (Array fptr) (fromIntegral -> a) b c d (fromIntegral -> e)
              peek aptr
          Features <$> newForeignPtr af_release_features feat
 
+-- | Difference of Gaussians.
+--
+-- Given an image, this function computes two different versions of smoothed input image using the difference smoothing parameters and subtracts one from the other and returns the result.
+--
 dog
  :: Array a
+ -- ^ is input image
  -> Int
+ -- ^ is the radius of first gaussian kernel
  -> Int
+ -- ^ is the radius of second gaussian kernel
  -> Array a
-dog a (fromIntegral -> x) (fromIntegral -> y) = 
+ -- ^ is difference of smoothed inputs
+dog a (fromIntegral -> x) (fromIntegral -> y) =
   op1 a (\p c -> af_dog p c x y)
 
+-- | Homography Estimation.
+--
+-- Homography estimation find a perspective transform between two sets of 2D points.
+-- Currently, two methods are supported for the estimation, RANSAC (RANdom SAmple Consensus)
+-- and LMedS (Least Median of Squares). Both methods work by randomly selecting a subset of 4 points
+-- of the set of source points, computing the eigenvectors of that set and finding the perspective transform.
+-- The process is repeated several times, a maximum of times given by the value passed to the iterations arguments
+-- for RANSAC (for the CPU backend, usually less than that, depending on the quality of the dataset,
+-- but for CUDA and OpenCL backends the transformation will be computed exactly the amount of times passed via
+-- the iterations parameter), the returned value is the one that matches the best number of inliers, which are
+-- all of the points that fall within a maximum L2 distance from the value passed to the inlier_thr argument.
+-- For the LMedS case, the number of iterations is currently hardcoded to meet the following equation:
+--
+-- m=log(1−P)log[1−(1−ϵ)p],
+--
+-- where P=0.99, ϵ=40% and p=4.
 homography
  :: forall a . AFType a
  => Array a
+ -- ^ x coordinates of the source points.
  -> Array a
+ -- ^ y coordinates of the source points.
  -> Array a
+ -- ^ x coordinates of the destination points.
  -> Array a
+ -- ^ y coordinates of the destination points.
  -> HomographyType
+ -- ^ htype, can be AF_HOMOGRAPHY_RANSAC, for which a
+ -- RANdom SAmple Consensus will be used to evaluate
+ -- the homography quality (e.g., number of inliers),
+ -- or AF_HOMOGRAPHY_LMEDS, which will use
+ -- Least Median of Squares method to evaluate homography quality.
  -> Float
+  -- ^ If htype is AF_HOMOGRAPHY_RANSAC, this parameter will five the maximum L2-distance for a point to be considered an inlier.
  -> Int
+  -- ^ maximum number of iterations when htype is AF_HOMOGRAPHY_RANSAC and backend is CPU, if backend is CUDA or OpenCL, iterations is the total number of iterations, an iteration is a selection of 4 random points for which the homography is estimated and evaluated for number of inliers.
  -> (Int, Array a)
 homography
   (Array a)
