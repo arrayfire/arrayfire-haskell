@@ -313,6 +313,8 @@ afCall1' op =
       throwAFError =<< op ptrInput
       peek ptrInput
 
+-- | Note: We don't add a finalizer to 'Array' since the 'Features' finalizer frees 'Array'
+-- under the hood.
 featuresToArray
   :: Features
   -> (Ptr AFArray -> AFFeatures -> IO AFErr)
@@ -324,8 +326,7 @@ featuresToArray (Features fptr1) op =
       alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
         Array <$> do
-          newForeignPtr af_release_array_finalizer
-            =<< peek ptrInput
+          newForeignPtr_ =<< peek ptrInput
 
 infoFromFeatures
   :: Storable a

@@ -10,12 +10,8 @@ spec =
     it "Should get features number an array" $ do
       let feats = createFeatures 10
       getFeaturesNum feats `shouldBe` 10
-    -- it "Should retain features" $ do
-    --   let feats = createFeatures 100
-    --   retainFeatures feats
---    print (getFeaturesSize feats)
---    print (getFeaturesOrientation feats)
---    print (getFeaturesXPos feats)
---    print (getFeaturesXPos feats)
---    scalar @Int 10 `shouldBe` scalar @Int 10
+      -- print (getFeaturesSize feats)
+      -- print (getFeaturesOrientation feats)
+      -- print (getFeaturesXPos feats)
+      -- print (getFeaturesYPos feats)
 
