@@ -148,6 +148,7 @@ createArray' op =
   mask_ $ do
     ptr <-
       alloca $ \ptrInput -> do
+        zeroOutArray ptrInput
         throwAFError =<< op ptrInput
         peek ptrInput
     fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -161,6 +162,7 @@ createArray op =
   unsafePerformIO . mask_ $ do
     ptr <-
       alloca $ \ptrInput -> do
+        zeroOutArray ptrInput
         throwAFError =<< op ptrInput
         peek ptrInput
     fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -445,3 +447,6 @@ infoFromArray4 (Array fptr1) op =
                     <*> peek ptrInput2
                     <*> peek ptrInput3
                     <*> peek ptrInput4
+
+foreign import ccall unsafe "zeroOutArray"
+  zeroOutArray :: Ptr AFArray -> IO ()

@@ -105,6 +105,7 @@ mkArray dims xs =
     dataPtr <- castPtr <$> newArray (Prelude.take size xs)
     let ndims = fromIntegral (Prelude.length dims)
     alloca $ \arrayPtr -> do
+      zeroOutArray arrayPtr
       dimsPtr <- newArray (DimT . fromIntegral <$> dims)
       throwAFError =<< af_create_array arrayPtr dataPtr ndims dimsPtr dType
       free dataPtr >> free dimsPtr

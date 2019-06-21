@@ -35,3 +35,7 @@ void test_window () {
   af_create_window(&window, 100, 100, "foo");
   af_show(window);
 }
+
+void zeroOutArray (af_array * arr) {
+  (*arr) = 0;
+}

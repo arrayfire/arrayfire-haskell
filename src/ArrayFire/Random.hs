@@ -211,6 +211,7 @@ rand
   -> IO (Array a)
 rand dims f = mask_ $ do
   ptr <- alloca $ \ptrPtr -> do
+    zeroOutArray ptrPtr
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< f ptrPtr n dimArray typ
       peek ptrPtr
