@@ -97,3 +97,18 @@ spec =
       A.count (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` 5
       A.count (A.vector @Double 5 (repeat 1)) 0 `shouldBe` 5
       A.count (A.vector @Float 5 (repeat 1)) 0 `shouldBe` 5
+    it "Should get sum all elements" $ do
+      A.sumAll (A.vector @Int 5 (repeat 2)) `shouldBe` (10,0)
+      A.sumAll (A.vector @Double 5 (repeat 2)) `shouldBe` (10.0,0)
+      A.sumAll (A.vector @(A.Complex Double) 5 (repeat (2 A.:+ 0))) `shouldBe` (10.0,0)
+    it "Should get sum all elements" $ do
+      A.sumNaNAll (A.vector @Double 2 [10, acos 2]) 1 `shouldBe` (11.0,0)
+    it "Should product all elements in an Array" $ do
+      A.productAll (A.vector @Int 5 (repeat 2)) `shouldBe` (32,0)
+    it "Should product all elements in an Array" $ do
+      A.productNaNAll (A.vector @Double 2 [10,acos 2]) 10 `shouldBe` (100,0)
+    it "Should find minimum value of an Array" $ do
+      A.minAll (A.vector @Int 5 [0..]) `shouldBe` (0,0)
+    it "Should find maximum value of an Array" $ do
+      A.maxAll (A.vector @Int 5 [0..]) `shouldBe` (4,0)
+

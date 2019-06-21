@@ -7,6 +7,21 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Set and get available ArrayFire 'Backend's.
+--
+-- @
+-- module Main where
+--
+-- import ArrayFire
+--
+-- main :: IO ()
+-- main = print =<< getAvailableBackends
+-- @
+--
+-- @
+-- [nix-shell:~\/arrayfire]$ .\/main
+-- [CPU,OpenCL]
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.Backend where
 

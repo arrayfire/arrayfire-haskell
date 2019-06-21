@@ -9,6 +9,10 @@ import Foreign.C
 spec :: Spec
 spec =
   describe "Arith tests" $ do
+    it "Should negate scalar value" $ do
+      negate (scalar @Int 1) `shouldBe` (-1)
+    it "Should negate a vector" $ do
+      negate (vector @Int 3 [2,2,2]) `shouldBe` vector @Int 3 [-2,-2,-2]
     it "Should add two scalar arrays" $ do
       scalar @Int 1 + 2 `shouldBe` 3
     it "Should add two scalar bool arrays" $ do

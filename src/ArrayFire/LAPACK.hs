@@ -35,6 +35,7 @@ svd
   -- 'vt' is the output array containing V^H
 svd = (`op3p` af_svd)
 
+
 svdInPlace
   :: AFType a
   => Array a
@@ -74,7 +75,7 @@ cholesky
 cholesky a (fromIntegral . fromEnum -> b) = do
   let (x',y') = op1b a (\x y z -> af_cholesky x y z b)
   (fromIntegral x', y')
-  
+
 choleskyInplace
   :: AFType a
   => Array a
@@ -110,6 +111,7 @@ inverse
 inverse a m =
   a `op1` (\x y  -> af_inverse x y (toMatProp m))
 
+-- | Not implemented in 3.6.4
 pinverse
   :: AFType a
   => Array a

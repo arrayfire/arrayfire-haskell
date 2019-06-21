@@ -12,11 +12,45 @@
 -- |
 -- Module      : ArrayFire.Random
 -- Copyright   : David Johnson (c) 2019-2020
--- License     : BSD 3
+-- License     : BSD3
 -- Maintainer  : David Johnson <djohnson.m@gmail.com>
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- 'RandomEngine' generation, Random 'Array' generation.
+--
+-- @
+-- {-\# LANGUAGE TypeApplications \#-}
+-- module Main where
+--
+-- import 'ArrayFire'
+--
+-- main :: IO ()
+-- main = do
+--   seed <- 'getSeed'
+--   -- ^ Retrieves seed
+--   engine <- 'createRandomEngine' 'Mersenne' seed
+--   -- ^ Creates engine
+--   array <- 'randomUniform' [3,3] engine
+--   -- ^ Creates random Array from engine with uniformly distributed data
+--   print array
+--
+--   print =<< 'randu' @'Double' [2,2]
+--   -- ^ Shorthand for creating random 'Array'
+-- @
+-- @
+-- ArrayFire 'Array'
+-- [3 3 1 1]
+--    0.4446     0.1143     0.4283
+--    0.5725     0.1456     0.9182
+--    0.1915     0.1643     0.5997
+-- @
+-- @
+-- ArrayFire 'Array'
+-- [2 2 1 1]
+--    0.6010     0.0278
+--    0.9806     0.2126
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.Random
   ( createRandomEngine

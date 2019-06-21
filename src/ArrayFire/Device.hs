@@ -10,6 +10,12 @@
 --
 -- Information about ArrayFire API and devices
 --
+-- @
+--  ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)
+-- [0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB
+-- -1- APPLE: Intel(R) UHD Graphics 630, 1536 MB
+-- @
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Device where
 
@@ -18,15 +24,6 @@ import ArrayFire.Internal.Device
 import ArrayFire.FFI
 
 -- | Retrieve info from ArrayFire API
---
--- Example below:
---
--- @
---
---  ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)
--- [0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB
--- -1- APPLE: Intel(R) UHD Graphics 630, 1536 MB
--- @
 info :: IO ()
 info = afCall af_info
 
@@ -45,7 +42,6 @@ getDeviceCount :: IO Int
 getDeviceCount = fromIntegral <$> afCall1 af_get_device_count
 
 -- af_err af_get_dbl_support(bool* available, const int device);
-
 -- | Sets a device by 'Int'
 setDevice :: Int -> IO ()
 setDevice (fromIntegral -> x) = afCall (af_set_device x)

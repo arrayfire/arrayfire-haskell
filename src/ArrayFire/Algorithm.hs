@@ -104,6 +104,7 @@ anyTrue
   -- ^ Returns if all elements are true
 anyTrue x (fromIntegral -> n) = getScalar @Bool @a (x `op1` (\p a -> af_any_true p a n))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
 count
   :: forall a . AFType a
   => Array a
@@ -114,7 +115,8 @@ count
   -- ^ Count of all elements along dimension
 count x (fromIntegral -> n) = getScalar @Int @a (x `op1` (\p a -> af_count p a n))
 
--- | Note: imag is always set to 0 when in is real
+-- | Sum all elements in 'Array'
+-- Note: imag is always set to 0 when in is real
 sumAll
   :: AFType a
   => Array a
@@ -123,6 +125,7 @@ sumAll
   -- ^ imaginary and real part
 sumAll = (`infoFromArray2` af_sum_all)
 
+-- | Sum all elements in 'Array', substituting 'NaN' values with a user specified default.
 sumNaNAll
   :: (AFType a, Fractional a)
   => Array a
@@ -133,6 +136,7 @@ sumNaNAll
   -- ^ imaginary and real part
 sumNaNAll a d = infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
 
+-- | Product all elements in 'Array'
 productAll
   :: AFType a
   => Array a
@@ -141,6 +145,7 @@ productAll
   -- ^ imaginary and real part
 productAll = (`infoFromArray2` af_product_all)
 
+-- | Product all elements in 'Array', substituting NaN values with a user specified default.
 productNaNAll
   :: (AFType a, Fractional a)
   => Array a
@@ -151,6 +156,7 @@ productNaNAll
   -- ^ imaginary and real part
 productNaNAll a d = infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
 
+-- | Finds the minimum value of all elements in the Array
 minAll
   :: AFType a
   => Array a

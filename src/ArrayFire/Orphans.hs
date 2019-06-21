@@ -21,6 +21,7 @@ import           Prelude
 
 import qualified ArrayFire.Arith    as A
 import qualified ArrayFire.Array    as A
+import qualified ArrayFire.Data     as A
 import           ArrayFire.Types
 import           ArrayFire.Util
 
@@ -33,7 +34,9 @@ instance (Num a, AFType a) => Num (Array a) where
   x * y       = A.mul x y False
   abs         = A.abs
   signum      = A.sign
-  negate      = error "TODO: negate"
+  negate arr  = do
+    let (w,x,y,z) = A.getDims arr
+    A.cast (A.constant [w,x,y,z] 0.0) `A.sub` arr $ False
   x - y       = A.sub x y False
   fromInteger = A.scalar . fromIntegral
 

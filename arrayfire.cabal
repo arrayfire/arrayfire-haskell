@@ -15,8 +15,6 @@ description:         High-level Haskell bindings to the ArrayFire General-purpos
     .
     <<https://user-images.githubusercontent.com/875324/59819388-9ff83f00-92f5-11e9-9ac0-51eef200c716.png>>
     .
-    <https://www.youtube.com/watch?v=tI89V1Z8QHw>
-    .
 
 library
   exposed-modules:

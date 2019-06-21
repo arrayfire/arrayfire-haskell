@@ -17,6 +17,8 @@ import ArrayFire.Exception
 import ArrayFire.Types
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Features
+import ArrayFire.Internal.Array
+
 import Control.Exception
 import Control.Monad
 import Foreign.ForeignPtr
@@ -325,8 +327,10 @@ featuresToArray (Features fptr1) op =
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
-        Array <$> do
-          newForeignPtr_ =<< peek ptrInput
+        alloca $ \retainedArray -> do
+          throwAFError =<< af_retain_array retainedArray =<< peek ptrInput
+          fptr <- newForeignPtr af_release_array_finalizer =<< peek retainedArray
+          pure (Array fptr)
 
 infoFromFeatures
   :: Storable a

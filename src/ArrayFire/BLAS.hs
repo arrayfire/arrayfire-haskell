@@ -3,13 +3,31 @@
 -- |
 -- Module      : ArrayFire.BLAS
 -- Copyright   : David Johnson (c) 2019-2020
--- License     : BSD 3
+-- License     : BSD3
 -- Maintainer  : David Johnson <djohnson.m@gmail.com>
 -- Stability   : Experimental
 -- Portability : GHC
 --
 -- Basic Linear Algebra Subprograms (BLAS) API
 --
+-- @
+-- main :: IO ()
+-- main = 'print' ('matmul' x y xProp yProp)
+--  where
+--     x,y :: 'Array' 'Double'
+--     x = 'matrix' (2,3) [1..]
+--     y = 'matrix' (3,2) [1..]
+--
+--     xProp, yProp :: 'MatProp'
+--     xProp = None
+--     yProp = None
+-- @
+-- @
+-- ArrayFire Array
+-- [2 2 1 1]
+--   22.0000    28.0000
+--   49.0000    64.0000
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.BLAS where
 
@@ -30,7 +48,6 @@ import ArrayFire.Types
 -- optLhs an only be one of AF_MAT_NONE, AF_MAT_TRANS, AF_MAT_CTRANS.
 --
 -- optRhs can only be AF_MAT_NONE.
---
 matmul
   :: Array a
   -- ^ 2D matrix of Array a, left-hand side
