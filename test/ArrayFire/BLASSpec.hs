@@ -10,7 +10,8 @@ spec :: Spec
 spec =
   describe "BLAS spec" $ do
     it "Should matmul two matrices" $ do
-      matrix @Double (2,2) (repeat 2) <> matrix @Double (2,2) (repeat 2)
+      (matrix @Double (2,2) (repeat 2) `matmul` matrix @Double (2,2) (repeat 2))
+        None None
         `shouldBe`
            matrix @Double (2,2) (repeat 8)
     it "Should dot product two vectors" $ do

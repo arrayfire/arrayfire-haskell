@@ -83,12 +83,12 @@ spec =
       A.min (A.vector @(A.Complex Float) 10 (repeat (1 A.:+ 1))) 0 `shouldBe` 1 A.:+ 1
       A.min (A.vector @A.CBool 10 [1..]) 0 `shouldBe` 1
       A.min (A.vector @A.CBool 10 [1..]) 0 `shouldBe` 1
-    it "Should find if all elements are true" $ do
+    it "Should find if all elements are true along dimension" $ do
       A.allTrue (A.vector @Double 5 (repeat 12.0)) 0 `shouldBe` True
       A.allTrue (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` True
       A.allTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` False
       A.allTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` False
-    it "Should find if any elements are true" $ do
+    it "Should find if any elements are true along dimension" $ do
       A.anyTrue (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` True
       A.anyTrue (A.vector @Int 5 (repeat 23)) 0 `shouldBe` True
       A.anyTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` False

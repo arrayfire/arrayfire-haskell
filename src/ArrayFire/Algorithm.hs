@@ -116,7 +116,6 @@ count
 count x (fromIntegral -> n) = getScalar @Int @a (x `op1` (\p a -> af_count p a n))
 
 -- | Sum all elements in 'Array'
--- Note: imag is always set to 0 when in is real
 sumAll
   :: AFType a
   => Array a
