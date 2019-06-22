@@ -450,6 +450,18 @@ fromMatchType = AFMatchType . fromIntegral . fromEnum
 toMatchType :: AFMatchType -> MatchType
 toMatchType (AFMatchType (fromIntegral -> x)) = toEnum x
 
+data TopK
+  = TopKDefault
+  | TopKMin
+  | TopKMax
+  deriving (Show, Eq, Ord, Enum)
+
+fromTopK :: TopK -> AFTopkFunction
+fromTopK = AFTopkFunction . fromIntegral . fromEnum
+
+toTopK :: AFTopkFunction -> TopK
+toTopK (AFTopkFunction (fromIntegral -> x)) = toEnum x
+
 data HomographyType
   = RANSAC
   | LMEDS
