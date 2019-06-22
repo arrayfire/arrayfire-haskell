@@ -19,15 +19,16 @@ module ArrayFire.Orphans where
 
 import           Prelude
 
-import qualified ArrayFire.Arith    as A
-import qualified ArrayFire.Array    as A
-import qualified ArrayFire.Data     as A
+import qualified ArrayFire.Arith as A
+import qualified ArrayFire.Array as A
+import qualified ArrayFire.Data  as A
 import           ArrayFire.Types
 import           ArrayFire.Util
+import           Foreign.C
 
 instance (AFType a, Eq a) => Eq (Array a) where
-  x == y = A.getScalar @Bool @a $! A.eq x y False
-  x /= y = A.getScalar @Bool @a $! A.neq x y False
+  x == y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.eq x y False
+  x /= y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.neq x y False
 
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y False
@@ -41,10 +42,10 @@ instance (Num a, AFType a) => Num (Array a) where
   fromInteger = A.scalar . fromIntegral
 
 instance (Ord a, AFType a) => Ord (Array a) where
-  x < y  = A.getScalar @Bool @a (A.lt x y False)
-  x > y  = A.getScalar @Bool @a (A.gt x y False)
-  x <= y = A.getScalar @Bool @a (A.le x y False)
-  x >= y = A.getScalar @Bool @a (A.ge x y False)
+  x < y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.lt x y False)
+  x > y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.gt x y False)
+  x <= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.le x y False)
+  x >= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.ge x y False)
 
 instance AFType a => Semigroup (Array a) where
   x <> y = A.mul x y False
