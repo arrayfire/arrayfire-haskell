@@ -20,6 +20,9 @@ import ArrayFire.FFI
 import ArrayFire.Array
 import ArrayFire.Internal.Algorithm
 
+import Foreign.C.Types
+import Data.Word
+
 sum
   :: AFType a
   => Array a
@@ -92,7 +95,8 @@ allTrue
   -- ^ Dimension along which to see if all elements are True
   -> Bool
   -- ^ Will contain the maximum of all values in the input array along dim
-allTrue x (fromIntegral -> n) = getScalar @Bool @a (x `op1` (\p a -> af_all_true p a n))
+allTrue x (fromIntegral -> n) =
+  toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_all_true p a n))
 
 anyTrue
   :: forall a . AFType a
@@ -102,7 +106,8 @@ anyTrue
   -- ^ Dimension along which to see if all elements are True
   -> Bool
   -- ^ Returns if all elements are true
-anyTrue x (fromIntegral -> n) = getScalar @Bool @a (x `op1` (\p a -> af_any_true p a n))
+anyTrue x (fromIntegral -> n) =
+  toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_any_true p a n))
 
 -- | Retrieves count of all elements in 'Array' along the specified dimension
 count
@@ -113,7 +118,7 @@ count
   -- ^ Dimension along which to count
   -> Int
   -- ^ Count of all elements along dimension
-count x (fromIntegral -> n) = getScalar @Int @a (x `op1` (\p a -> af_count p a n))
+count x (fromIntegral -> n) = fromIntegral $ getScalar @Word32 @a (x `op1` (\p a -> af_count p a n))
 
 -- | Sum all elements in 'Array'
 sumAll
