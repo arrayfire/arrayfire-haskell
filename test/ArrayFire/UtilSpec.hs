@@ -1,12 +1,14 @@
 {-# LANGUAGE TypeApplications #-}
 module ArrayFire.UtilSpec where
 
-import qualified ArrayFire       as A
-import           Data.Int
-import           Data.Word
+import qualified ArrayFire        as A
+
 import           Data.Complex
+import           Data.Int
 import           Data.Proxy
+import           Data.Word
 import           Foreign.C.Types
+import           System.Directory
 import           Test.Hspec
 
 spec :: Spec
@@ -30,3 +32,15 @@ spec =
     it "Should get version" $ do
       x <- A.getVersion
       x `shouldBe` (3,6,4)
+    it "Should get revision" $ do
+      x <- A.getRevision
+      x `shouldSatisfy` (not . null)
+    it "Should save / read array" $ do
+      let arr = A.constant [1,1,1,1] 10
+      idx <- A.saveArray "key" arr "file.array" False
+      doesFileExist "file.array" `shouldReturn` True
+      (`shouldBe` idx) =<< A.readArrayKeyCheck "file.array" "key"
+      (`shouldBe` arr) =<< A.readArrayIndex "file.array" idx
+      (`shouldBe` arr) =<< A.readArrayKey "file.array" "key"
+      removeFile "file.array"
+

@@ -275,7 +275,7 @@ varAllWeighted a b =
 -- >>> print $ fst (stdevAll (vector @Double 10 (repeat 10)))
 -- @
 -- @
--- (10,10)
+-- 10
 -- @
 stdevAll
   :: AFType a

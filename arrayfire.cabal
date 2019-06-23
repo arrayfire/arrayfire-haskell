@@ -79,7 +79,7 @@ library
   c-sources:
     cbits/wrapper.c
   build-depends:
-    base < 5, vector
+    base < 5, filepath, vector
   hs-source-dirs:
     src
   ghc-options:
@@ -124,6 +124,7 @@ test-suite test
   build-depends:
     arrayfire,
     base < 5,
+    directory,
     hspec,
     hspec-discover,
     vector
