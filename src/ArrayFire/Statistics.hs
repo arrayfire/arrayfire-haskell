@@ -1,4 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports    #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Statistics
@@ -29,9 +30,10 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Statistics where
 
-import ArrayFire.Internal.Statistics
-import ArrayFire.Types
+import ArrayFire.Array
 import ArrayFire.FFI
+import ArrayFire.Internal.Statistics
+import ArrayFire.Internal.Types
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --

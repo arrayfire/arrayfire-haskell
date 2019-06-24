@@ -10,6 +10,19 @@
 --
 -- Features API for ArrayFire
 --
+-- @
+-- module Main where
+--
+-- import ArrayFire
+--
+-- main :: IO ()
+-- main = print =<< getAvailableBackends
+-- @
+--
+-- @
+-- [nix-shell:~\/arrayfire]$ .\/main
+-- [CPU,OpenCL]
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.Features where
 
@@ -19,11 +32,20 @@ import Foreign.ForeignPtr
 import System.IO.Unsafe
 
 import ArrayFire.Internal.Features
-import ArrayFire.Types
+import ArrayFire.Internal.Types
 import ArrayFire.FFI
 import ArrayFire.Exception
 
 -- | Construct 'Features'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 createFeatures
   :: Int
   -> Features
@@ -37,42 +59,105 @@ createFeatures (fromIntegral -> n) =
     pure (Features fptr)
 
 -- | Retain 'Features'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 retainFeatures
   :: Features
   -> Features
 retainFeatures = (`op1f` af_retain_features)
 
 -- | Get number of 'Feature's
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getFeaturesNum
   :: Features
   -> Int
 getFeaturesNum = fromIntegral . (`infoFromFeatures` af_get_features_num)
 
 -- | Get 'Feature' X-position
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getFeaturesXPos
   :: Features
   -> Array a
 getFeaturesXPos = (`featuresToArray` af_get_features_xpos)
 
 -- | Get 'Feature' Y-position
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getFeaturesYPos
   :: Features
   -> Array a
 getFeaturesYPos = (`featuresToArray` af_get_features_ypos)
 
 -- | Get 'Feature' Score
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getFeaturesScore
   :: Features
   -> Array a
 getFeaturesScore = (`featuresToArray` af_get_features_score)
 
 -- | Get 'Feature' orientation
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getFeaturesOrientation
   :: Features
   -> Array a
 getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
 
 -- | Get 'Feature' size
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getFeaturesSize
   :: Features
   -> Array a

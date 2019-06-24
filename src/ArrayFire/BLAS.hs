@@ -35,7 +35,7 @@ import Data.Complex
 
 import ArrayFire.FFI
 import ArrayFire.Internal.BLAS
-import ArrayFire.Types
+import ArrayFire.Internal.Types
 
 -- | The following applies for Sparse-Dense matrix multiplication.
 --

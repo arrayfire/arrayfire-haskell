@@ -10,6 +10,19 @@
 --
 -- 'Array' visualization API
 --
+-- @
+-- module Main where
+--
+-- import ArrayFire
+--
+-- main :: IO ()
+-- main = print =<< getAvailableBackends
+-- @
+--
+-- @
+-- [nix-shell:~\/arrayfire]$ .\/main
+-- [CPU,OpenCL]
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.Graphics where
 
@@ -22,9 +35,18 @@ import Foreign.C.String
 import ArrayFire.Internal.Graphics
 import ArrayFire.Exception
 import ArrayFire.FFI
-import ArrayFire.Types
+import ArrayFire.Internal.Types
 
 -- | Create window
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 createWindow
   :: Int
   -- ^ width
@@ -39,6 +61,15 @@ createWindow (fromIntegral -> x) (fromIntegral -> y) str =
     createWindow' (\p -> af_create_window p x y cstr)
 
 -- | Sets 'Window' position
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setPosition
   :: Window
   -- ^ 'Window' handle
@@ -51,6 +82,15 @@ setPosition w (fromIntegral -> x) (fromIntegral -> y) =
   w `opw` (\p -> af_set_position p x y)
 
 -- | Set 'Window' title
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setTitle
   :: Window
   -- ^ 'Window' handle
@@ -61,6 +101,15 @@ setTitle w str = withCString str $ \cstr ->
   w `opw` (\p -> af_set_title p cstr)
 
 -- | Set 'Window' size
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setSize
   :: Window
   -- ^ 'Window' handle
@@ -72,6 +121,16 @@ setSize
 setSize w (fromIntegral -> x) (fromIntegral -> y) =
   w `opw` (\p -> af_set_size p x y)
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawImage
   :: Window
   -- ^ 'Window' handle
@@ -88,6 +147,16 @@ drawImage (Window wfptr) (Array fptr) cell =
         throwAFError =<< af_draw_image wptr aptr cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawPlot :: Window -> Array a -> Array a -> Cell -> IO ()
 drawPlot (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -98,6 +167,16 @@ drawPlot (Window w) (Array fptr1) (Array fptr2) cell =
         throwAFError =<< af_draw_plot wptr ptr1 ptr2 cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawPlot3 :: Window -> Array a -> Cell -> IO ()
 drawPlot3 (Window w) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
@@ -107,6 +186,16 @@ drawPlot3 (Window w) (Array fptr) cell =
       throwAFError =<< af_draw_plot3 wptr aptr cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawPlotNd :: Window -> Array a -> Cell -> IO ()
 drawPlotNd (Window w) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
@@ -116,6 +205,16 @@ drawPlotNd (Window w) (Array fptr) cell =
       throwAFError =<< af_draw_plot_nd wptr aptr cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawPlot2d :: Window -> Array a -> Array a -> Cell -> IO ()
 drawPlot2d (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -126,6 +225,16 @@ drawPlot2d (Window w) (Array fptr1) (Array fptr2) cell =
         throwAFError =<< af_draw_plot_2d wptr ptr1 ptr2 cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawPlot3d :: Window -> Array a -> Array a -> Array a -> Cell -> IO ()
 drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -137,6 +246,16 @@ drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
             throwAFError =<< af_draw_plot_3d wptr ptr1 ptr2 ptr3 cellPtr
             free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawScatter :: Window -> Array a -> Array a -> MarkerType -> Cell -> IO ()
 drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -147,6 +266,16 @@ drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
         throwAFError =<< af_draw_scatter wptr ptr1 ptr2 m cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawScatter3 :: Window -> Array a -> MarkerType -> Cell -> IO ()
 drawScatter3 (Window w) (Array fptr1) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -156,6 +285,16 @@ drawScatter3 (Window w) (Array fptr1) (fromMarkerType -> m) cell =
       throwAFError =<< af_draw_scatter3 wptr ptr1 m cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawScatterNd :: Window -> Array a -> MarkerType -> Cell -> IO ()
 drawScatterNd (Window w) (Array fptr1) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -165,6 +304,16 @@ drawScatterNd (Window w) (Array fptr1) (fromMarkerType -> m) cell =
       throwAFError =<< af_draw_scatter_nd wptr ptr1 m cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawScatter2d :: Window -> Array a -> Array a -> MarkerType -> Cell -> IO ()
 drawScatter2d (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -175,6 +324,16 @@ drawScatter2d (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell 
       throwAFError =<< af_draw_scatter_2d wptr ptr1 ptr2 m cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawScatter3d :: Window -> Array a -> Array a -> Array a -> MarkerType -> Cell -> IO ()
 drawScatter3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -186,6 +345,16 @@ drawScatter3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromMarkerTy
         throwAFError =<< af_draw_scatter_3d wptr ptr1 ptr2 ptr3 m cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawHistogram :: Window -> Array a -> Double -> Double -> Cell -> IO ()
 drawHistogram (Window w) (Array fptr1) minval maxval cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -195,6 +364,16 @@ drawHistogram (Window w) (Array fptr1) minval maxval cell =
       throwAFError =<< af_draw_hist wptr ptr1 minval maxval cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawSurface :: Window -> Array a -> Array a -> Array a -> Cell -> IO ()
 drawSurface (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -206,6 +385,16 @@ drawSurface (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
         throwAFError =<< af_draw_surface wptr ptr1 ptr2 ptr3 cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawVectorFieldND :: Window -> Array a -> Array a -> Cell -> IO ()
 drawVectorFieldND (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
@@ -216,6 +405,16 @@ drawVectorFieldND (Window w) (Array fptr1) (Array fptr2) cell =
         throwAFError =<< af_draw_vector_field_nd wptr ptr1 ptr2 cellPtr
         free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawVectorField3d :: Window -> Array a -> Array a -> Array a -> Array a -> Array a -> Array a -> Cell -> IO ()
 drawVectorField3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3)
   (Array fptr4) (Array fptr5) (Array fptr6) cell =
@@ -232,6 +431,16 @@ drawVectorField3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3)
                   throwAFError =<< af_draw_vector_field_3d wptr ptr1 ptr2 ptr3 ptr4 ptr5 ptr6 cellPtr
                   free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 drawVectorField2d :: Window -> Array a -> Array a -> Array a -> Array a -> Cell -> IO ()
 drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fptr4) cell =
   mask_ $ do
@@ -245,11 +454,31 @@ drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fp
               throwAFError =<< af_draw_vector_field_2d wptr ptr1 ptr2 ptr3 ptr4 cellPtr
               free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 grid :: Window -> Int -> Int -> IO ()
 grid (Window w) (fromIntegral -> rows) (fromIntegral -> cols) =
   mask_ . withForeignPtr w $ \wptr ->
     throwAFError =<< af_grid wptr rows cols
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setAxesLimitsCompute :: Window -> Array a -> Array a -> Array a -> Bool -> Cell -> IO ()
 setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
@@ -262,6 +491,16 @@ setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromI
             throwAFError =<< af_set_axes_limits_compute wptr ptr1 ptr2 ptr3 exact cellPtr
             free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setAxesLimits2d :: Window -> Float -> Float -> Float -> Float -> Bool -> Cell -> IO ()
 setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
@@ -271,6 +510,16 @@ setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact
       throwAFError =<< af_set_axes_limits_2d wptr xmin xmax ymin ymax exact cellPtr
       free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setAxesLimits3d :: Window -> Float -> Float -> Float -> Float -> Float -> Float -> Bool -> Cell -> IO ()
 setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
@@ -281,6 +530,16 @@ setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnu
       free cellPtr
 
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setAxesTitles :: Window -> String -> String -> String -> Cell -> IO ()
 setAxesTitles (Window w) x y z cell =
   mask_ $ do
@@ -293,13 +552,43 @@ setAxesTitles (Window w) x y z cell =
             throwAFError =<< af_set_axes_titles wptr xstr ystr zstr cellPtr
             free cellPtr
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 showWindow :: Window -> IO ()
 showWindow = (`opw` af_show)
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 isWindowClosed :: Window -> IO Bool
 isWindowClosed w =
   toEnum . fromIntegral
     <$> (w `opw1` af_is_window_closed)
 
+-- | Calculates 'mean' of 'Array' along user-specified dimension.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setVisibility :: Window -> Bool -> IO ()
 setVisibility w (fromIntegral . fromEnum -> b) = w `opw` (`af_set_visibility` b)

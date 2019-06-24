@@ -14,6 +14,19 @@
 --
 -- Various instances for 'Array'
 --
+-- @
+-- module Main where
+--
+-- import ArrayFire
+--
+-- main :: IO ()
+-- main = print =<< getAvailableBackends
+-- @
+--
+-- @
+-- [nix-shell:~\/arrayfire]$ .\/main
+-- [CPU,OpenCL]
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.Orphans where
 
@@ -37,7 +50,7 @@ instance (Num a, AFType a) => Num (Array a) where
   signum      = A.sign
   negate arr  = do
     let (w,x,y,z) = A.getDims arr
-    A.cast (A.constant [w,x,y,z] 0.0) `A.sub` arr $ False
+    A.cast (A.constant @a [w,x,y,z] 0) `A.sub` arr $ False
   x - y       = A.sub x y False
   fromInteger = A.scalar . fromIntegral
 

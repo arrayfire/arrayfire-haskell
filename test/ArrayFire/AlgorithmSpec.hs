@@ -100,6 +100,7 @@ spec =
     it "Should get sum all elements" $ do
       A.sumAll (A.vector @Int 5 (repeat 2)) `shouldBe` (10,0)
       A.sumAll (A.vector @Double 5 (repeat 2)) `shouldBe` (10.0,0)
+      -- A.sumAll (A.vector @A.CBool 3800 (repeat 1)) `shouldBe` (3800,0) -- causes strange behavior
       A.sumAll (A.vector @(A.Complex Double) 5 (repeat (2 A.:+ 0))) `shouldBe` (10.0,0)
     it "Should get sum all elements" $ do
       A.sumNaNAll (A.vector @Double 2 [10, acos 2]) 1 `shouldBe` (11.0,0)
@@ -111,4 +112,6 @@ spec =
       A.minAll (A.vector @Int 5 [0..]) `shouldBe` (0,0)
     it "Should find maximum value of an Array" $ do
       A.maxAll (A.vector @Int 5 [0..]) `shouldBe` (4,0)
+--    it "Should find if all elements are true" $ do
+--      A.allTrue (A.vector @A.CBool 5 (repeat 0)) `shouldBe` False
 

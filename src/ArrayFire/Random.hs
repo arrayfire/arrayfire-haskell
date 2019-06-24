@@ -78,12 +78,21 @@ import Foreign.Ptr
 import Foreign.Storable
 
 import ArrayFire.Exception
-import ArrayFire.Types
+import ArrayFire.Internal.Types
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Random
 import ArrayFire.FFI
 
 -- | Create random number generator object.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 createRandomEngine
   :: Int
   -- ^ Initial seed value of random number generator
@@ -101,6 +110,15 @@ createRandomEngine (fromIntegral -> n) typ =
     pure (RandomEngine fptr)
 
 -- | Retains 'RandomEngine' reference
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 retainRandomEngine
   :: RandomEngine
   -- ^ 'RandomEngine' to retain
@@ -113,6 +131,15 @@ foreign import ccall unsafe "af_random_engine_set_type_"
   af_random_engine_set_type_ :: AFRandomEngine -> AFRandomEngineType -> IO AFErr
 
 -- | Sets RandomEngine to a new 'RandomEngineType'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setRandomEngine
   :: RandomEngine
   -- ^ 'RandomEngine' as input
@@ -123,6 +150,15 @@ setRandomEngine r t =
   r `inPlaceEng` (`af_random_engine_set_type_` (fromRandomEngine t))
 
 -- | Retrieves 'RandomEngine'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getRandomEngineType
   :: RandomEngine
   -- ^ 'RandomEngine' argument
@@ -136,6 +172,15 @@ foreign import ccall unsafe "af_random_engine_set_seed_"
   af_random_engine_set_seed_ :: AFRandomEngine -> IntL -> IO AFErr
 
 -- | Sets seed on 'RandomEngine'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randomEngineSetSeed
   :: RandomEngine
   -- ^ 'RandomEngine' argument
@@ -146,6 +191,15 @@ randomEngineSetSeed r t =
   r `inPlaceEng` (`af_random_engine_set_seed_` (fromIntegral t))
 
 -- | Retrieve default 'RandomEngine'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getDefaultRandomEngine
   :: IO RandomEngine
 getDefaultRandomEngine =
@@ -158,6 +212,15 @@ getDefaultRandomEngine =
     pure (RandomEngine fptr)
 
 -- | Set defualt 'RandomEngine' type
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setDefaultRandomEngineType
   :: RandomEngineType
   -- ^ 'RandomEngine' type
@@ -166,6 +229,15 @@ setDefaultRandomEngineType n =
   afCall (af_set_default_random_engine_type (fromRandomEngine n))
 
 -- | Retrieve seed of 'RandomEngine'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randomEngineGetSeed
   :: RandomEngine
   -- ^ RandomEngine argument
@@ -175,13 +247,40 @@ randomEngineGetSeed r =
     r `infoFromRandomEngine` af_random_engine_get_seed
 
 -- | Set random seed
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setSeed :: Int -> IO ()
 setSeed = afCall . af_set_seed . fromIntegral
 
 -- | Retrieve random seed
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getSeed :: IO Int
 getSeed = fromIntegral <$> afCall1 af_get_seed
 
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randEng
   :: forall a . AFType a
   => [Int]
@@ -203,6 +302,15 @@ randEng dims f (RandomEngine fptr) = mask_ $
     typ = afType (Proxy @ a)
 
 -- | Generate random 'Array'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 rand
   :: forall a . AFType a
   => [Int]
@@ -224,6 +332,15 @@ rand dims f = mask_ $ do
         typ = afType (Proxy @ a)
 
 -- | Generate random 'Array'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randn
   :: forall a
    . AFType a
@@ -233,6 +350,15 @@ randn
 randn dims = rand @a dims af_randn
 
 -- | Generate random uniform 'Array'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randu
   :: forall a . AFType a
   => [Int]
@@ -241,6 +367,15 @@ randu
 randu dims = rand @a dims af_randu
 
 -- | Generate random 'Array' from uniform distribution
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randomUniform
   :: forall a . AFType a
   => [Int]
@@ -252,6 +387,15 @@ randomUniform dims eng =
   randEng @a dims af_random_uniform eng
 
 -- | Generate random 'Array' from normal distribution
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 randomNormal
   :: forall a
    . AFType a

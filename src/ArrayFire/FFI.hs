@@ -18,6 +18,7 @@ import ArrayFire.Types
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Features
 import ArrayFire.Internal.Array
+import ArrayFire.Internal.Types
 
 import Control.Exception
 import Control.Monad

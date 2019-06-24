@@ -36,7 +36,7 @@ spec =
       x <- A.getRevision
       x `shouldSatisfy` (not . null)
     it "Should save / read array" $ do
-      let arr = A.constant [1,1,1,1] 10
+      let arr = A.constant @Int [1,1,1,1] 10
       idx <- A.saveArray "key" arr "file.array" False
       doesFileExist "file.array" `shouldReturn` True
       (`shouldBe` idx) =<< A.readArrayKeyCheck "file.array" "key"

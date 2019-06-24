@@ -12,17 +12,35 @@
 --
 -- Functions for aggregation, manipulation of 'Array'
 --
+-- @
+-- module Main where
+--
+-- import ArrayFire
+--
+-- main :: IO ()
+-- main = print =<< getAvailableBackends
+-- @
+--
+-- @
+-- [nix-shell:~\/arrayfire]$ .\/main
+-- [CPU,OpenCL]
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
 
-import ArrayFire.Types
-import ArrayFire.FFI
 import ArrayFire.Array
+import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
+import ArrayFire.Internal.Types
 
 import Foreign.C.Types
 import Data.Word
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sum
   :: AFType a
   => Array a
@@ -33,6 +51,11 @@ sum
   -- ^ Will return the sum of all values in the input array along the specified dimension
 sum x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_sum p a n))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sumNaN
   :: (Fractional a, AFType a)
   => Array a
@@ -45,6 +68,11 @@ sumNaN
   -- ^ Will return the sum of all values in the input array along the specified dimension, substituted with the default value
 sumNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_sum_nan p a i d))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 product
   :: AFType a
   => Array a
@@ -55,6 +83,11 @@ product
   -- ^ Will return the product of all values in the input array along the specified dimension
 product x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_product p a n))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 productNaN
   :: (AFType a, Fractional a)
   => Array a
@@ -67,6 +100,11 @@ productNaN
   -- ^ Will return the product of all values in the input array along the specified dimension, substituted with the default value
 productNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_product_nan p a i d))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 min
   :: AFType a
   => Array a
@@ -77,6 +115,11 @@ min
   -- ^ Will contain the minimum of all values in the input array along dim
 min x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_min p a n))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 max
   :: AFType a
   => Array a
@@ -87,6 +130,11 @@ max
   -- ^ Will contain the maximum of all values in the input array along dim
 max x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_max p a n))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 allTrue
   :: forall a. AFType a
   => Array a
@@ -98,6 +146,11 @@ allTrue
 allTrue x (fromIntegral -> n) =
   toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_all_true p a n))
 
+-- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 anyTrue
   :: forall a . AFType a
   => Array a
@@ -110,6 +163,10 @@ anyTrue x (fromIntegral -> n) =
   toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_any_true p a n))
 
 -- | Retrieves count of all elements in 'Array' along the specified dimension
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 count
   :: forall a . AFType a
   => Array a
@@ -121,6 +178,10 @@ count
 count x (fromIntegral -> n) = fromIntegral $ getScalar @Word32 @a (x `op1` (\p a -> af_count p a n))
 
 -- | Sum all elements in 'Array'
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sumAll
   :: AFType a
   => Array a
@@ -130,6 +191,10 @@ sumAll
 sumAll = (`infoFromArray2` af_sum_all)
 
 -- | Sum all elements in 'Array', substituting 'NaN' values with a user specified default.
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sumNaNAll
   :: (AFType a, Fractional a)
   => Array a
@@ -141,6 +206,10 @@ sumNaNAll
 sumNaNAll a d = infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
 
 -- | Product all elements in 'Array'
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 productAll
   :: AFType a
   => Array a
@@ -150,6 +219,10 @@ productAll
 productAll = (`infoFromArray2` af_product_all)
 
 -- | Product all elements in 'Array', substituting NaN values with a user specified default.
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 productNaNAll
   :: (AFType a, Fractional a)
   => Array a
@@ -160,7 +233,11 @@ productNaNAll
   -- ^ imaginary and real part
 productNaNAll a d = infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
 
--- | Finds the minimum value of all elements in the Array
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 minAll
   :: AFType a
   => Array a
@@ -169,6 +246,11 @@ minAll
   -- ^ imaginary and real part
 minAll = (`infoFromArray2` af_min_all)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 maxAll
   :: AFType a
   => Array a
@@ -177,6 +259,11 @@ maxAll
   -- ^ imaginary and real part
 maxAll = (`infoFromArray2` af_max_all)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 allTrueAll
   :: AFType a
   => Array a
@@ -185,6 +272,11 @@ allTrueAll
   -- ^ imaginary and real part
 allTrueAll = (`infoFromArray2` af_all_true_all)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 anyTrueAll
   :: AFType a
   => Array a
@@ -193,6 +285,11 @@ anyTrueAll
   -- ^ imaginary and real part
 anyTrueAll = (`infoFromArray2` af_any_true_all)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 countAll
   :: AFType a
   => Array a
@@ -201,6 +298,11 @@ countAll
   -- ^ imaginary and real part
 countAll = (`infoFromArray2` af_count_all)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 imin
   :: AFType a
   => Array a
@@ -211,6 +313,11 @@ imin
   -- ^ will contain the minimum of all values in in along dim, will also contain the location of minimum of all values in in along dim
 imin a (fromIntegral -> n) = op2p a (\x y z -> af_imin x y z n)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 imax
   :: AFType a
   => Array a
@@ -221,6 +328,11 @@ imax
   -- ^ will contain the maximum of all values in in along dim, will also contain the location of maximum of all values in in along dim
 imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 iminAll
   :: AFType a
   => Array a
@@ -231,6 +343,11 @@ iminAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imin_all
   (x,y,z)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 imaxAll
   :: AFType a
   => Array a
@@ -241,6 +358,11 @@ imaxAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imax_all
   (x,y,z)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 accum
   :: AFType a
   => Array a
@@ -251,6 +373,11 @@ accum
   -- ^ Contains inclusive sum
 accum a (fromIntegral -> n) = a `op1` (\x y -> af_accum x y n)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 scan
   :: AFType a
   => Array a
@@ -266,6 +393,11 @@ scan
 scan a (fromIntegral -> d) op (fromIntegral . fromEnum -> batch) =
   a `op1` (\x y -> af_scan x y d (toBinaryOp op) batch)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 scanByKey
   :: AFType a
   => Array a
@@ -282,6 +414,11 @@ scanByKey
 scanByKey a b (fromIntegral -> d) op (fromIntegral . fromEnum -> batch) =
   op2 a b (\x y z -> af_scan_by_key x y z d (toBinaryOp op) batch)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 where'
   :: AFType a
   => Array a
@@ -290,6 +427,11 @@ where'
   -- ^ will contain indices where input array is non-zero
 where' = (`op1` af_where)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 diff1
   :: AFType a
   => Array a
@@ -300,6 +442,11 @@ diff1
   -- ^ Will contain first order numerical difference
 diff1 a (fromIntegral -> n) = a `op1` (\p x -> af_diff1 p x n)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 diff2
   :: AFType a
   => Array a
@@ -310,6 +457,11 @@ diff2
   -- ^ Will contain second order numerical difference
 diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sort
   :: AFType a
   => Array a
@@ -323,6 +475,11 @@ sort
 sort a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op1` (\p x -> af_sort p x n b)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sortIndex
   :: AFType a
   => Array a
@@ -336,6 +493,11 @@ sortIndex
 sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 sortByKey
   :: AFType a
   => Array a
@@ -350,6 +512,11 @@ sortByKey
 sortByKey a1 a2 (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   op2p2 a1 a2 (\w x y z -> af_sort_by_key w x y z n b)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 setUnique
   :: AFType a
   => Array a
@@ -361,6 +528,11 @@ setUnique
 setUnique a (fromIntegral . fromEnum -> b) =
   op1 a (\x y -> af_set_unique x y b)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 setUnion
   :: AFType a
   => Array a
@@ -373,6 +545,11 @@ setUnion
 setUnion a1 a2 (fromIntegral . fromEnum -> b) =
   op2 a1 a2 (\x y z -> af_set_union x y z b)
 
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- @
 setIntersect
   :: AFType a
   => Array a

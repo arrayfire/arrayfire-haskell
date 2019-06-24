@@ -24,29 +24,83 @@ import ArrayFire.Internal.Device
 import ArrayFire.FFI
 
 -- | Retrieve info from ArrayFire API
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 info :: IO ()
 info = afCall af_info
 
 -- | Calls 'af_init' C function from ArrayFire API
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 afInit :: IO ()
 afInit = afCall af_init
 
 -- | Retrieves ArrayFire device information as 'String', same as 'info'.
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getInfoString :: IO String
 getInfoString = peekCString =<< afCall1 (flip af_info_string 1)
 
 -- af_err af_device_info(char* d_name, char* d_platform, char *d_toolkit, char* d_compute);
 
 -- | Retrieves count of devices
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getDeviceCount :: IO Int
 getDeviceCount = fromIntegral <$> afCall1 af_get_device_count
 
 -- af_err af_get_dbl_support(bool* available, const int device);
 -- | Sets a device by 'Int'
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 setDevice :: Int -> IO ()
 setDevice (fromIntegral -> x) = afCall (af_set_device x)
 
 -- | Retrieves device identifier
+--
+-- @
+-- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- @
+-- @
+-- ArrayFire Array
+--   [1 1 1 1]
+--      5.5000
+-- @
 getDevice :: IO Int
 getDevice = fromIntegral <$> afCall1 af_get_device
 

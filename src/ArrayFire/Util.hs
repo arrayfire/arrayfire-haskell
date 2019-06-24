@@ -18,12 +18,12 @@
 --
 -- main :: IO ()
 -- main = do
---   let arr = A.constant [1,1,1,1] 10
---   idx <- A.saveArray "key" arr "file.array" False
---   foundIndex <- A.readArrayKeyCheck "file.array" "key"
---   when (idx == foundIndex) $ do
---     array <- A.readArrayKey "file.array" "key"
---     print array
+--   let arr = A.'constant' [1,1,1,1] 10
+--   idx <- A.'saveArray' "key" arr "file.array" False
+--   foundIndex <- A.'readArrayKeyCheck' "file.array" "key"
+--   'when' (idx == foundIndex) $ do
+--     array <- A.'readArrayKey' "file.array" "key"
+--     'print' array
 -- @
 -- @
 -- ArrayFire Array
@@ -42,14 +42,11 @@ import Foreign.Marshal         hiding (void)
 import Foreign.Storable
 import System.IO.Unsafe
 
+import ArrayFire.Internal.Types
 import ArrayFire.Internal.Util
 
 import ArrayFire.Exception
 import ArrayFire.FFI
-import ArrayFire.Types
-
--- | Type alias for ArrayFire API version
-type Version = (Int,Int,Int)
 
 -- | Retrieve version for ArrayFire API
 --
@@ -172,9 +169,9 @@ readArrayIndex
   -> Int
   -- ^ Index into 'Array'
   -> IO (Array a)
-readArrayIndex str (fromIntegral -> idx) =
+readArrayIndex str (fromIntegral -> idx') =
   withCString str $ \cstr ->
-    createArray' (\p -> af_read_array_index p cstr idx)
+    createArray' (\p -> af_read_array_index p cstr idx')
 
 -- | Reads 'Array' by key
 --
