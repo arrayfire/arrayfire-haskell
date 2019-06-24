@@ -395,10 +395,10 @@ cast afArr =
     where
       dtyp = afType (Proxy @ b)
 
--- | Find the minmum of two 'Array's
+-- | Find the minimum of two 'Array's
 --
 -- @
--- >>> 'minOf' ('vector' \@'Int' 10 [1..])
+-- >>> 'minOf' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0) 'False'
 -- @
 minOf
   :: AFType a
@@ -417,7 +417,7 @@ minOf x y (fromIntegral . fromEnum -> batch) = do
 -- | Find the maximum of two 'Array's
 --
 -- @
--- >>> 'maxOf' ('vector' \@'Int' 10 [1..])
+-- >>> 'maxOf' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0) 'False'
 -- @
 maxOf
   :: AFType a
@@ -433,10 +433,10 @@ maxOf x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_maxof arr arr1 arr2 batch
 
--- | Find the maximum of two 'Array's
+-- | Should take the clamp
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'clamp' ('scalar' \@'Int' 2) ('scalar' \@'Int' 1) ('scalar' \@'Int' 3)
 -- @
 clamp
   :: Array a
@@ -453,7 +453,7 @@ clamp a b c (fromIntegral . fromEnum -> batch) =
   op3 a b c $ \arr arr1 arr2 arr3 ->
     af_clamp arr arr1 arr2 arr3 batch
 
--- | Find the maximum of two 'Array's
+-- | Find the remainder of two 'Array's
 --
 -- @
 -- >>> 'clamp' ('vector' \@'Int' 10 [1..])
@@ -472,7 +472,7 @@ rem x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_rem arr arr1 arr2 batch
 
--- | Find the maximum of two 'Array's
+-- | Take the 'mod' of two 'Array's
 --
 -- @
 -- >>> 'clamp' ('vector' \@'Int' 10 [1..])
@@ -491,10 +491,10 @@ mod x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mod arr arr1 arr2 batch
 
--- | Find the maximum of two 'Array's
+-- | Take the absolute value of an array
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'abs' ('scalar' \@'Int' (-1))
 -- @
 abs
   :: AFType a

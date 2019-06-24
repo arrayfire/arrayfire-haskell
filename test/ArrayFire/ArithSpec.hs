@@ -51,4 +51,36 @@ spec =
       ((mkArray @CBool [2] [0,0] `or` (mkArray [2] [1,0])) False)
          `shouldBe` mkArray [2] [1, 0]
     it "Should not Array" $ do
-      not (mkArray @CBool [2] [1,1]) `shouldBe` mkArray [2] [0,0]
+      not (mkArray @CBool [2] [1,0]) `shouldBe` mkArray [2] [0,1]
+    it "Should bitwise and array" $ do
+      bitAnd (scalar @Int 1) (scalar @Int 0) False
+        `shouldBe`
+           0
+    it "Should bitwise or array" $ do
+      bitOr (scalar @Int 1) (scalar @Int 0) False
+        `shouldBe`
+           1
+    it "Should bitwise xor array" $ do
+      bitXor (scalar @Int 1) (scalar @Int 1) False
+        `shouldBe`
+           0
+    it "Should bitwise shift left an array" $ do
+       bitShiftL (scalar @Int 1) (scalar @Int 3) False
+        `shouldBe`
+           8
+    it "Should cast an array" $ do
+      getType (cast (scalar @Int 1) :: Array Double)
+        `shouldBe`
+           F64
+    it "Should find the minimum of two arrays" $ do
+      minOf (scalar @Int 1) (scalar @Int 0) False
+        `shouldBe`
+           0
+    it "Should find the max of two arrays" $ do
+      maxOf (scalar @Int 1) (scalar @Int 0) False
+        `shouldBe`
+           1
+    it "Should take the clamp of 3 arrays" $ do
+      clamp (scalar @Int 2) (scalar @Int 1) (scalar @Int 3) False
+       `shouldBe`
+          2
