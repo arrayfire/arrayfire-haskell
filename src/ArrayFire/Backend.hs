@@ -30,14 +30,9 @@ import ArrayFire.Internal.Backend
 import ArrayFire.Internal.Types
 
 -- | Set specific 'Backend' to use
--- 
+--
 -- @
--- >>> 
--- @
--- @
--- ArrayFire Array
--- [ 1 1 1 1 ]
---         10
+-- >>> 'setBackend' 'OpenCL'
 -- @
 setBackend
   :: Backend
@@ -46,14 +41,12 @@ setBackend
 setBackend = afCall . af_set_backend . toAFBackend
 
 -- | Retrieve count of Backends available
--- 
+--
 -- @
--- >>> 
+-- >>> 'getBackendCount'
 -- @
 -- @
--- ArrayFire Array
--- [ 1 1 1 1 ]
---         10
+-- 2
 -- @
 getBackendCount :: IO Int
 getBackendCount =
@@ -61,14 +54,13 @@ getBackendCount =
     afCall1 af_get_backend_count
 
 -- | Retrieve available 'Backend's
--- 
+--
 -- @
--- >>> 
+-- >>> 'mapM_' 'print' '=<<' 'getAvailableBackends'
 -- @
 -- @
--- ArrayFire Array
--- [ 1 1 1 1 ]
---         10
+-- 'CPU'
+-- 'OpenCL'
 -- @
 getAvailableBackends :: IO [Backend]
 getAvailableBackends =
@@ -76,40 +68,34 @@ getAvailableBackends =
     afCall1 af_get_available_backends
 
 -- | Retrieve 'Backend' that specific 'Array' was created from
--- 
+--
 -- @
--- >>> 
+-- >>> 'getBackend' ('scalar' \@'Double' 2.0)
 -- @
 -- @
--- ArrayFire Array
--- [ 1 1 1 1 ]
---         10
+-- 'OpenCL'
 -- @
 getBackend :: Array a -> Backend
 getBackend = toBackend . flip infoFromArray af_get_backend_id
 
 -- | Retrieve active 'Backend'
--- 
+--
 -- @
--- >>> 
+-- >>> 'getActiveBackend'
 -- @
 -- @
--- ArrayFire Array
--- [ 1 1 1 1 ]
---         10
+-- 'OpenCL'
 -- @
 getActiveBackend :: IO Backend
 getActiveBackend = toBackend <$> afCall1 af_get_active_backend
 
 -- | Retrieve Device ID that 'Array' was created from
--- 
+--
 -- @
--- >>> 
+-- >>> 'getDeviceID' ('scalar' \@'Double' 2.0)
 -- @
 -- @
--- ArrayFire Array
--- [ 1 1 1 1 ]
---         10
+-- 1
 -- @
 getDeviceID :: Array a -> Int
 getDeviceID = fromIntegral . flip infoFromArray af_get_device_id
