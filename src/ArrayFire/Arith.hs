@@ -28,7 +28,7 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral)
+import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real)
 
 import Data.Coerce
 import Data.Proxy
@@ -1035,28 +1035,28 @@ isZero
   -- ^ Result of calling 'isZero'
 isZero = flip op1 af_iszero
 
--- | Find the maximum of two 'Array's
+-- | Check if an 'Array' has any 'Infinity' values
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'isInf' ('scalar' \@'Double' (1 / 0))
 -- @
 isInf
-  :: AFType a
+  :: (Real a, AFType a)
   => Array a
   -- ^ Input array
   -> Array a
-  -- ^ Result of calling 'isInf'
-isInf = flip op1 af_isinf
+  -- ^ will contain 1's where input is Inf or -Inf, and 0 otherwise.
+isInf = (`op1` af_isinf)
 
--- | Find the maximum of two 'Array's
+-- | Check if an 'Array' has any 'NaN' values
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'isNaN' ('scalar' \@'Double' ('acos' 2))
 -- @
 isNaN
-  :: AFType a
+  :: forall a. (AFType a, Real a)
   => Array a
   -- ^ Input array
   -> Array a
-  -- ^ Result of calling 'isNaN'
-isNaN = flip op1 af_isnan
+  -- ^ Will contain 1's where input is NaN, and 0 otherwise.
+isNaN = (`op1` af_isnan)

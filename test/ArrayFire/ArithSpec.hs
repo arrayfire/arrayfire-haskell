@@ -1,8 +1,8 @@
 {-# LANGUAGE TypeApplications #-}
 module ArrayFire.ArithSpec where
 
-import ArrayFire
-import Prelude    hiding (sqrt, div, and, or, not)
+import ArrayFire  hiding (acos)
+import Prelude    hiding (sqrt, div, and, or, not, isNaN)
 import Test.Hspec
 import Foreign.C
 
@@ -84,3 +84,9 @@ spec =
       clamp (scalar @Int 2) (scalar @Int 1) (scalar @Int 3) False
        `shouldBe`
           2
+    it "Should check if an array has positive or negative infinities" $ do
+      isInf (scalar @Double (1 / 0)) `shouldBe` scalar @Double 1
+      isInf (scalar @Double 10) `shouldBe` scalar @Double 0
+    it "Should check if an array has any NaN values" $ do
+      isNaN (scalar @Double (acos 2)) `shouldBe` scalar @Double 1
+      isNaN (scalar @Double 10) `shouldBe` scalar @Double 0

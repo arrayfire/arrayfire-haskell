@@ -451,7 +451,7 @@ toList = V.toList . toVector
 -- | Retrieves single scalar value from an 'Array'
 --
 -- @
--- >>> scalar @Double 2.0
+-- >>> getScalar (scalar @Double 2.0)
 -- @
 --
 getScalar :: forall a b . (Storable a, AFType b) => Array b -> a
