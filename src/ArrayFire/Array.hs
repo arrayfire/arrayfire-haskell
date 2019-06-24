@@ -226,8 +226,8 @@ getElements a =
 getType
   :: AFType a
   => Array a
-  -> AFDtype
-getType = (`infoFromArray` af_get_type)
+  -> AFDType
+getType a = fromAFType (a `infoFromArray` af_get_type)
 
 -- | Retrieves dimensions of 'Array'
 --

@@ -645,3 +645,26 @@ fromConvMode (AFConvMode (fromIntegral -> x)) = toEnum x
 
 toConvMode :: ConvMode -> AFConvMode
 toConvMode = AFConvMode . fromIntegral . fromEnum
+
+-- | Array Fire types
+data AFDType
+  = F32
+  | C32
+  | F64
+  | C64
+  | B8
+  | S32
+  | U32
+  | U8
+  | S64
+  | U64
+  | S16
+  | U16
+  deriving (Show, Eq, Enum)
+
+fromAFType :: AFDtype -> AFDType
+fromAFType (AFDtype (fromIntegral -> x)) = toEnum x
+
+toAFType :: AFDType -> AFDtype
+toAFType = AFDtype . fromIntegral . fromEnum
+
