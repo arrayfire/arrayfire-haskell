@@ -90,3 +90,7 @@ spec =
     it "Should check if an array has any NaN values" $ do
       isNaN (scalar @Double (acos 2)) `shouldBe` scalar @Double 1
       isNaN (scalar @Double 10) `shouldBe` scalar @Double 0
+    it "Should check if an array has any Zero values" $ do
+      isZero (scalar @Double (acos 2)) `shouldBe` scalar @Double 0
+      isZero (scalar @Double 0) `shouldBe` scalar @Double 1
+      isZero (scalar @Double 1) `shouldBe` scalar @Double 0

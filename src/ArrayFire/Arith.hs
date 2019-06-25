@@ -1022,10 +1022,10 @@ lgamma
   -- ^ Result of calling 'lgamma'
 lgamma = flip op1 af_lgamma
 
--- | Find the maximum of two 'Array's
+-- | Check if an 'Array' has any 'Zero' values
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'isZero' ('scalar' \@'Double' 0)
 -- @
 isZero
   :: AFType a
@@ -1033,7 +1033,7 @@ isZero
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'isZero'
-isZero = flip op1 af_iszero
+isZero = (`op1` af_iszero)
 
 -- | Check if an 'Array' has any 'Infinity' values
 --
