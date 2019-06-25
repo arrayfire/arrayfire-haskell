@@ -123,6 +123,7 @@ printArrayGen s (Array fptr) (fromIntegral -> prec) = do
 -- Save an array to a binary file.
 -- The 'saveArray' and 'readArray' functions are designed to provide store and read access to arrays using files written to disk.
 -- <http://arrayfire.org/docs/group__stream__func__save.htm>
+--
 -- @
 -- >>> 'saveArray' "my array" ('constant' \@'Double' [1] 1) "array.file" 'True'
 -- @
