@@ -362,7 +362,6 @@ drawHistogram (Window w) (Array fptr1) minval maxval cell =
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_hist wptr ptr1 minval maxval cellPtr
-      free cellPtr
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
