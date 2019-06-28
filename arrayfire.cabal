@@ -16,6 +16,11 @@ description:         High-level Haskell bindings to the ArrayFire General-purpos
     <<https://user-images.githubusercontent.com/875324/59819388-9ff83f00-92f5-11e9-9ac0-51eef200c716.png>>
     .
 
+flag disable-default-paths
+    description: When enabled, don't add default hardcoded include/link dirs by default. Needed for nix builds.
+    default: False
+    manual: True
+
 library
   exposed-modules:
     ArrayFire
@@ -66,16 +71,17 @@ library
     ArrayFire.Internal.Vision
   build-tools:
     hsc2hs
-  include-dirs:
-    /opt/arrayfire/include
-  extra-lib-dirs:
-    /opt/arrayfire/lib
-  ld-options:
-    -rpath /opt/arrayfire/lib
-  cc-options:
-    -fPIC
   extra-libraries:
     af
+  if !flag(disable-default-paths)
+    include-dirs:
+      /opt/arrayfire/include
+    extra-lib-dirs:
+      /opt/arrayfire/lib
+    ld-options:
+      -rpath /opt/arrayfire/lib
+  cc-options:
+    -fPIC
   c-sources:
     cbits/wrapper.c
   build-depends:
