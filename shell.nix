@@ -5,7 +5,7 @@ in
   pkgs.lib.overrideDerivation pkg (drv: {
     shellHook = ''
       function ghcid () {
-        ${pkgs.haskellPackages.ghcid}/bin/ghcid -c 'cabal v1-repl lib:arrayfire'
+        ${pkgs.haskellPackages.ghcid.bin}/bin/ghcid -c 'cabal v1-repl lib:arrayfire'
       };
       function test-runner () {
          ${pkgs.ag}/bin/ag -l | \
