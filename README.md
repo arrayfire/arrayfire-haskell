@@ -21,12 +21,25 @@ Also note, if you plan on using ArrayFire's visualization features, you must ins
   - [ArrayFire](http://arrayfire.org/docs/gettingstarted.htm)
 
 ## Hacking
-To hack on this library locally, complete the installation step above. We recommend installing the [nix](https://nixos.org/nix/download.html) package manager to facilitate development. After the above tools are installed, execute the below to build and run all tests in response to file changes.
+To hack on this library locally, complete the installation step above. We recommend installing the [nix](https://nixos.org/nix/download.html) package manager to facilitate development.
 
-```bash
+After the above tools are installed, clone the source from Github.
+
+``bash
 git clone git@github.com:arrayfire/arrayfire-haskell.git
 cd arrayfire-haskell
+```
+
+To build and run all tests in response to file changes.
+
+```bash
 nix-shell --run test-runner
+```
+
+To perform interactive development w/ `ghcid`.
+
+```bash
+nix-shell --run ghcid
 ```
 
 ## Example
