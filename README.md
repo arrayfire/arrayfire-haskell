@@ -14,8 +14,10 @@
 Install `ArraryFire` via the download page.
   - https://arrayfire.com/download/
 
+Also note, if you plan on using ArrayFire's visualization features, you must install `fontconfig` and `glfw` on OSX or Linux.
+
 ## Documentation
-  - [Hackage](http://hackage.haskell.org/package/miso)
+  - [Hackage](http://hackage.haskell.org/package/arrayfire)
   - [ArrayFire](http://arrayfire.org/docs/gettingstarted.htm)
 
 ## Hacking
