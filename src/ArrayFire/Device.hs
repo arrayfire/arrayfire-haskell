@@ -26,7 +26,7 @@ import ArrayFire.FFI
 -- | Retrieve info from ArrayFire API
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- >>> info
 -- @
 -- @
 -- ArrayFire Array

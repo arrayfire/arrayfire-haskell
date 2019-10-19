@@ -4,3 +4,5 @@ result/
 /result
 *~
 /ctags
+cabal.project.local
+tags

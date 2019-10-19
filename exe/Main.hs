@@ -5,7 +5,8 @@
 module Main where
 
 import ArrayFire
-import Prelude   hiding (sum, product)
+import Control.Concurrent
+import Prelude            hiding (sum, product)
 -- import GHC.RTS
 
 foreign import ccall safe "test_bool"
@@ -16,11 +17,11 @@ foreign import ccall safe "test_window"
 
 main :: IO ()
 main = do
-  testBool >> testWindow
---  ks <- randn @'(100,100) @Double
---  saveArray 0 "key" ks "array.txt" False
---  !ks' <- readArrayKey "array.txt" "key"
---  print ks'
+  -- testWindow
+  -- ks <- randn @Double [100,100]
+  -- saveArray "key" ks "array.txt" False
+  -- !ks' <- readArrayKey "array.txt" "key"
+  -- print ks'
 
 --   info >> putStrLn "ok" >> afInit
 --   -- Info things
@@ -70,13 +71,13 @@ main = do
 --                 putStrLn "got one"
 --                 print e)
 
---   putStrLn "create window"
---   window <- createWindow 200 200 "hey"
---   putStrLn "set visibility"
---   setVisibility window True
---   putStrLn "show window"
---   showWindow window
-
+  putStrLn "create window"
+  window <- createWindow 200 200 "hey"
+  putStrLn "set visibility"
+  setVisibility window True
+  putStrLn "show window"
+  showWindow window
+  threadDelay (secs 10)
 
 --   -- print =<< getActiveBackend
 --   -- print =<< getDeviceCount
@@ -88,5 +89,5 @@ main = do
 --   -- print =<< getVersion
 
 
--- secs :: Int -> Int
--- secs = (*1000000)
+secs :: Int -> Int
+secs = (*1000000)

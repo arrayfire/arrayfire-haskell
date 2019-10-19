@@ -18,12 +18,7 @@
 -- import ArrayFire
 --
 -- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
+-- main = print $ scalar \@Int 1 \`add\` scalar \@Int 1
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
@@ -40,10 +35,28 @@ import ArrayFire.Internal.Types
 -- | Adds two 'Array' objects
 --
 -- @
--- >>> (scalar \@Int 1 \`add\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`add\` scalar \@Int 1)
 -- @
 --
 add
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of add
+add x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_add arr arr1 arr2 1
+
+-- | Adds two 'Array' objects
+--
+-- @
+-- >>> (scalar \@Int 1 \`addBatched\` scalar \@Int 1) True
+-- @
+--
+addBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -53,17 +66,36 @@ add
   -- ^ Use batch
   -> Array a
   -- ^ Result of add
-add x y (fromIntegral . fromEnum -> batch) =
+addBatched x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
     af_add arr arr1 arr2 batch
+
 
 -- | Subtracts two 'Array' objects
 --
 -- @
--- >>> (scalar @Int 1 \`sub\` scalar @Int 1) True
+-- >>> (scalar @Int 1 \`sub\` scalar @Int 1)
 -- @
 --
 sub
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of sub
+sub x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_sub arr arr1 arr2 1
+
+-- | Subtracts two 'Array' objects
+--
+-- @
+-- >>> (scalar @Int 1 \`subBatched\` scalar @Int 1) True
+-- @
+--
+subBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -73,17 +105,35 @@ sub
   -- ^ Use batch
   -> Array a
   -- ^ Result of sub
-sub x y (fromIntegral . fromEnum -> batch) = do
+subBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_sub arr arr1 arr2 batch
 
 -- | Multiply two 'Array' objects
 --
 -- @
--- >>> (scalar @Int 1 \`mul\` scalar @Int 1) True
+-- >>> (scalar @Int 1 \`mul\` scalar @Int 1)
 -- @
 --
 mul
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of mul
+mul x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_mul arr arr1 arr2 1
+
+-- | Multiply two 'Array' objects
+--
+-- @
+-- >>> (scalar @Int 1 \`mulBatched\` scalar @Int 1) True
+-- @
+--
+mulBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -93,17 +143,35 @@ mul
   -- ^ Use batch
   -> Array a
   -- ^ Result of mul
-mul x y (fromIntegral . fromEnum -> batch) = do
+mulBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mul arr arr1 arr2 batch
 
 -- | Divide two 'Array' objects
 --
 -- @
--- >>> (scalar @Int 1 \`mul\` scalar @Int 1) True
+-- >>> (scalar @Int 1 \`div\` scalar @Int 1)
 -- @
 --
 div
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of div
+div x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_div arr arr1 arr2 1
+
+-- | Divide two 'Array' objects
+--
+-- @
+-- >>> (scalar @Int 1 \`divBatched\` scalar @Int 1) True
+-- @
+--
+divBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -113,17 +181,35 @@ div
   -- ^ Use batch
   -> Array a
   -- ^ Result of div
-div x y (fromIntegral . fromEnum -> batch) = do
+divBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_div arr arr1 arr2 batch
 
 -- | Test if on 'Array' is less than another 'Array'
 --
 -- @
--- >>> (scalar \@Int 1 \`lt\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`lt\` scalar \@Int 1)
 -- @
 --
 lt
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of less than
+lt x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_lt arr arr1 arr2 1
+
+-- | Test if on 'Array' is less than another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`ltBatched\` scalar \@Int 1) True
+-- @
+--
+ltBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -133,17 +219,35 @@ lt
   -- ^ Use batch
   -> Array a
   -- ^ Result of less than
-lt x y (fromIntegral . fromEnum -> batch) = do
+ltBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_lt arr arr1 arr2 batch
+    af_lt arr arr1 arr2 batch    
 
--- | Test if on 'Array' is less greater another 'Array'
+-- | Test if an 'Array' is greater than another 'Array'
 --
 -- @
--- >>> (scalar \@Int 1 \`gt\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`gt\` scalar \@Int 1)
 -- @
 --
 gt
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of gt
+gt x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_gt arr arr1 arr2 1
+
+-- | Test if an 'Array' is greater than another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`gtBatched\` scalar \@Int 1) True
+-- @
+--
+gtBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -153,16 +257,33 @@ gt
   -- ^ Use batch
   -> Array a
   -- ^ Result of gt
-gt x y (fromIntegral . fromEnum -> batch) = do
+gtBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_gt arr arr1 arr2 batch
+    af_gt arr arr1 arr2 batch    
 
--- | Test if on 'Array' is less than or equal to another 'Array'
+-- | Test if one 'Array' is less than or equal to another 'Array'
 --
 -- @
--- >>> (scalar \@Int 1 \`le\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`le\` scalar \@Int 1)
 -- @
 le
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of less than or equal
+le x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_le arr arr1 arr2 1
+    
+-- | Test if one 'Array' is less than or equal to another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`leBatched\` scalar \@Int 1) True
+-- @
+leBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -172,11 +293,11 @@ le
   -- ^ Use batch
   -> Array a
   -- ^ Result of less than or equal
-le x y (fromIntegral . fromEnum -> batch) = do
+leBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_le arr arr1 arr2 batch
+    af_le arr arr1 arr2 batch    
 
--- | Test if on 'Array' is greater than or equal to another 'Array'
+-- | Test if one 'Array' is greater than or equal to another 'Array'
 --
 -- @
 -- >>> (scalar \@Int 1 \`ge\` scalar \@Int 1) True
@@ -187,20 +308,54 @@ ge
   -- ^ First input
   -> Array a
   -- ^ Second input
+  -> Array a
+  -- ^ Result of greater than or equal
+ge x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_ge arr arr1 arr2 1
+
+-- | Test if one 'Array' is greater than or equal to another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`geBatched\` scalar \@Int 1) True
+-- @
+geBatched
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
   -> Bool
   -- ^ Use batch
   -> Array a
   -- ^ Result of greater than or equal
-ge x y (fromIntegral . fromEnum -> batch) = do
+geBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 batch
 
--- | Test if on 'Array' is equal to another 'Array'
+-- | Test if one 'Array' is equal to another 'Array'
 --
 -- @
--- >>> (scalar \@Int 1 \`eq\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`eq\` scalar \@Int 1)
 -- @
 eq
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of equal
+eq x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_eq arr arr1 arr2 1
+
+-- | Test if one 'Array' is equal to another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`eqBatched\` scalar \@Int 1) True
+-- @
+eqBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -210,16 +365,33 @@ eq
   -- ^ Use batch
   -> Array a
   -- ^ Result of equal
-eq x y (fromIntegral . fromEnum -> batch) = do
+eqBatched x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
     af_eq arr arr1 arr2 batch
 
--- | Test if on 'Array' is not equal to another 'Array'
+-- | Test if one 'Array' is not equal to another 'Array'
 --
 -- @
--- >>> (scalar \@Int 1 \`neq\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`neq\` scalar \@Int 1)
 -- @
 neq
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of not equal
+neq x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_neq arr arr1 arr2 1
+
+-- | Test if one 'Array' is not equal to another 'Array'
+--
+-- @
+-- >>> (scalar \@Int 1 \`neqBatched\` scalar \@Int 1) True
+-- @
+neqBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -229,16 +401,33 @@ neq
   -- ^ Use batch
   -> Array a
   -- ^ Result of not equal
-neq x y (fromIntegral . fromEnum -> batch) = do
+neqBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_neq arr arr1 arr2 batch
 
 -- | Logical 'and' one 'Array' with another
 --
 -- @
--- >>> (scalar \@Int 1 \`and\` scalar \@Int 1) True
+-- >>> (scalar \@Int 1 \`and\` scalar \@Int 1)
 -- @
 and
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of and
+and x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_and arr arr1 arr2 1
+
+-- | Logical 'and' one 'Array' with another
+--
+-- @
+-- >>> (scalar \@Int 1 \`andBatched\` scalar \@Int 1) True
+-- @
+andBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -248,16 +437,33 @@ and
   -- ^ Use batch
   -> Array a
   -- ^ Result of and
-and x y (fromIntegral . fromEnum -> batch) = do
+andBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_and arr arr1 arr2 batch
 
 -- | Logical 'or' one 'Array' with another
 --
 -- @
--- >>> ('scalar' \@'Int' 1 \`or\` 'scalar' \@'Int' 1) 'True'
+-- >>> ('scalar' \@'Int' 1 \`or\` 'scalar' \@'Int' 1)
 -- @
 or
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of or
+or x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_or arr arr1 arr2 1
+
+-- | Logical 'or' one 'Array' with another
+--
+-- @
+-- >>> ('scalar' \@'Int' 1 \`orBatched\` 'scalar' \@'Int' 1) 'True'
+-- @
+orBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -267,7 +473,7 @@ or
   -- ^ Use batch
   -> Array a
   -- ^ Result of or
-or x y (fromIntegral . fromEnum -> batch) = do
+orBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_or arr arr1 arr2 batch
 
@@ -287,9 +493,26 @@ not = flip op1 af_not
 -- | Bitwise and the values in one 'Array' against another 'Array'
 --
 -- @
--- >>> 'bitAnd' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- >>> 'bitAnd' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1)
 -- @
 bitAnd
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of bitwise and
+bitAnd x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitand arr arr1 arr2 1
+
+-- | Bitwise and the values in one 'Array' against another 'Array'
+--
+-- @
+-- >>> 'bitAndBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- @
+bitAndBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -299,16 +522,33 @@ bitAnd
   -- ^ Use batch
   -> Array a
   -- ^ Result of bitwise and
-bitAnd x y (fromIntegral . fromEnum -> batch) = do
+bitAndBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 batch
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
 --
 -- @
--- >>> 'bitOr' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- >>> 'bitOr' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1)
 -- @
 bitOr
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of bit or
+bitOr x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitor arr arr1 arr2 1
+
+-- | Bitwise or the values in one 'Array' against another 'Array'
+--
+-- @
+-- >>> 'bitOrBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- @
+bitOrBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -318,16 +558,33 @@ bitOr
   -- ^ Use batch
   -> Array a
   -- ^ Result of bit or
-bitOr x y (fromIntegral . fromEnum -> batch) = do
+bitOrBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 batch
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
 --
 -- @
--- >>> 'bitXor' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- >>> 'bitXor' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1)
 -- @
 bitXor
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of bit xor
+bitXor x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitxor arr arr1 arr2 1
+
+-- | Bitwise xor the values in one 'Array' against another 'Array'
+--
+-- @
+-- >>> 'bitXorBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- @
+bitXorBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -337,16 +594,33 @@ bitXor
   -- ^ Use batch
   -> Array a
   -- ^ Result of bit xor
-bitXor x y (fromIntegral . fromEnum -> batch) = do
+bitXorBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 batch
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
 --
 -- @
--- >>> 'bitShiftL' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- >>> 'bitShiftL' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1)
 -- @
 bitShiftL
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of bit shift left
+bitShiftL x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitshiftl arr arr1 arr2 1
+
+-- | Left bit shift the values in one 'Array' against another 'Array'
+--
+-- @
+-- >>> 'bitShiftLBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- @
+bitShiftLBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -356,16 +630,34 @@ bitShiftL
   -- ^ Use batch
   -> Array a
   -- ^ Result of bit shift left
-bitShiftL x y (fromIntegral . fromEnum -> batch) = do
+bitShiftLBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
+
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
 --
 -- @
--- >>> 'bitShiftR' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- >>> 'bitShiftR' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1)
 -- @
 bitShiftR
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of bit shift right
+bitShiftR x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_bitshiftr arr arr1 arr2 1
+
+-- | Right bit shift the values in one 'Array' against another 'Array'
+--
+-- @
+-- >>> 'bitShiftRBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 1) 'False'
+-- @
+bitShiftRBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -374,8 +666,8 @@ bitShiftR
   -> Bool
   -- ^ Use batch
   -> Array a
-  -- ^ Result of bit shift right
-bitShiftR x y (fromIntegral . fromEnum -> batch) = do
+  -- ^ Result of bit shift left
+bitShiftRBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
 
@@ -398,9 +690,26 @@ cast afArr =
 -- | Find the minimum of two 'Array's
 --
 -- @
--- >>> 'minOf' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0) 'False'
+-- >>> 'minOf' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0)
 -- @
 minOf
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of minimum of
+minOf x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_minof arr arr1 arr2 1
+
+-- | Find the minimum of two 'Array's
+--
+-- @
+-- >>> 'minOfBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0) 'False'
+-- @
+minOfBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -410,16 +719,34 @@ minOf
   -- ^ Use batch
   -> Array a
   -- ^ Result of minimum of
-minOf x y (fromIntegral . fromEnum -> batch) = do
+minOfBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_minof arr arr1 arr2 batch
+    af_minof arr arr1 arr2 batch    
 
 -- | Find the maximum of two 'Array's
 --
 -- @
--- >>> 'maxOf' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0) 'False'
+-- >>> 'maxOf' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0)
 -- @
 maxOf
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of maximum of
+maxOf x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_maxof arr arr1 arr2 1
+
+
+-- | Find the maximum of two 'Array's
+--
+-- @
+-- >>> 'maxOfBatched' ('scalar' \@'Int' 1) ('scalar' \@'Int' 0) 'False'
+-- @
+maxOfBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -429,7 +756,7 @@ maxOf
   -- ^ Use batch
   -> Array a
   -- ^ Result of maximum of
-maxOf x y (fromIntegral . fromEnum -> batch) = do
+maxOfBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_maxof arr arr1 arr2 batch
 
@@ -445,20 +772,55 @@ clamp
   -- ^ Second input
   -> Array a
   -- ^ Third input
+  -> Array a
+  -- ^ Result of clamp
+clamp a b c =
+  op3 a b c $ \arr arr1 arr2 arr3 ->
+    af_clamp arr arr1 arr2 arr3 1
+
+-- | Should take the clamp
+--
+-- @
+-- >>> 'clamp' ('scalar' \@'Int' 2) ('scalar' \@'Int' 1) ('scalar' \@'Int' 3)
+-- @
+clampBatched
+  :: Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Third input
   -> Bool
   -- ^ Use batch
   -> Array a
   -- ^ Result of clamp
-clamp a b c (fromIntegral . fromEnum -> batch) =
+clampBatched a b c (fromIntegral . fromEnum -> batch) =
   op3 a b c $ \arr arr1 arr2 arr3 ->
     af_clamp arr arr1 arr2 arr3 batch
 
 -- | Find the remainder of two 'Array's
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'rem' ('vector' \@'Int' 10 [1..])  ('vector' \@'Int' 10 [1..])
 -- @
 rem
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of remainder
+rem x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_rem arr arr1 arr2 1
+
+-- | Find the remainder of two 'Array's
+--
+-- @
+-- >>> 'remBatched' ('vector' \@'Int' 10 [1..])  ('vector' \@'Int' 10 [1..]) True
+-- @
+remBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -468,16 +830,33 @@ rem
   -- ^ Use batch
   -> Array a
   -- ^ Result of remainder
-rem x y (fromIntegral . fromEnum -> batch) = do
+remBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_rem arr arr1 arr2 batch
 
 -- | Take the 'mod' of two 'Array's
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'mod' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..])
 -- @
 mod
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of mod
+mod x y = do
+  x `op2` y $ \arr arr1 arr2 ->
+    af_mod arr arr1 arr2 1
+
+-- | Take the 'mod' of two 'Array's
+--
+-- @
+-- >>> 'modBatched' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..]) True
+-- @
+modBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -487,7 +866,7 @@ mod
   -- ^ Use batch
   -> Array a
   -- ^ Result of mod
-mod x y (fromIntegral . fromEnum -> batch) = do
+modBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_mod arr arr1 arr2 batch
 
@@ -504,10 +883,10 @@ abs
   -- ^ Result of calling 'abs'
 abs = flip op1 af_abs
 
--- | Find the maximum of two 'Array's
+-- | Find the arg of an array
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'arg' ('vector' \@'Int' 10 [1..])
 -- @
 arg
   :: AFType a
@@ -517,10 +896,10 @@ arg
   -- ^ Result of calling 'arg'
 arg = flip op1 af_arg
 
--- | Find the maximum of two 'Array's
+-- | Find the sign of two 'Array's
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sign' ('vector' \@'Int' 10 [1..])
 -- @
 sign
   :: AFType a
@@ -530,10 +909,10 @@ sign
   -- ^ Result of calling 'sign'
 sign = flip op1 af_sign
 
--- | Find the maximum of two 'Array's
+-- | Round the values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'round' ('vector' \@'Int' 10 [1..])
 -- @
 round
   :: AFType a
@@ -543,10 +922,10 @@ round
   -- ^ Result of calling 'round'
 round = flip op1 af_round
 
--- | Find the maximum of two 'Array's
+-- | Truncate the values of an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'trunc' ('vector' \@'Int' 10 [1..])
 -- @
 trunc
   :: AFType a
@@ -556,10 +935,10 @@ trunc
   -- ^ Result of calling 'trunc'
 trunc = flip op1 af_trunc
 
--- | Find the maximum of two 'Array's
+-- | Take the floor of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'floor' ('vector' \@'Int' 10 [1..])
 -- @
 floor
   :: AFType a
@@ -569,10 +948,10 @@ floor
   -- ^ Result of calling 'floor'
 floor = flip op1 af_floor
 
--- | Find the maximum of two 'Array's
+-- | Take the ceil of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'ceil' ('vector' \@'Int' 10 [1..])
 -- @
 ceil
   :: AFType a
@@ -582,10 +961,10 @@ ceil
   -- ^ Result of calling 'ceil'
 ceil = flip op1 af_ceil
 
--- | Find the maximum of two 'Array's
+-- | Take the sin of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sin' ('vector' \@'Int' 10 [1..])
 -- @
 sin
   :: AFType a
@@ -595,10 +974,10 @@ sin
   -- ^ Result of calling 'sin'
 sin = flip op1 af_sin
 
--- | Find the maximum of two 'Array's
+-- | Take the cos of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'cos' ('vector' \@'Int' 10 [1..])
 -- @
 cos
   :: AFType a
@@ -608,10 +987,10 @@ cos
   -- ^ Result of calling 'cos'
 cos = flip op1 af_cos
 
--- | Find the maximum of two 'Array's
+-- | Take the tan of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'tan' ('vector' \@'Int' 10 [1..])
 -- @
 tan
   :: AFType a
@@ -621,10 +1000,10 @@ tan
   -- ^ Result of calling 'tan'
 tan = flip op1 af_tan
 
--- | Find the maximum of two 'Array's
+-- | Take the asin of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'asin' ('vector' \@'Int' 10 [1..])
 -- @
 asin
   :: AFType a
@@ -634,10 +1013,10 @@ asin
   -- ^ Result of calling 'asin'
 asin = flip op1 af_asin
 
--- | Find the maximum of two 'Array's
+-- | Take the acos of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'acos' ('vector' \@'Int' 10 [1..])
 -- @
 acos
   :: AFType a
@@ -647,10 +1026,10 @@ acos
   -- ^ Result of calling 'acos'
 acos = flip op1 af_acos
 
--- | Find the maximum of two 'Array's
+-- | Take the atan of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'atan' ('vector' \@'Int' 10 [1..])
 -- @
 atan
   :: AFType a
@@ -660,12 +1039,29 @@ atan
   -- ^ Result of calling 'atan'
 atan = flip op1 af_atan
 
--- | Find the maximum of two 'Array's
+-- | Take the atan2 of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'atan2' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..])
 -- @
 atan2
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of atan2
+atan2 x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_atan2 arr arr1 arr2 1
+
+-- | Take the atan2 of all values in an 'Array'
+--
+-- @
+-- >>> 'atan2Batched' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..]) True
+-- @
+atan2Batched
   :: AFType a
   => Array a
   -- ^ First input
@@ -675,16 +1071,33 @@ atan2
   -- ^ Use batch
   -> Array a
   -- ^ Result of atan2
-atan2 x y (fromIntegral . fromEnum -> batch) = do
+atan2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_atan2 arr arr1 arr2 batch
 
--- | Find the maximum of two 'Array's
+-- | Take the cplx2 of all values in an 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'cplx2' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..])
 -- @
 cplx2
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of cplx2
+cplx2 x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_cplx2 arr arr1 arr2 1
+
+-- | Take the cplx2Batched of all values in an 'Array'
+--
+-- @
+-- >>> 'cplx2Batched' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..]) True
+-- @    
+cplx2Batched
   :: AFType a
   => Array a
   -- ^ First input
@@ -694,14 +1107,14 @@ cplx2
   -- ^ Use batch
   -> Array a
   -- ^ Result of cplx2
-cplx2 x y (fromIntegral . fromEnum -> batch) = do
+cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_cplx2 arr arr1 arr2 batch
+    af_cplx2 arr arr1 arr2 batch    
 
--- | Find the maximum of two 'Array's
+-- | Execute cplx
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'cplx' ('vector' \@'Int' 10 [1..])
 -- @
 cplx
   :: AFType a
@@ -711,10 +1124,10 @@ cplx
   -- ^ Result of calling 'atan'
 cplx = flip op1 af_cplx
 
--- | Find the maximum of two 'Array's
+-- | Execute real
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'real' ('vector' \@'Int' 10 [1..])
 -- @
 real
   :: AFType a
@@ -724,10 +1137,10 @@ real
   -- ^ Result of calling 'real'
 real = flip op1 af_real
 
--- | Find the maximum of two 'Array's
+-- | Execute imag
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'imag' ('vector' \@'Int' 10 [1..])
 -- @
 imag
   :: AFType a
@@ -737,10 +1150,10 @@ imag
   -- ^ Result of calling 'imag'
 imag = flip op1 af_imag
 
--- | Find the maximum of two 'Array's
+-- | Execute conjg
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'conjg' ('vector' \@'Int' 10 [1..])
 -- @
 conjg
   :: AFType a
@@ -750,10 +1163,10 @@ conjg
   -- ^ Result of calling 'conjg'
 conjg = flip op1 af_conjg
 
--- | Find the maximum of two 'Array's
+-- | Execute sinh
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sinh' ('vector' \@'Int' 10 [1..])
 -- @
 sinh
   :: AFType a
@@ -763,10 +1176,10 @@ sinh
   -- ^ Result of calling 'sinh'
 sinh = flip op1 af_sinh
 
--- | Find the maximum of two 'Array's
+-- | Execute cosh
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'cosh' ('vector' \@'Int' 10 [1..])
 -- @
 cosh
   :: AFType a
@@ -776,10 +1189,10 @@ cosh
   -- ^ Result of calling 'cosh'
 cosh = flip op1 af_cosh
 
--- | Find the maximum of two 'Array's
+-- | Execute tanh
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'tanh' ('vector' \@'Int' 10 [1..])
 -- @
 tanh
   :: AFType a
@@ -789,12 +1202,29 @@ tanh
   -- ^ Result of calling 'tanh'
 tanh = flip op1 af_tanh
 
--- | Find the maximum of two 'Array's
+-- | Execute root
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'root' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..])
 -- @
 root
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of root
+root x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_root arr arr1 arr2 1
+
+-- | Execute rootBatched
+--
+-- @
+-- >>> 'rootBatched' ('vector' \@'Int' 10 [1..]) ('vector' \@'Int' 10 [1..]) True
+-- @
+rootBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -804,16 +1234,34 @@ root
   -- ^ Use batch
   -> Array a
   -- ^ Result of root
-root x y (fromIntegral . fromEnum -> batch) = do
+rootBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_root arr arr1 arr2 batch
 
--- | Find the maximum of two 'Array's
+-- | Execute pow
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'pow' ('vector' \@'Int' 10 [1..]) 2
 -- @
 pow
+  :: AFType a
+  => Array a
+  -- ^ First input
+  -> Array a
+  -- ^ Second input
+  -> Array a
+  -- ^ Result of pow
+pow x y =
+  x `op2` y $ \arr arr1 arr2 ->
+    af_pow arr arr1 arr2 1
+    
+
+-- | Execute powBatched
+--
+-- @
+-- >>> 'powBatched' ('vector' \@'Int' 10 [1..]) ('constant' \@'Int' [1] 2) True
+-- @
+powBatched
   :: AFType a
   => Array a
   -- ^ First input
@@ -822,15 +1270,15 @@ pow
   -> Bool
   -- ^ Use batch
   -> Array a
-  -- ^ Result of pow
-pow x y (fromIntegral . fromEnum -> batch) = do
+  -- ^ Result of powBatched
+powBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
-    af_pow arr arr1 arr2 batch
+    af_pow arr arr1 arr2 batch    
 
--- | Find the maximum of two 'Array's
+-- | Raise an 'Array' to the second power
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'pow2' ('vector' \@'Int' 10 [1..])
 -- @
 pow2
   :: AFType a
@@ -840,10 +1288,10 @@ pow2
   -- ^ Result of calling 'pow2'
 pow2 = flip op1 af_pow2
 
--- | Find the maximum of two 'Array's
+-- | Execute exp on 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'exp' ('vector' \@'Int' 10 [1..])
 -- @
 exp
   :: AFType a
@@ -853,10 +1301,10 @@ exp
   -- ^ Result of calling 'exp'
 exp = flip op1 af_exp
 
--- | Find the maximum of two 'Array's
+-- | Execute sigmoid on 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sigmoid' ('vector' \@'Int' 10 [1..])
 -- @
 sigmoid
   :: AFType a
@@ -866,10 +1314,10 @@ sigmoid
   -- ^ Result of calling 'sigmoid'
 sigmoid = flip op1 af_sigmoid
 
--- | Find the maximum of two 'Array's
+-- | Execute expm1
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'expm1' ('vector' \@'Int' 10 [1..])
 -- @
 expm1
   :: AFType a
@@ -879,10 +1327,10 @@ expm1
   -- ^ Result of calling 'expm1'
 expm1 = flip op1 af_expm1
 
--- | Find the maximum of two 'Array's
+-- | Execute erf
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'erf' ('vector' \@'Int' 10 [1..])
 -- @
 erf
   :: AFType a
@@ -892,10 +1340,10 @@ erf
   -- ^ Result of calling 'erf'
 erf = flip op1 af_erf
 
--- | Find the maximum of two 'Array's
+-- | Execute erfc
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'erfc' ('vector' \@'Int' 10 [1..])
 -- @
 erfc
   :: AFType a
@@ -905,10 +1353,10 @@ erfc
   -- ^ Result of calling 'erfc'
 erfc = flip op1 af_erfc
 
--- | Find the maximum of two 'Array's
+-- | Execute log
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'log' ('vector' \@'Int' 10 [1..])
 -- @
 log
   :: AFType a
@@ -918,10 +1366,10 @@ log
   -- ^ Result of calling 'log'
 log = flip op1 af_log
 
--- | Find the maximum of two 'Array's
+-- | Execute log1p
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'log1p' ('vector' \@'Int' 10 [1..])
 -- @
 log1p
   :: AFType a
@@ -931,10 +1379,10 @@ log1p
   -- ^ Result of calling 'log1p'
 log1p = flip op1 af_log1p
 
--- | Find the maximum of two 'Array's
+-- | Execute log10
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'log10' ('vector' \@'Int' 10 [1..])
 -- @
 log10
   :: AFType a
@@ -944,10 +1392,10 @@ log10
   -- ^ Result of calling 'log10'
 log10 = flip op1 af_log10
 
--- | Find the maximum of two 'Array's
+-- | Execute log2
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'log2' ('vector' \@'Int' 10 [1..])
 -- @
 log2
   :: AFType a
@@ -957,10 +1405,10 @@ log2
   -- ^ Result of calling 'log2'
 log2 = flip op1 af_log2
 
--- | Find the maximum of two 'Array's
+-- | Execute sqrt
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sqrt' ('vector' \@'Int' 10 [1..])
 -- @
 sqrt
   :: AFType a
@@ -970,10 +1418,10 @@ sqrt
   -- ^ Result of calling 'sqrt'
 sqrt = flip op1 af_sqrt
 
--- | Find the maximum of two 'Array's
+-- | Execute cbrt
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'cbrt' ('vector' \@'Int' 10 [1..])
 -- @
 cbrt
   :: AFType a
@@ -983,10 +1431,10 @@ cbrt
   -- ^ Result of calling 'cbrt'
 cbrt = flip op1 af_cbrt
 
--- | Find the maximum of two 'Array's
+-- | Execute factorial1
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'factorial1' ('vector' \@'Int' 10 [1..])
 -- @
 factorial
   :: AFType a
@@ -996,10 +1444,10 @@ factorial
   -- ^ Result of calling 'factorial'
 factorial = flip op1 af_factorial
 
--- | Find the maximum of two 'Array's
+-- | Execute tgamma
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'tgamma' ('vector' \@'Int' 10 [1..])
 -- @
 tgamma
   :: AFType a
@@ -1009,10 +1457,10 @@ tgamma
   -- ^ Result of calling 'tgamma'
 tgamma = flip op1 af_tgamma
 
--- | Find the maximum of two 'Array's
+-- | Execute lgamma
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'lgamma' ('vector' \@'Int' 10 [1..])
 -- @
 lgamma
   :: AFType a
@@ -1022,10 +1470,10 @@ lgamma
   -- ^ Result of calling 'lgamma'
 lgamma = flip op1 af_lgamma
 
--- | Check if an 'Array' has any 'Zero' values
+-- | Execute isZero
 --
 -- @
--- >>> 'isZero' ('scalar' \@'Double' 0)
+-- >>> 'isZero' ('vector' \@'Int' 10 [1..])
 -- @
 isZero
   :: AFType a
@@ -1035,10 +1483,10 @@ isZero
   -- ^ Result of calling 'isZero'
 isZero = (`op1` af_iszero)
 
--- | Check if an 'Array' has any 'Infinity' values
+-- | Execute isInf
 --
 -- @
--- >>> 'isInf' ('scalar' \@'Double' (1 / 0))
+-- >>> 'isInf' ('vector' \@'Int' 10 [1..])
 -- @
 isInf
   :: (Real a, AFType a)
@@ -1048,10 +1496,10 @@ isInf
   -- ^ will contain 1's where input is Inf or -Inf, and 0 otherwise.
 isInf = (`op1` af_isinf)
 
--- | Check if an 'Array' has any 'NaN' values
+-- | Execute isNaN
 --
 -- @
--- >>> 'isNaN' ('scalar' \@'Double' ('acos' 2))
+-- >>> 'isNaN' ('vector' \@'Int' 10 [1..])
 -- @
 isNaN
   :: forall a. (AFType a, Real a)

@@ -263,7 +263,7 @@ rank
 rank a b =
   fromIntegral (a `infoFromArray` (\x y -> af_rank x y b))
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Calculates the determinant of an 'Array'
 --
 -- @
 -- >>> print $ mean 0 ( vector @Int 10 [1..] )

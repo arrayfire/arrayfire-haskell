@@ -17,5 +17,5 @@ spec =
       backend <- getActiveBackend
       setBackend backend
       (`shouldBe` backend) =<< getActiveBackend
-      let arr = matrix @Int (2,2) [1..]
+      let arr = matrix @Int (2,2) [[1,1],[1,1]]
       getBackend arr `shouldBe` backend

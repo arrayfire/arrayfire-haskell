@@ -176,7 +176,7 @@ sparseGetColIdx = (`op1` af_sparse_get_col_idx)
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- >>> print $ mean 0 ( vector \@'Int' 10 [1..] )
 -- @
 -- @
 -- ArrayFire Array

@@ -1,7 +1,7 @@
 ## <a href="http://arrayfire.com/"><img src="http://arrayfire.com/logos/arrayfire_logo_whitebkgnd.png" width="300"></a>
 `ArrayFire` is a general-purpose library that simplifies the process of developing software that targets parallel and massively-parallel architectures including CPUs, GPUs, and other hardware acceleration devices.
 
-`arrayfire-haskell` is a [Haskell](https://haskell.org) binding for [ArrayFire](https://arrayfire.com).
+`arrayfire-haskell` is a [Haskell](https://haskell.org) binding to [ArrayFire](https://arrayfire.com).
 
 ## Table of Contents
  - [Installation](#Installation)
@@ -25,22 +25,41 @@ To hack on this library locally, complete the installation step above. We recomm
 
 After the above tools are installed, clone the source from Github.
 
-``bash
+```bash
 git clone git@github.com:arrayfire/arrayfire-haskell.git
 cd arrayfire-haskell
 ```
 
-To build and run all tests in response to file changes.
+To build and run all tests in response to file changes
 
 ```bash
 nix-shell --run test-runner
 ```
 
-To perform interactive development w/ `ghcid`.
+To perform interactive development w/ `ghcid`
 
 ```bash
 nix-shell --run ghcid
 ```
+
+To interactively evaluate code in the `repl`
+
+```bash
+nix-shell --run repl
+```
+
+To run the doctests on each file change
+
+```bash
+nix-shell --run doctest-runner
+```
+
+To produce the haddocks and open them in a browser
+
+```bash
+nix-shell --run docs
+```
+
 
 ## Example
 ```haskell
@@ -49,7 +68,16 @@ module Main where
 import qualified ArrayFire as A
 
 main :: IO ()
-main = A.printArray action `catch` (\(e :: A.AFException) -> print e)
+main = print newArray `catch` (\(e :: A.AFException) -> print e)
   where
-    action = A.matrix @Double (3,3) [1.0 ..] `A.mul` A.matrix @Double (3,3) [1.0 ..]
+    newArray = A.matrix @Double (2,2) [ [1..], [1..] ] * A.matrix @Double (2,2) [ [2..], [2..] ]
+
+{-|
+
+ArrayFire Array
+[2 2 1 1]
+    2.0000     6.0000
+    2.0000     6.0000
+
+-}
 ```

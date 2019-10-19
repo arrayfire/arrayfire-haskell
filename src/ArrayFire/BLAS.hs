@@ -70,9 +70,9 @@ dot
   -> Array a
   -- ^ Right-hand side input
   -> MatProp
-  -- ^ Options for left-hand side. Currently only AF_MAT_NONE and AF_MAT_CONJ are supported.
+  -- ^ Options for left-hand side. Currently only 'AF_MAT_NONE' and 'AF_MAT_CONJ' are supported.
   -> MatProp
-  -- ^ Options for right-hand side. Currently only AF_MAT_NONE and AF_MAT_CONJ are supported.
+  -- ^ Options for right-hand side. Currently only 'AF_MAT_NONE' and 'AF_MAT_CONJ' are supported.
   -> Array a
   -- ^ Output of 'dot'
 dot arr1 arr2 prop1 prop2 =

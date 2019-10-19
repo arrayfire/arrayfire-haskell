@@ -1,2 +1,3 @@
 { pkgs ? import <nixpkgs> {} }:
-pkgs.haskellPackages.callPackage ./pkg.nix {}
+# Latest arrayfire is not yet procured w/ nix.
+pkgs.haskellPackages.callCabal2nix "arrayfire" ./. { af = null; }

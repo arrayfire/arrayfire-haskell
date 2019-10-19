@@ -40,12 +40,7 @@ import ArrayFire.Internal.Types
 -- | Create window
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> createWindow 800 600 "New Chart"
 -- @
 createWindow
   :: Int
@@ -63,12 +58,7 @@ createWindow (fromIntegral -> x) (fromIntegral -> y) str =
 -- | Sets 'Window' position
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> setPosition window 100 100
 -- @
 setPosition
   :: Window
@@ -81,15 +71,10 @@ setPosition
 setPosition w (fromIntegral -> x) (fromIntegral -> y) =
   w `opw` (\p -> af_set_position p x y)
 
--- | Set 'Window' title
+-- | Sets 'Window' title
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> setTitle window "New Chart"
 -- @
 setTitle
   :: Window
@@ -100,15 +85,10 @@ setTitle
 setTitle w str = withCString str $ \cstr ->
   w `opw` (\p -> af_set_title p cstr)
 
--- | Set 'Window' size
+-- | Sets 'Window' size
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> setSize window 100 100
 -- @
 setSize
   :: Window
@@ -121,15 +101,10 @@ setSize
 setSize w (fromIntegral -> x) (fromIntegral -> y) =
   w `opw` (\p -> af_set_size p x y)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Draw an image onto a Window
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> drawImage window ('constant' \@'Int' 1) ('Cell' 10 10 "test" 'ColorMapSpectrum')
 -- @
 drawImage
   :: Window
@@ -147,15 +122,10 @@ drawImage (Window wfptr) (Array fptr) cell =
         throwAFError =<< af_draw_image wptr aptr cellPtr
         free cellPtr
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Draw a plot onto a 'Window'
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> drawPlot window ('constant' \@'Int' 1) ('constant' \@'Int' 1) ('Cell' 10 10 "test" 'ColorMapSpectrum')
 -- @
 drawPlot :: Window -> Array a -> Array a -> Cell -> IO ()
 drawPlot (Window w) (Array fptr1) (Array fptr2) cell =

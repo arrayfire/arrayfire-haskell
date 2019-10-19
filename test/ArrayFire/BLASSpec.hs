@@ -10,10 +10,8 @@ spec :: Spec
 spec =
   describe "BLAS spec" $ do
     it "Should matmul two matrices" $ do
-      (matrix @Double (2,2) (repeat 2) `matmul` matrix @Double (2,2) (repeat 2))
-        None None
-        `shouldBe`
-           matrix @Double (2,2) (repeat 8)
+      (matrix @Double (2,2) [[2,2],[2,2]] `matmul` matrix @Double (2,2) [[2,2],[2,2]]) None None
+        `shouldBe` matrix @Double (2,2) [[8,8],[8,8]]
     it "Should dot product two vectors" $ do
       dot (vector @Double 2 (repeat 2)) (vector @Double 2 (repeat 2)) None None
         `shouldBe`
@@ -23,13 +21,13 @@ spec =
         `shouldBe`
            8.0 :+ 0.0
     it "Should take the transpose of a matrix" $ do
-      transpose (matrix @Double (2,2) [1,1,2,2]) False
+      transpose (matrix @Double (2,2) [[1,1],[2,2]]) False
         `shouldBe`
-           matrix @Double (2,2) [1,2,1,2]
+           matrix @Double (2,2) [[1,2],[1,2]]
     it "Should take the transpose of a matrix in place" $ do
-      let m = matrix @Double (2,2) [1,1,2,2]
+      let m = matrix @Double (2,2) [[1,1],[2,2]]
       transposeInPlace m False
-      m `shouldBe` matrix @Double (2,2) [1,2,1,2]
+      m `shouldBe` matrix @Double (2,2) [[1,2],[1,2]]
 
 
 

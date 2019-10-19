@@ -23,20 +23,16 @@
 --
 -- import ArrayFire
 --
--- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
+-- main :: 'IO' ()
+-- main = 'print' =<< 'matrix' \@'Double' (2,2) [ [1..], [1..] ]
 --
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Array where
 
 import           Control.Exception
 import           Data.Proxy
-import           Data.Vector.Storable       hiding (mapM_)
+import           Data.Vector.Storable       hiding (mapM_, take, concat, concatMap)
 import qualified Data.Vector.Storable       as V
 import           Foreign.ForeignPtr
 import           Foreign.Marshal            hiding (void)
@@ -68,34 +64,52 @@ scalar x = mkArray [1] [x]
 -- @
 --
 vector :: AFType a => Int -> [a] -> Array a
-vector n = mkArray [n]
+vector n = mkArray [n] . take n
 
 -- | Smart constructor for creating a matrix 'Array'
 --
 -- @
--- >>> matrix @Double (2,2) [1,2,3,4]
+-- >>> matrix @Double (2,2) [[1,2],[3,4]]
 -- @
 --
-matrix :: AFType a => (Int,Int) -> [a] -> Array a
-matrix (x,y) = mkArray [x,y]
+matrix :: AFType a => (Int,Int) -> [[a]] -> Array a
+matrix (x,y)
+  = mkArray [x,y] 
+  . concat
+  . take x
+  . fmap (take y)
 
 -- | Smart constructor for creating a cubic 'Array'
 --
 -- @
--- >>> cube @Double (2,2,2) [1..]
+-- >>> cube @Double (2,2,2) [[[2,2],[2,2]],[[2,2],[2,2]]]
 -- @
 --
-cube :: AFType a => (Int,Int,Int) -> [a] -> Array a
-cube (x,y,z) = mkArray [x,y,z]
+cube :: AFType a => (Int,Int,Int) -> [[[a]]] -> Array a
+cube (x,y,z) 
+  = mkArray [x,y,z]
+  . concat
+  . fmap concat
+  . take x
+  . (fmap . take) y
+  . (fmap . fmap . take) z
 
 -- | Smart constructor for creating a tensor 'Array'
 --
 -- @
--- >>> tensor @Double (2,2,2,2) [1..]
+-- >>> tensor @Double (2,2,2,2) [[[[2,2],[2,2]],[[2,2],[2,2]]], [[[2,2],[2,2]],[[2,2],[2,2]]]]
 -- @
 --
-tensor :: AFType a => (Int, Int,Int,Int) -> [a] -> Array a
-tensor (w,x,y,z) = mkArray [w,x,y,z]
+tensor :: AFType a => (Int, Int,Int,Int) -> [[[[a]]]] -> Array a
+tensor (w,x,y,z)
+  = mkArray [w,x,y,z]
+  . concat
+  . fmap concat
+  . (fmap . fmap) concat
+  . take w
+  . (fmap . take) x
+  . (fmap . fmap . take) y
+  . (fmap . fmap . fmap . take) z
 
 -- | Internal function for 'Array' construction
 --

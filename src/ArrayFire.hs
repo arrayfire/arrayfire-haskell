@@ -71,7 +71,7 @@ import Data.Word
 -- import qualified ArrayFire as A
 --
 -- main :: IO ()
--- main = A.printArray $ A.matrix @Double (3,3) [1.0 .. ]
+-- main = print $ A.matrix @Double (2,2) [[1,2],[3,4]]
 -- @
 --
 -- * Exception Handling
@@ -84,9 +84,11 @@ import Data.Word
 -- import           Control.Exception ( catch )
 --
 -- main :: IO ()
--- main = A.printArray (action shouldBatchOperation) \`catch\` (\\(e :: A.AFException) -> print e)
+-- main = A.printArray action \`catch\` (\\(e :: A.AFException) -> print e)
 --   where
---     action = A.matrix \@Double (3,3) [1.0 .. ] \`A.mul\` A.matrix \@Double (2,2) [1.0 .. ]
+--     action =
+--       A.matrix \@Double (3,3) [[[1..],[1..],[1..]]]
+--         \`A.mul\` A.matrix \@Double (2,2) [[1..],[1..]]
 -- @
 --
 -- The above operation is invalid since the matrix multiply has improper dimensions. The caught exception produces the following error:

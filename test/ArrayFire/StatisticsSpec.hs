@@ -38,11 +38,11 @@ spec =
         `shouldBe`
            5.5
     it "Should find the mean of all elements across all dimensions" $ do
-      fst (meanAll (matrix @Double (2,2) (repeat 10)))
+      fst (meanAll (matrix @Double (2,2) [[10,10],[10,10]]))
         `shouldBe`
            10
     it "Should find the weighted mean of all elements across all dimensions" $ do
-      fst (meanAllWeighted (matrix @Double (2,2) (repeat 10)) (matrix @Double (2,2) (repeat 0)))
+      fst (meanAllWeighted (matrix @Double (2,2) [[10,10],[10,10]]) (matrix @Double (2,2) [[10,10],[10,10]]))
         `shouldBe`
            10
     it "Should find the variance of all elements across all dimensions" $ do

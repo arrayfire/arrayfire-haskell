@@ -34,41 +34,31 @@ import ArrayFire.Internal.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Image
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Calculates the gradient of an image
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> print (gradient image)
 -- @
 gradient :: Array a -> (Array a, Array a)
 gradient a = a `op2p` af_gradient
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Loads an image from disk
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
+-- >>> image <- loadImage "image.png" True
 -- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
-loadImage :: String -> Bool -> IO (Array a)
+loadImage 
+  :: String 
+  -- ^ File path
+  -> Bool
+  -- ^ Is color image (boolean denoting if the image should be loaded as 1 channel or 3 channel)
+   -> IO (Array a)
 loadImage s b = loadAFImage s b af_load_image
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Saves an image to disk
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> saveImage image "image.png" 
 -- @
 saveImage :: Array a -> String -> IO ()
 saveImage a s = afSaveImage a s af_save_image
@@ -77,47 +67,32 @@ saveImage a s = afSaveImage a s af_save_image
 -- af_err af_save_image_memory(void** ptr, const af_array in, const af_image_format format);
 -- af_err af_delete_image_memory(void* ptr);
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Loads an image natively
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> image <- loadImageNative "image.png" 
 -- @
 loadImageNative :: String -> IO (Array a)
 loadImageNative s = loadAFImageNative s af_load_image_native
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Saves an image natively
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> saveImageNative image "image.png" 
 -- @
 saveImageNative :: Array a -> String -> IO ()
 saveImageNative a s = afSaveImage a s af_save_image_native
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Returns true if ArrayFire was compiled with ImageIO (FreeImage) support
 --
 -- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
+-- >>> print =<< isImageIOAvailable
 -- @
 isImageIOAvailable :: IO Bool
 isImageIOAvailable = 
   toEnum . fromIntegral <$> afCall1 af_is_image_io_available
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
+-- | Calculates 'resize' of 'Array' along user-specified dimension.
 --
 -- @
 -- >>> print $ mean 0 ( vector @Int 10 [1..] )

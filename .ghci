@@ -1,0 +1,4 @@
+:set prompt "\x03BB> "
+:seti -XTypeApplications
+:load ArrayFire
+:set -laf

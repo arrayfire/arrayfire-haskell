@@ -35,19 +35,6 @@ import Foreign
 import System.IO.Unsafe
 import Control.Exception
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
-(!) :: Array a -> Int -> Array a
-(!) = undefined
-
 -- | Index into an 'Array' by 'Seq'
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --

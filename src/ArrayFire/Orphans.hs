@@ -40,32 +40,32 @@ import           ArrayFire.Util
 import           Foreign.C
 
 instance (AFType a, Eq a) => Eq (Array a) where
-  x == y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.eq x y False
-  x /= y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.neq x y False
+  x == y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.eq x y
+  x /= y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.neq x y
 
 instance (Num a, AFType a) => Num (Array a) where
-  x + y       = A.add x y False
-  x * y       = A.mul x y False
+  x + y       = A.add x y
+  x * y       = A.mul x y
   abs         = A.abs
   signum      = A.sign
   negate arr  = do
     let (w,x,y,z) = A.getDims arr
-    A.cast (A.constant @a [w,x,y,z] 0) `A.sub` arr $ False
-  x - y       = A.sub x y False
+    A.cast (A.constant @a [w,x,y,z] 0) `A.sub` arr
+  x - y       = A.sub x y
   fromInteger = A.scalar . fromIntegral
 
 instance (Ord a, AFType a) => Ord (Array a) where
-  x < y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.lt x y False)
-  x > y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.gt x y False)
-  x <= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.le x y False)
-  x >= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.ge x y False)
+  x < y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.lt x y)
+  x > y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.gt x y)
+  x <= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.le x y)
+  x >= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.ge x y)
 
 instance AFType a => Semigroup (Array a) where
-  x <> y = A.mul x y False
+  x <> y = A.mul x y
 
 instance Show (Array a) where
   show = arrayString
 
 instance forall a . (Fractional a, AFType a) => Fractional (Array a) where
-  x / y  = A.div x y False
+  x / y  = A.div x y
   fromRational n = A.scalar @a (fromRational n)

@@ -15,15 +15,10 @@
 -- @
 -- module Main where
 --
--- import ArrayFire
+-- import qualified ArrayFire as A
 --
 -- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
+-- main = print $ A.sum (A.vector @Double [1..])
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
@@ -36,11 +31,11 @@ import ArrayFire.Internal.Types
 import Foreign.C.Types
 import Data.Word
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Sum all of the elements in 'Array' along the specified dimension
 --
--- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
--- @
+-- >>> sum (vector @Double 10 [1..]) 0
+-- 33
+--
 sum
   :: AFType a
   => Array a
@@ -51,10 +46,10 @@ sum
   -- ^ Will return the sum of all values in the input array along the specified dimension
 sum x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_sum p a n))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Sum all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sumNaN' ('vector' \@'Double' 10 [1..]) 0 0.0
 -- @
 sumNaN
   :: (Fractional a, AFType a)
@@ -68,10 +63,10 @@ sumNaN
   -- ^ Will return the sum of all values in the input array along the specified dimension, substituted with the default value
 sumNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_sum_nan p a i d))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Product all of the elements in 'Array' along the specified dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'product' ('vector' \@'Double' 10 [1..]) 0
 -- @
 product
   :: AFType a
@@ -83,10 +78,10 @@ product
   -- ^ Will return the product of all values in the input array along the specified dimension
 product x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_product p a n))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Product all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'productNaN' ('vector' \@'Double' 10 [1..]) 0 0.0
 -- @
 productNaN
   :: (AFType a, Fractional a)
@@ -100,10 +95,10 @@ productNaN
   -- ^ Will return the product of all values in the input array along the specified dimension, substituted with the default value
 productNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_product_nan p a i d))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Take the minimum of an 'Array' along a specific dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'min' ('vector' \@'Double' 10 [1..]) 0
 -- @
 min
   :: AFType a
@@ -115,10 +110,10 @@ min
   -- ^ Will contain the minimum of all values in the input array along dim
 min x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_min p a n))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Take the maximum of an 'Array' along a specific dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'max' ('vector' \@'Double' 10 [1..]) 0
 -- @
 max
   :: AFType a
@@ -130,10 +125,10 @@ max
   -- ^ Will contain the maximum of all values in the input array along dim
 max x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_max p a n))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Find if all elements in an 'Array' are 'True' along a dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'allTrue' ('vector' \@'CBool' 10 (repeat 0)) 0
 -- @
 allTrue
   :: forall a. AFType a
@@ -146,10 +141,10 @@ allTrue
 allTrue x (fromIntegral -> n) =
   toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_all_true p a n))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Find if any elements in an 'Array' are 'True' along a dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'anyTrue' ('vector' \@'CBool' 10 (repeat 0)) 0
 -- @
 anyTrue
   :: forall a . AFType a
@@ -162,10 +157,10 @@ anyTrue
 anyTrue x (fromIntegral -> n) =
   toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_any_true p a n))
 
--- | Retrieves count of all elements in 'Array' along the specified dimension
+-- | Count elements in an 'Array' along a dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'count' ('vector' \@'Double' 10 [1..]) 0
 -- @
 count
   :: forall a . AFType a
@@ -177,10 +172,10 @@ count
   -- ^ Count of all elements along dimension
 count x (fromIntegral -> n) = fromIntegral $ getScalar @Word32 @a (x `op1` (\p a -> af_count p a n))
 
--- | Sum all elements in 'Array'
+-- | Sum all elements in an 'Array' along all dimensions
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sumAll' ('vector' \@'Double' 10 [1..])
 -- @
 sumAll
   :: AFType a
@@ -190,10 +185,10 @@ sumAll
   -- ^ imaginary and real part
 sumAll = (`infoFromArray2` af_sum_all)
 
--- | Sum all elements in 'Array', substituting 'NaN' values with a user specified default.
+-- | Sum all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sumNaNAll' ('vector' \@'Double' 10 [1..]) 0.0
 -- @
 sumNaNAll
   :: (AFType a, Fractional a)
@@ -205,10 +200,10 @@ sumNaNAll
   -- ^ imaginary and real part
 sumNaNAll a d = infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
 
--- | Product all elements in 'Array'
+-- | Product all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'productAll' ('vector' \@'Double' 10 [1..])
 -- @
 productAll
   :: AFType a
@@ -218,10 +213,10 @@ productAll
   -- ^ imaginary and real part
 productAll = (`infoFromArray2` af_product_all)
 
--- | Product all elements in 'Array', substituting NaN values with a user specified default.
+-- | Product all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'productNaNAll' ('vector' \@'Double' 10 [1..]) 1.0
 -- @
 productNaNAll
   :: (AFType a, Fractional a)
@@ -233,10 +228,10 @@ productNaNAll
   -- ^ imaginary and real part
 productNaNAll a d = infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
 
--- | Find the maximum of two 'Array's
+-- | Take the minimum across all elements along all dimensions in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'minAll' ('vector' \@'Double' 10 [1..]) 1.0
 -- @
 minAll
   :: AFType a
@@ -246,10 +241,10 @@ minAll
   -- ^ imaginary and real part
 minAll = (`infoFromArray2` af_min_all)
 
--- | Find the maximum of two 'Array's
+-- | Take the maximum across all elements along all dimensions in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'maxAll' ('vector' \@'Double' 10 [1..])
 -- @
 maxAll
   :: AFType a
@@ -259,10 +254,10 @@ maxAll
   -- ^ imaginary and real part
 maxAll = (`infoFromArray2` af_max_all)
 
--- | Find the maximum of two 'Array's
+-- | Decide if all elements along all dimensions in 'Array' are True
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'allTrueAll' ('vector' \@'Double' 10 [1..])
 -- @
 allTrueAll
   :: AFType a
@@ -272,10 +267,10 @@ allTrueAll
   -- ^ imaginary and real part
 allTrueAll = (`infoFromArray2` af_all_true_all)
 
--- | Find the maximum of two 'Array's
+-- | Decide if any elements along all dimensions in 'Array' are True
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'anyTrueAll' ('vector' \@'Double' 10 [1..])
 -- @
 anyTrueAll
   :: AFType a
@@ -285,10 +280,10 @@ anyTrueAll
   -- ^ imaginary and real part
 anyTrueAll = (`infoFromArray2` af_any_true_all)
 
--- | Find the maximum of two 'Array's
+-- | Count all elements along all dimensions in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'countAll' ('vector' \@'Double' 10 [1..])
 -- @
 countAll
   :: AFType a
@@ -298,10 +293,10 @@ countAll
   -- ^ imaginary and real part
 countAll = (`infoFromArray2` af_count_all)
 
--- | Find the maximum of two 'Array's
+-- | Find the minimum element along a specified dimension in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'imin' ('vector' \@'Double' 10 [1..]) 0
 -- @
 imin
   :: AFType a
@@ -313,10 +308,10 @@ imin
   -- ^ will contain the minimum of all values in in along dim, will also contain the location of minimum of all values in in along dim
 imin a (fromIntegral -> n) = op2p a (\x y z -> af_imin x y z n)
 
--- | Find the maximum of two 'Array's
+-- | Find the maximum element along a specified dimension in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'imax' ('vector' \@'Double' 10 [1..]) 0
 -- @
 imax
   :: AFType a
@@ -328,10 +323,10 @@ imax
   -- ^ will contain the maximum of all values in in along dim, will also contain the location of maximum of all values in in along dim
 imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 
--- | Find the maximum of two 'Array's
+-- | Find the minimum element along all dimensions in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'iminAll' ('vector' \@'Double' 10 [1..]) 1
 -- @
 iminAll
   :: AFType a
@@ -343,10 +338,10 @@ iminAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imin_all
   (x,y,z)
 
--- | Find the maximum of two 'Array's
+-- | Find the maximum element along all dimensions in 'Array'
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'imaxAll' ('vector' \@'Double' 10 [1..]) 1
 -- @
 imaxAll
   :: AFType a
@@ -358,10 +353,10 @@ imaxAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imax_all
   (x,y,z)
 
--- | Find the maximum of two 'Array's
+-- | Calculate sum of 'Array' across specified dimension
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'accum' ('vector' \@'Double' 10 [1..]) 0
 -- @
 accum
   :: AFType a
@@ -373,10 +368,10 @@ accum
   -- ^ Contains inclusive sum
 accum a (fromIntegral -> n) = a `op1` (\x y -> af_accum x y n)
 
--- | Find the maximum of two 'Array's
+-- | Scan elements of an 'Array' across a dimension, using a 'BinaryOp', specifying inclusivity.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'scan' ('vector' \@'Double' 10 [1..]) 0 Add True
 -- @
 scan
   :: AFType a
@@ -393,10 +388,10 @@ scan
 scan a (fromIntegral -> d) op (fromIntegral . fromEnum -> batch) =
   a `op1` (\x y -> af_scan x y d (toBinaryOp op) batch)
 
--- | Find the maximum of two 'Array's
+-- | Scan elements of an 'Array' across a dimension, by key, using a 'BinaryOp', specifying inclusivity.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'scanByKey' ('vector' \@'Double' 2 [1..]) ('vector' \@'Double' 10 [1..]) 0 Add True
 -- @
 scanByKey
   :: AFType a
@@ -414,10 +409,10 @@ scanByKey
 scanByKey a b (fromIntegral -> d) op (fromIntegral . fromEnum -> batch) =
   op2 a b (\x y z -> af_scan_by_key x y z d (toBinaryOp op) batch)
 
--- | Find the maximum of two 'Array's
+-- | Find indices where input Array is non zero
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'where\'' ('vector' \@'Double' 10 [1..])
 -- @
 where'
   :: AFType a
@@ -427,10 +422,10 @@ where'
   -- ^ will contain indices where input array is non-zero
 where' = (`op1` af_where)
 
--- | Find the maximum of two 'Array's
+-- | First order numerical difference along specified dimension.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'diff1' ('vector' \@'Double' 10 [1.0 .. ]) 0
 -- @
 diff1
   :: AFType a
@@ -442,10 +437,10 @@ diff1
   -- ^ Will contain first order numerical difference
 diff1 a (fromIntegral -> n) = a `op1` (\p x -> af_diff1 p x n)
 
--- | Find the maximum of two 'Array's
+-- | Second order numerical difference along specified dimension.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'diff2' ('vector' \@'Double' 10 [1.0 .. ]) 0
 -- @
 diff2
   :: AFType a
@@ -457,10 +452,10 @@ diff2
   -- ^ Will contain second order numerical difference
 diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 
--- | Find the maximum of two 'Array's
+-- | Sort an Array along a specified dimension, specifying ordering of results (ascending / descending)
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sort' ('vector' \@'Double' 10 [1.0 .. ]) 0 True
 -- @
 sort
   :: AFType a
@@ -475,10 +470,10 @@ sort
 sort a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op1` (\p x -> af_sort p x n b)
 
--- | Find the maximum of two 'Array's
+-- | Sort an 'Array' along a specified dimension, specifying ordering of results (ascending / descending)
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sort' ('vector' \@'Double' 10 [1.0 .. ]) 0 True
 -- @
 sortIndex
   :: AFType a
@@ -493,10 +488,10 @@ sortIndex
 sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
 
--- | Find the maximum of two 'Array's
+-- | Sort an 'Array' along a specified dimension by keys, specifying ordering of results (ascending / descending)
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'sortByKey' (vector @Double 2 [1.0 .. ]) (vector @Double 10 [1.0 .. ]) 0 True
 -- @
 sortByKey
   :: AFType a
@@ -512,10 +507,10 @@ sortByKey
 sortByKey a1 a2 (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   op2p2 a1 a2 (\w x y z -> af_sort_by_key w x y z n b)
 
--- | Find the maximum of two 'Array's
+-- | Finds the unique values in an 'Array', specifying if sorting should occur.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'setUnique' (vector @Double 2 [1.0 .. ]) True
 -- @
 setUnique
   :: AFType a
@@ -528,10 +523,10 @@ setUnique
 setUnique a (fromIntegral . fromEnum -> b) =
   op1 a (\x y -> af_set_unique x y b)
 
--- | Find the maximum of two 'Array's
+-- | Takes the union of two 'Array's, specifying if `setUnique` should be called first.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'setUnion' ('vector' \@'Double' 2 [1.0 .. ]) ('vector' \@'Double' 2 [1.0 .. ]) 'True'
 -- @
 setUnion
   :: AFType a
@@ -545,10 +540,10 @@ setUnion
 setUnion a1 a2 (fromIntegral . fromEnum -> b) =
   op2 a1 a2 (\x y z -> af_set_union x y z b)
 
--- | Find the maximum of two 'Array's
+-- | Takes the intersection of two 'Array's, specifying if `setUnique` should be called first.
 --
 -- @
--- >>> 'clamp' ('vector' \@'Int' 10 [1..])
+-- >>> 'setIntersect' ('vector' \@'Double' 2 [1.0 .. ]) ('vector' \@'Double' 2 [1.0 .. ]) 'True'
 -- @
 setIntersect
   :: AFType a
