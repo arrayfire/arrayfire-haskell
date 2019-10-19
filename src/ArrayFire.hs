@@ -87,7 +87,6 @@ import Data.Word
 -- main = A.printArray (action shouldBatchOperation) \`catch\` (\\(e :: A.AFException) -> print e)
 --   where
 --     action = A.matrix \@Double (3,3) [1.0 .. ] \`A.mul\` A.matrix \@Double (2,2) [1.0 .. ]
---     shouldBatchOperation = True
 -- @
 --
 -- The above operation is invalid since the matrix multiply has improper dimensions. The caught exception produces the following error:
