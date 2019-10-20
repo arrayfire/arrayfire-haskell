@@ -5,6 +5,7 @@ in
   pkgs.lib.overrideDerivation pkg (drv: {
     shellHook = ''
       export PATH=$PATH:${pkgs.haskellPackages.doctest}/bin
+      export PATH=$PATH:${pkgs.haskellPackages.cabal-install}/bin
       function ghcid () {
         ${pkgs.haskellPackages.ghcid.bin}/bin/ghcid -c 'cabal v1-repl lib:arrayfire'
       };
@@ -18,13 +19,13 @@ in
          ${pkgs.ag}/bin/ag -l | \
            ${pkgs.entr}/bin/entr sh -c \
              'cabal v1-configure --enable-tests && \
-                cabal v1-build doctests && dist/build/doctests/doctests'
+                cabal v1-build doctests && dist/build/doctests/doctests src/ArrayFire/Algorithm.hs'
       }
       function repl () {
-        ${pkgs.cabal-install}/bin/cabal v1-repl lib:arrayfire
+        cabal v1-repl lib:arrayfire
       }
       function docs () {
-        ${pkgs.cabal-install}/bin/cabal haddock
+        cabal haddock
         open ./dist-newstyle/*/*/*/*/doc/html/arrayfire/index.html
       }
     '';

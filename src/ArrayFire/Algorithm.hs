@@ -33,8 +33,11 @@ import Data.Word
 
 -- | Sum all of the elements in 'Array' along the specified dimension
 --
--- >>> sum (vector @Double 10 [1..]) 0
--- 33
+-- >>> A.sum (A.vector @Double 10 [1..]) 0
+-- 55.0
+--
+-- >>> A.sum (A.matrix @Double (10,10) [[2..],[2..]]) 0
+-- 65.0
 --
 sum
   :: AFType a
@@ -48,9 +51,9 @@ sum x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_sum p a n))
 
 -- | Sum all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
--- @
--- >>> 'sumNaN' ('vector' \@'Double' 10 [1..]) 0 0.0
--- @
+-- >>> A.sumNaN (A.vector @Double 10 [1..]) 0 0.0
+-- 55
+--
 sumNaN
   :: (Fractional a, AFType a)
   => Array a
@@ -65,9 +68,9 @@ sumNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_sum_nan p a i d)
 
 -- | Product all of the elements in 'Array' along the specified dimension
 --
--- @
--- >>> 'product' ('vector' \@'Double' 10 [1..]) 0
--- @
+-- >>> A.product (A.vector @Double 10 [1..]) 0
+-- 3628800.0
+--
 product
   :: AFType a
   => Array a
@@ -80,9 +83,9 @@ product x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_product p a n))
 
 -- | Product all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
--- @
--- >>> 'productNaN' ('vector' \@'Double' 10 [1..]) 0 0.0
--- @
+-- >>> A.productNaN (A.vector @Double 10 [1..]) 0 0.0
+-- 3628800.0
+--
 productNaN
   :: (AFType a, Fractional a)
   => Array a
