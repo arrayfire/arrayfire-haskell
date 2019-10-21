@@ -24,7 +24,7 @@
 -- import ArrayFire
 --
 -- main :: 'IO' ()
--- main = 'print' =<< 'matrix' \@'Double' (2,2) [ [1..], [1..] ]
+-- main = 'print' ('matrix' \@'Double' (2,2) [ [1..], [1..] ])
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Array where

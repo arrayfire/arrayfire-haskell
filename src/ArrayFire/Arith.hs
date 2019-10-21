@@ -964,9 +964,10 @@ sign = flip op1 af_sign
 
 -- | Round the values in an 'Array'
 --
---
--- >>> 'round' (vector @Int 10 [1..])
---
+-- >>> A.round (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 round
   :: AFType a
   => Array a
@@ -977,9 +978,10 @@ round = flip op1 af_round
 
 -- | Truncate the values of an 'Array'
 --
---
--- >>> 'trunc' (vector @Int 10 [1..])
---
+-- >>> A.trunc (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 trunc
   :: AFType a
   => Array a
@@ -990,9 +992,10 @@ trunc = flip op1 af_trunc
 
 -- | Take the floor of all values in an 'Array'
 --
---
--- >>> 'floor' (vector @Int 10 [1..])
---
+-- >>> A.floor (A.vector @Int 10 [10,9..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 floor
   :: AFType a
   => Array a
@@ -1003,9 +1006,10 @@ floor = flip op1 af_floor
 
 -- | Take the ceil of all values in an 'Array'
 --
---
--- >>> 'ceil' (vector @Int 10 [1..])
---
+-- >>> A.ceil (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 ceil
   :: AFType a
   => Array a
@@ -1016,9 +1020,10 @@ ceil = flip op1 af_ceil
 
 -- | Take the sin of all values in an 'Array'
 --
---
--- >>> 'sin' (vector @Int 10 [1..])
---
+-- >>> A.sin (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.8415     0.9093     0.1411    -0.7568    -0.9589    -0.2794     0.6570     0.9894     0.4121    -0.5440
 sin
   :: AFType a
   => Array a
@@ -1029,9 +1034,10 @@ sin = flip op1 af_sin
 
 -- | Take the cos of all values in an 'Array'
 --
---
--- >>> 'cos' (vector @Int 10 [1..])
---
+-- >>> A.cos (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.5403    -0.4161    -0.9900    -0.6536     0.2837     0.9602     0.7539    -0.1455    -0.9111    -0.8391
 cos
   :: AFType a
   => Array a
@@ -1042,9 +1048,10 @@ cos = flip op1 af_cos
 
 -- | Take the tan of all values in an 'Array'
 --
---
--- >>> 'tan' (vector @Int 10 [1..])
---
+-- >>> A.tan (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.5574    -2.1850    -0.1425     1.1578    -3.3805    -0.2910     0.8714    -6.7997    -0.4523     0.6484
 tan
   :: AFType a
   => Array a
@@ -1055,8 +1062,10 @@ tan = flip op1 af_tan
 
 -- | Take the asin of all values in an 'Array'
 --
---
--- >>> 'asin' (vector @Int 10 [1..])
+-- >>> A.asin (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.5708        nan        nan        nan        nan        nan        nan        nan        nan        nan
 --
 asin
   :: AFType a
@@ -1068,9 +1077,10 @@ asin = flip op1 af_asin
 
 -- | Take the acos of all values in an 'Array'
 --
---
--- >>> 'acos' (vector @Int 10 [1..])
---
+-- >>> A.acos (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000        nan        nan        nan        nan        nan        nan        nan        nan        nan
 acos
   :: AFType a
   => Array a
@@ -1081,9 +1091,10 @@ acos = flip op1 af_acos
 
 -- | Take the atan of all values in an 'Array'
 --
---
--- >>> 'atan' (vector @Int 10 [1..])
---
+-- >>> A.atan (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7854     1.1071     1.2490     1.3258     1.3734     1.4056     1.4289     1.4464     1.4601     1.4711
 atan
   :: AFType a
   => Array a
@@ -1094,9 +1105,10 @@ atan = flip op1 af_atan
 
 -- | Take the atan2 of all values in an 'Array'
 --
---
--- >>> 'atan2' (vector @Int 10 [1..]) (vector @Int 10 [1..])
---
+-- >>> A.atan2 (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854
 atan2
   :: AFType a
   => Array a
@@ -1111,9 +1123,10 @@ atan2 x y =
 
 -- | Take the atan2 of all values in an 'Array'
 --
---
--- >>> 'atan2Batched' (vector @Int 10 [1..]) (vector @Int 10 [1..]) True
---
+-- >>> A.atan2Batched (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854
 atan2Batched
   :: AFType a
   => Array a
@@ -1130,9 +1143,10 @@ atan2Batched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Take the cplx2 of all values in an 'Array'
 --
---
--- >>> 'cplx2' (vector @Int 10 [1..]) (vector @Int 10 [1..])
---
+-- >>> A.cplx2 (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         (1.0000,1.0000)          (2.0000,2.0000)          (3.0000,3.0000)          (4.0000,4.0000)          (5.0000,5.0000)          (6.0000,6.0000)          (7.0000,7.0000)          (8.0000,8.0000)          (9.0000,9.0000)          (10.0000,10.0000)
 cplx2
   :: AFType a
   => Array a
@@ -1147,9 +1161,10 @@ cplx2 x y =
 
 -- | Take the cplx2Batched of all values in an 'Array'
 --
---
--- >>> 'cplx2Batched' (vector @Int 10 [1..]) (vector @Int 10 [1..]) True
---
+-- >>> A.cplx2Batched (A..vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
+-- ArrayFire Array
+-- [10 1 1 1]
+--         (1.0000,1.0000)          (2.0000,2.0000)          (3.0000,3.0000)          (4.0000,4.0000)          (5.0000,5.0000)          (6.0000,6.0000)          (7.0000,7.0000)          (8.0000,8.0000)          (9.0000,9.0000)          (10.0000,10.0000)
 cplx2Batched
   :: AFType a
   => Array a
@@ -1166,9 +1181,10 @@ cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Execute cplx
 --
---
--- >>> 'cplx' (vector @Int 10 [1..])
---
+-- >>> A.cplx (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         (1.0000,0.0000)          (2.0000,0.0000)          (3.0000,0.0000)          (4.0000,0.0000)          (5.0000,0.0000)          (6.0000,0.0000)          (7.0000,0.0000)          (8.0000,0.0000)          (9.0000,0.0000)          (10.0000,0.0000)
 cplx
   :: AFType a
   => Array a
@@ -1179,9 +1195,10 @@ cplx = flip op1 af_cplx
 
 -- | Execute real
 --
---
--- >>> 'real' (vector @Int 10 [1..])
---
+-- >>> A.real (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 real
   :: AFType a
   => Array a
@@ -1192,9 +1209,10 @@ real = flip op1 af_real
 
 -- | Execute imag
 --
---
--- >>> 'imag' (vector @Int 10 [1..])
---
+-- >>> A.imag (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
 imag
   :: AFType a
   => Array a
@@ -1205,9 +1223,10 @@ imag = flip op1 af_imag
 
 -- | Execute conjg
 --
---
--- >>> 'conjg' (vector @Int 10 [1..])
---
+-- >>> A.conjg (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 conjg
   :: AFType a
   => Array a
@@ -1218,9 +1237,10 @@ conjg = flip op1 af_conjg
 
 -- | Execute sinh
 --
---
--- >>> 'sinh' (vector @Int 10 [1..])
---
+-- >>> A.sinh (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.1752     3.6269    10.0179    27.2899    74.2032   201.7132   548.3161  1490.4788  4051.5419 11013.2329
 sinh
   :: AFType a
   => Array a
@@ -1232,8 +1252,10 @@ sinh = flip op1 af_sinh
 -- | Execute cosh
 --
 --
--- >>> 'cosh' (vector @Int 10 [1..])
---
+-- >>> A.cosh (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.5431     3.7622    10.0677    27.3082    74.2099   201.7156   548.3170  1490.4792  4051.5420 11013.2329
 cosh
   :: AFType a
   => Array a
@@ -1244,9 +1266,10 @@ cosh = flip op1 af_cosh
 
 -- | Execute tanh
 --
---
--- >>> 'tanh' (vector @Int 10 [1..])
---
+-- >>> A.tanh (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
 tanh
   :: AFType a
   => Array a
@@ -1257,9 +1280,10 @@ tanh = flip op1 af_tanh
 
 -- | Execute root
 --
---
--- >>> 'root' (vector @Int 10 [1..]) (vector @Int 10 [1..])
---
+-- >>> A.root (A.vector @Double 10 [1..]) (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     1.4142     1.4422     1.4142     1.3797     1.3480     1.3205     1.2968     1.2765     1.2589
 root
   :: AFType a
   => Array a
@@ -1274,9 +1298,10 @@ root x y =
 
 -- | Execute rootBatched
 --
---
--- >>> 'rootBatched' (vector @Int 10 [1..]) (vector @Int 10 [1..]) True
---
+-- >>> A.rootBatched (vector @Double 10 [1..]) (vector @Double 10 [1..]) True
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     1.4142     1.4422     1.4142     1.3797     1.3480     1.3205     1.2968     1.2765     1.2589
 rootBatched
   :: AFType a
   => Array a
@@ -1293,9 +1318,10 @@ rootBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Execute pow
 --
---
--- >>> 'pow' (vector @Int 10 [1..]) 2
---
+-- >>> A.pow (A.vector @Int 10 [1..]) 2
+-- ArrayFire Array
+-- [10 1 1 1]
+--         1          4          9         16         25         36         49         64         81        100
 pow
   :: AFType a
   => Array a
@@ -1311,9 +1337,10 @@ pow x y =
 
 -- | Execute powBatched
 --
---
--- >>> 'powBatched' (vector @Int 10 [1..]) ('constant' @Int [1] 2) True
---
+-- >>> A.powBatched (A.vector @Int 10 [1..]) (A.constant @Int [1] 2) True
+-- ArrayFire Array
+-- [10 1 1 1]
+--         1          4          9         16         25         36         49         64         81        100
 powBatched
   :: AFType a
   => Array a
@@ -1330,9 +1357,10 @@ powBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Raise an 'Array' to the second power
 --
---
--- >>> 'pow2' (vector @Int 10 [1..])
---
+-- >>> A.pow2 (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         2          4          8         16         32         64        128        256        512       1024
 pow2
   :: AFType a
   => Array a
@@ -1343,9 +1371,10 @@ pow2 = flip op1 af_pow2
 
 -- | Execute exp on 'Array'
 --
---
--- >>> 'exp' (vector @Int 10 [1..])
---
+-- >>> A.exp (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    2.7183     7.3891    20.0855    54.5982   148.4132   403.4288  1096.6332  2980.9580  8103.0839 22026.4658 
 exp
   :: AFType a
   => Array a
@@ -1356,9 +1385,10 @@ exp = flip op1 af_exp
 
 -- | Execute sigmoid on 'Array'
 --
---
--- >>> 'sigmoid' (vector @Int 10 [1..])
---
+-- >>> A.sigmoid (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7311     0.8808     0.9526     0.9820     0.9933     0.9975     0.9991     0.9997     0.9999     1.0000
 sigmoid
   :: AFType a
   => Array a
@@ -1369,9 +1399,10 @@ sigmoid = flip op1 af_sigmoid
 
 -- | Execute expm1
 --
---
--- >>> 'expm1' (vector @Int 10 [1..])
---
+-- >>> A.expm1 (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.7183     6.3891    19.0855    53.5981   147.4132   402.4288  1095.6332  2979.9580  8102.0840 22025.4648
 expm1
   :: AFType a
   => Array a
@@ -1382,9 +1413,10 @@ expm1 = flip op1 af_expm1
 
 -- | Execute erf
 --
---
--- >>> 'erf' (vector @Int 10 [1..])
---
+-- >>> A.erf (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.8427     0.9953     1.0000     1.0000     1.0000     1.0000     1.0000     1.0000     1.0000     1.0000
 erf
   :: AFType a
   => Array a
@@ -1395,9 +1427,10 @@ erf = flip op1 af_erf
 
 -- | Execute erfc
 --
---
--- >>> 'erfc' (vector @Int 10 [1..])
---
+-- >>> A.erfc (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.1573     0.0047     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
 erfc
   :: AFType a
   => Array a
@@ -1408,9 +1441,10 @@ erfc = flip op1 af_erfc
 
 -- | Execute log
 --
---
--- >>> 'log' (vector @Int 10 [1..])
---
+-- >>> A.log (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000     0.6931     1.0986     1.3863     1.6094     1.7918     1.9459     2.0794     2.1972     2.3026
 log
   :: AFType a
   => Array a
@@ -1421,9 +1455,10 @@ log = flip op1 af_log
 
 -- | Execute log1p
 --
---
--- >>> 'log1p' (vector @Int 10 [1..])
---
+-- >>> A.log1p (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.6931     1.0986     1.3863     1.6094     1.7918     1.9459     2.0794     2.1972     2.3026     2.3979
 log1p
   :: AFType a
   => Array a
@@ -1434,9 +1469,10 @@ log1p = flip op1 af_log1p
 
 -- | Execute log10
 --
---
--- >>> 'log10' (vector @Int 10 [1..])
---
+-- >>> A.log10 (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000     0.3010     0.4771     0.6021     0.6990     0.7782     0.8451     0.9031     0.9542     1.0000
 log10
   :: AFType a
   => Array a
@@ -1447,9 +1483,10 @@ log10 = flip op1 af_log10
 
 -- | Execute log2
 --
---
--- >>> 'log2' (vector @Int 10 [1..])
---
+-- >>> A.log2 (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000     1.0000     1.5850     2.0000     2.3219     2.5850     2.8074     3.0000     3.1699     3.3219
 log2
   :: AFType a
   => Array a
@@ -1460,9 +1497,10 @@ log2 = flip op1 af_log2
 
 -- | Execute sqrt
 --
---
--- >>> 'sqrt' (vector @Int 10 [1..])
---
+-- >>> A.sqrt (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     1.4142     1.7321     2.0000     2.2361     2.4495     2.6458     2.8284     3.0000     3.1623
 sqrt
   :: AFType a
   => Array a
@@ -1473,9 +1511,10 @@ sqrt = flip op1 af_sqrt
 
 -- | Execute cbrt
 --
---
--- >>> 'cbrt' (vector @Int 10 [1..])
---
+-- >>> A.cbrt (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     1.2599     1.4422     1.5874     1.7100     1.8171     1.9129     2.0000     2.0801     2.1544
 cbrt
   :: AFType a
   => Array a
@@ -1486,8 +1525,7 @@ cbrt = flip op1 af_cbrt
 
 -- | Execute factorial1
 --
---
--- >>> 'factorial1' (vector @Int 10 [1..])
+-- >>> A.factorial1 (A.vector @Int 10 [1..])
 --
 factorial
   :: AFType a
@@ -1512,9 +1550,10 @@ tgamma = flip op1 af_tgamma
 
 -- | Execute lgamma
 --
---
--- >>> 'lgamma' (vector @Int 10 [1..])
---
+-- >>> A.lgamma (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000     0.0000     0.6931     1.7918     3.1781     4.7875     6.5793     8.5252    10.6046    12.8018
 lgamma
   :: AFType a
   => Array a
@@ -1525,9 +1564,10 @@ lgamma = flip op1 af_lgamma
 
 -- | Execute isZero
 --
---
--- >>> 'isZero' (vector @Int 10 [1..])
---
+-- >>> A.isZero (A.vector @CBool 10 (repeat 0))
+-- ArrayFire Array
+-- [10 1 1 1]
+--         1          1          1          1          1          1          1          1          1          1
 isZero
   :: AFType a
   => Array a
@@ -1538,9 +1578,10 @@ isZero = (`op1` af_iszero)
 
 -- | Execute isInf
 --
---
--- >>> 'isInf' (vector @Int 10 [1..])
---
+-- >>> A.isInf (A.vector @Double 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         0          0          0          0          0          0          0          0          0          0
 isInf
   :: (Real a, AFType a)
   => Array a
@@ -1552,8 +1593,10 @@ isInf = (`op1` af_isinf)
 -- | Execute isNaN
 --
 --
--- >>> 'isNaN' (vector @Int 10 [1..])
---
+-- >>> A.isNaN $ A.acos (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         0          1          1          1          1          1          1          1          1          1
 isNaN
   :: forall a. (AFType a, Real a)
   => Array a

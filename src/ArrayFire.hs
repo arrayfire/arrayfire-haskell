@@ -132,11 +132,14 @@ import Data.Word
 -- $construction
 -- An 'Array' can be constructed using the following smart constructors:
 --
+-- @
 -- >>> scalar @Double 2.0
 -- ArrayFire Array
 -- [1 1 1 1]
 --    2.0000
+-- @
 --
+-- @
 -- >>> vector @Double 10 [1..]
 -- ArrayFire Array
 -- [10 1 1 1]
@@ -147,6 +150,7 @@ import Data.Word
 -- [2 2 1 1]
 --    1.0000     2.0000
 --    3.0000     4.0000
+-- @
 --
 -- @
 -- >>> cube @Double (2,2,2) [[[2,2],[2,2]],[[2,2],[2,2]]]
@@ -264,8 +268,7 @@ import Data.Word
 --   'when' (idx == foundIndex) $ do
 --     array <- A.'readArrayKey' "file.array" "key"
 --     'print' array
--- @
--- @
+--
 -- ArrayFire Array
 -- [ 1 1 1 1 ]
 --         10
