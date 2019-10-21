@@ -137,8 +137,11 @@ tensor (w,x,y,z)
 
 -- | Internal function for 'Array' construction
 --
--- @
 -- >>> mkArray @Double [10] [1.0 .. 10.0]
+-- @
+-- ArrayFire Array
+-- [10 1 1 1]
+--    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
 -- @
 mkArray
   :: forall array

@@ -272,7 +272,7 @@ gtBatched x y (fromIntegral . fromEnum -> batch) = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         1
--- >>> A.scalar @Int 1 < A.scalar @Int 1
+-- >>> A.scalar @Int 1 <= A.scalar @Int 1
 -- False
 le
   :: AFType a
@@ -293,7 +293,7 @@ le x y = do
 -- [1 1 1 1]
 --         1
 -- >>> A.scalar @Int 1 <= A.scalar @Int 1
--- False
+-- True
 leBatched
   :: AFType a
   => Array a
@@ -310,9 +310,12 @@ leBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Test if one 'Array' is greater than or equal to another 'Array'
 --
---
--- >>> (A.scalar @Int 1 `A.ge` A.scalar @Int 1) True
---
+-- >>> A.scalar @Int 1 `A.ge` A.scalar @Int 1
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
+-- >>> A.scalar @Int 1 >= A.scalar @Int 1
+-- True
 ge
   :: AFType a
   => Array a
@@ -346,9 +349,13 @@ geBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Test if one 'Array' is equal to another 'Array'
 --
---
 -- >>> A.scalar @Int 1 `A.eq` A.scalar @Int 1
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 --
+-- >>> A.scalar @Int 1 == A.scalar @Int 1
+-- True
 eq
   :: AFType a
   => Array a
@@ -362,7 +369,6 @@ eq x y = do
     af_eq arr arr1 arr2 1
 
 -- | Test if one 'Array' is equal to another 'Array'
---
 --
 -- >>> (A.scalar @Int 1 `A.eqBatched` A.scalar @Int 1) True
 --
@@ -402,9 +408,8 @@ neq x y =
 
 -- | Test if one 'Array' is not equal to another 'Array'
 --
---
--- >>> (A.scalar @Int 1 `neqBatched` A.scalar @Int 1) True
---
+-- >>> (A.scalar @Int 1 `A.neqBatched` A.scalar @Int 1) True
+-- False
 neqBatched
   :: AFType a
   => Array a
@@ -421,8 +426,10 @@ neqBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Logical 'and' one 'Array' with another
 --
---
--- >>> (A.scalar @Int 1 `and` A.scalar @Int 1)
+-- >>> A.scalar @Int 1 `A.and` A.scalar @Int 1
+-- ArrayFire Array
+-- [1 1 1 1]
+--          1
 --
 and
   :: AFType a
@@ -438,9 +445,10 @@ and x y =
 
 -- | Logical 'and' one 'Array' with another
 --
---
 -- >>> (A.scalar @Int 1 `andBatched` A.scalar @Int 1) True
---
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 andBatched
   :: AFType a
   => Array a
@@ -457,8 +465,10 @@ andBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Logical 'or' one 'Array' with another
 --
---
--- >>> (A.scalar @Int 1 `or` A.scalar @Int 1)
+-- >>> A.scalar @Int 1 `A.or` A.scalar @Int 1
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 --
 or
   :: AFType a
@@ -475,8 +485,10 @@ or x y =
 -- | Logical 'or' one 'Array' with another
 --
 --
--- >>> (A.scalar @Int 1 `orBatched` A.scalar @Int 1) 'True'
---
+-- >>> (A.scalar @Int 1 `A.orBatched` A.scalar @Int 1) True
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 orBatched
   :: AFType a
   => Array a
@@ -493,9 +505,10 @@ orBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Not the values of an 'Array'
 --
---
--- >>> not (A.scalar @Int 1)
---
+-- >>> A.not (A.scalar @Int 1)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 not
   :: AFType a
   => Array a
@@ -506,9 +519,10 @@ not = flip op1 af_not
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitAnd' (A.scalar @Int 1) (A.scalar @Int 1)
---
+-- >>> A.bitAnd (A.scalar @Int 1) (A.scalar @Int 1)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 bitAnd
   :: AFType a
   => Array a
@@ -523,9 +537,10 @@ bitAnd x y =
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitAndBatched' (A.scalar @Int 1) (A.scalar @Int 1) 'False'
---
+--- >>> A.bitAndBatched (A.scalar @Int 1) (A.scalar @Int 1) True
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 bitAndBatched
   :: AFType a
   => Array a
@@ -542,9 +557,10 @@ bitAndBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitOr' (A.scalar @Int 1) (A.scalar @Int 1)
---
+-- >>> A.bitOr (A.scalar @Int 1) (A.scalar @Int 1)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 bitOr
   :: AFType a
   => Array a
@@ -559,9 +575,10 @@ bitOr x y = do
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitOrBatched' (A.scalar @Int 1) (A.scalar @Int 1) 'False'
---
+-- >>> A.bitOrBatched (A.scalar @Int 1) (A.scalar @Int 1) False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 bitOrBatched
   :: AFType a
   => Array a
@@ -578,9 +595,10 @@ bitOrBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitXor' (A.scalar @Int 1) (A.scalar @Int 1)
---
+-- >>> A.bitXor (A.scalar @Int 1) (A.scalar @Int 1)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 bitXor
   :: AFType a
   => Array a
@@ -595,9 +613,10 @@ bitXor x y = do
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitXorBatched' (A.scalar @Int 1) (A.scalar @Int 1) 'False'
---
+-- >>> A.bitXorBatched (A.scalar @Int 1) (A.scalar @Int 1) False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 bitXorBatched
   :: AFType a
   => Array a
@@ -614,9 +633,10 @@ bitXorBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitShiftL' (A.scalar @Int 1) (A.scalar @Int 1)
---
+-- >>> A.bitShiftL (A.scalar @Int 1) (A.scalar @Int 1)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         2
 bitShiftL
   :: AFType a
   => Array a
@@ -631,9 +651,10 @@ bitShiftL x y =
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitShiftLBatched' (A.scalar @Int 1) (A.scalar @Int 1) 'False'
---
+-- >>> A.bitShiftLBatched (A.scalar @Int 1) (A.scalar @Int 1) False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         2
 bitShiftLBatched
   :: AFType a
   => Array a
@@ -648,12 +669,12 @@ bitShiftLBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
 
-
 -- | Right bit shift the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitShiftR' (A.scalar @Int 1) (A.scalar @Int 1)
---
+-- >>> A.bitShiftR (A.scalar @Int 1) (A.scalar @Int 1)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 bitShiftR
   :: AFType a
   => Array a
@@ -668,9 +689,10 @@ bitShiftR x y =
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
 --
---
--- >>> 'bitShiftRBatched' (A.scalar @Int 1) (A.scalar @Int 1) 'False'
---
+-- >>> A.bitShiftRBatched (A.scalar @Int 1) (A.scalar @Int 1) False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 bitShiftRBatched
   :: AFType a
   => Array a
@@ -688,8 +710,10 @@ bitShiftRBatched x y (fromIntegral . fromEnum -> batch) = do
 -- | Cast one 'Array' into another
 --
 --
--- >>> 'cast' (A.scalar @Int 1) :: 'Array' 'Double'
---
+-- >>> A.cast (A.scalar @Int 1) :: Array Double
+-- ArrayFire Array
+-- [1 1 1 1]
+--    1.0000
 cast
   :: forall a b . (AFType a, AFType b)
   => Array a
@@ -703,9 +727,10 @@ cast afArr =
 
 -- | Find the minimum of two 'Array's
 --
---
--- >>> 'minOf' (A.scalar @Int 1) (A.scalar @Int 0)
---
+-- >>> A.minOf (A.scalar @Int 1) (A.scalar @Int 0)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 minOf
   :: AFType a
   => Array a
@@ -720,9 +745,10 @@ minOf x y =
 
 -- | Find the minimum of two 'Array's
 --
---
--- >>> 'minOfBatched' (A.scalar @Int 1) (A.scalar @Int 0) 'False'
---
+-- >>> A.minOfBatched (A.scalar @Int 1) (A.scalar @Int 0) False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 minOfBatched
   :: AFType a
   => Array a
@@ -739,9 +765,10 @@ minOfBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Find the maximum of two 'Array's
 --
---
--- >>> 'maxOf' (A.scalar @Int 1) (A.scalar @Int 0)
---
+-- >>> A.maxOf (A.scalar @Int 1) (A.scalar @Int 0)
+-- ArrayFire Array
+-- [1 1 1 1]
+--         1
 maxOf
   :: AFType a
   => Array a
@@ -757,9 +784,10 @@ maxOf x y =
 
 -- | Find the maximum of two 'Array's
 --
---
--- >>> 'maxOfBatched' (A.scalar @Int 1) (A.scalar @Int 0) 'False'
---
+-- >>> A.maxOfBatched (A.scalar @Int 1) (A.scalar @Int 0) False
+-- ArrayFire Array
+--[1 1 1 1]
+--         1
 maxOfBatched
   :: AFType a
   => Array a
@@ -777,15 +805,18 @@ maxOfBatched x y (fromIntegral . fromEnum -> batch) = do
 -- | Should take the clamp
 --
 --
--- >>> 'clamp' (A.scalar @Int 2) (A.scalar @Int 1) (A.scalar @Int 3)
+-- >>> clamp (A.scalar @Int 2) (A.scalar @Int 1) (A.scalar @Int 3)
+-- ArrayFire Array
+-- [1 1 1 1]
+--          2
 --
 clamp
   :: Array a
-  -- ^ First input
+  -- ^ input
   -> Array a
-  -- ^ Second input
+  -- ^ lower bound
   -> Array a
-  -- ^ Third input
+  -- ^ upper bound
   -> Array a
   -- ^ Result of clamp
 clamp a b c =
@@ -794,9 +825,10 @@ clamp a b c =
 
 -- | Should take the clamp
 --
---
--- >>> 'clamp' (A.scalar @Int 2) (A.scalar @Int 1) (A.scalar @Int 3)
---
+-- >>> (clampBatched (A.scalar @Int 2) (A.scalar @Int 1) (A.scalar @Int 3)) True
+-- ArrayFire Array
+-- [1 1 1 1]
+--          2
 clampBatched
   :: Array a
   -- ^ First input
@@ -814,9 +846,10 @@ clampBatched a b c (fromIntegral . fromEnum -> batch) =
 
 -- | Find the remainder of two 'Array's
 --
---
--- >>> 'rem' (vector @Int 10 [1..])  (vector @Int 10 [1..])
---
+-- >>> A.rem (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         0          0          0          0          0          0          0          0          0          0
 rem
   :: AFType a
   => Array a
@@ -832,7 +865,7 @@ rem x y =
 -- | Find the remainder of two 'Array's
 --
 --
--- >>> 'remBatched' (vector @Int 10 [1..])  (vector @Int 10 [1..]) True
+-- >>> A.remBatched (A.vector @Int 10 [1..])  (vector @Int 10 [1..]) True
 --
 remBatched
   :: AFType a
@@ -850,9 +883,10 @@ remBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Take the 'mod' of two 'Array's
 --
---
--- >>> 'mod' (vector @Int 10 [1..]) (vector @Int 10 [1..])
---
+-- >>> A.mod (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
+-- ArrayFire Array
+--[10 1 1 1]
+--         0          0          0          0          0          0          0          0          0          0
 mod
   :: AFType a
   => Array a
@@ -867,9 +901,10 @@ mod x y = do
 
 -- | Take the 'mod' of two 'Array's
 --
---
--- >>> 'modBatched' (vector @Int 10 [1..]) (vector @Int 10 [1..]) True
---
+-- >>> A.modBatched (vector @Int 10 [1..]) (vector @Int 10 [1..]) True
+-- ArrayFire Array
+-- [10 1 1 1]
+--         0          0          0          0          0          0          0          0          0          0
 modBatched
   :: AFType a
   => Array a
@@ -886,8 +921,10 @@ modBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Take the absolute value of an array
 --
---
--- >>> 'abs' (A.scalar @Int (-1))
+-- >>> A.abs (A.scalar @Int (-1))
+-- ArrayFire Array
+-- [1 1 1 1]
+--    1.0000
 --
 abs
   :: AFType a
@@ -899,9 +936,10 @@ abs = flip op1 af_abs
 
 -- | Find the arg of an array
 --
---
--- >>> 'arg' (vector @Int 10 [1..])
---
+-- >>> A.arg (vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--         0          0          0          0          0          0          0          0          0          0
 arg
   :: AFType a
   => Array a
@@ -912,9 +950,10 @@ arg = flip op1 af_arg
 
 -- | Find the sign of two 'Array's
 --
---
--- >>> 'sign' (vector @Int 10 [1..])
---
+-- >>> A.sign (vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--   0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
 sign
   :: AFType a
   => Array a
