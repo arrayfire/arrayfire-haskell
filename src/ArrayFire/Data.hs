@@ -16,21 +16,6 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
--- Functions for constructing and manipulating 'Array'
---
--- @
--- module Main where
---
--- import ArrayFire
---
--- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
--- @
 --------------------------------------------------------------------------------
 module ArrayFire.Data where
 
@@ -192,12 +177,11 @@ constant dims val =
           where
             n = fromIntegral (length dims')
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
+-- | Creates a range of values in an Array
+-- >>> range @Double [10] (-1)
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.0000     1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000
 range
   :: forall a
    . AFType a
@@ -206,7 +190,6 @@ range
   -> IO (Array a)
 range dims (fromIntegral -> k) = do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
-    zeroOutArray ptrPtr
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< af_range ptrPtr n dimArray k typ
       peek ptrPtr
@@ -218,12 +201,6 @@ range dims (fromIntegral -> k) = do
         n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 iota
   :: forall a . AFType a
   => [Int] -> [Int] -> IO (Array a)
@@ -245,10 +222,11 @@ iota dims tdims = do
 
 -- | Creates the identity `Array` from given dimensions
 --
--- @
 -- >>> identity [2,2] 2.0
--- @
---
+-- ArrayFire Array
+-- [2 2 1 1]
+--    1.0000     0.0000
+--    0.0000     1.0000
 identity
   :: forall a . AFType a
   => [Int]
@@ -268,12 +246,6 @@ identity dims = unsafePerformIO . mask_ $ do
         n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 diagCreate
   :: AFType (a :: *)
   => Array a
@@ -282,12 +254,6 @@ diagCreate
 diagCreate x (fromIntegral -> n) =
   x `op1` (\p a -> af_diag_create p a n)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 diagExtract
   :: AFType (a :: *)
   => Array a
@@ -296,12 +262,6 @@ diagExtract
 diagExtract x (fromIntegral -> n) =
   x `op1` (\p a -> af_diag_extract p a n)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 join
   :: Int
   -> Array (a :: *)
@@ -309,12 +269,6 @@ join
   -> Array a
 join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 joinMany
   :: Int
   -> [Array a]
@@ -334,12 +288,6 @@ joinMany (fromIntegral -> n) arrays = unsafePerformIO . mask_ $ do
   where
     nArrays = fromIntegral (length arrays)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 tile
   :: Array (a :: *)
   -> Int
@@ -350,12 +298,6 @@ tile
 tile a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
   a `op1` (\p k -> af_tile p k x y z w)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 reorder
   :: Array (a :: *)
   -> Int
@@ -366,12 +308,6 @@ reorder
 reorder a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
   a `op1` (\p k -> af_tile p k x y z w)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 shift
   :: Array (a :: *)
   -> Int
@@ -382,12 +318,6 @@ shift
 shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
   a `op1` (\p k -> af_shift p k x y z w)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 moddims
   :: forall a
    . [Int]
@@ -404,23 +334,11 @@ moddims dims (Array fptr) =
   where
     n = fromIntegral (length dims)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 flat
   :: Array a
   -> Array a
 flat = (`op1` af_flat)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 flip
   :: Array a
   -> Int
@@ -428,12 +346,6 @@ flip
 flip a (fromIntegral -> dim) =
   a `op1` (\p k -> af_flip p k dim)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 lower
   :: Array a
   -> Bool
@@ -441,12 +353,6 @@ lower
 lower a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_lower p k b)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 upper
   :: Array a
   -> Bool
@@ -454,12 +360,6 @@ upper
 upper a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_upper p k b)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 select
   :: Array a
   -> Array a
@@ -467,12 +367,6 @@ select
   -> Array a
 select a b c = op3 a b c af_select
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 selectScalarR
   :: Array a
   -> Array a
@@ -480,12 +374,6 @@ selectScalarR
   -> Array a
 selectScalarR a b c = op2 a b (\p w x -> af_select_scalar_r p w x c)
 
--- | Creates an 'Array Word64' from a scalar value
---
--- @
--- >>> constantULong [2,2] 2.0
--- @
---
 selectScalarL
   :: Array a
   -> Double

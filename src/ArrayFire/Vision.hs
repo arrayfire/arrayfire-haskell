@@ -10,21 +10,6 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
--- Vision API
---
--- @
--- module Main where
---
--- import ArrayFire
---
--- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
--- @
 --------------------------------------------------------------------------------
 module ArrayFire.Vision where
 
@@ -69,16 +54,6 @@ fast (Array fptr) thr (fromIntegral -> arc) (fromIntegral . fromEnum -> non) rat
          Features <$>
            newForeignPtr af_release_features feat
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 harris
   :: Array a
   -> Int
@@ -95,16 +70,6 @@ harris (Array fptr) (fromIntegral -> maxc) minresp sigma (fromIntegral -> bs) th
          Features <$>
            newForeignPtr af_release_features feat
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 orb
   :: Array a
   -> Float
@@ -124,16 +89,6 @@ orb (Array fptr) thr (fromIntegral -> feat) scl (fromIntegral -> levels) (fromIn
          array <- Array <$> newForeignPtr af_release_array_finalizer arr
          pure (feats, array)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 sift
   :: Array a
   -> Int
@@ -155,16 +110,6 @@ sift (Array fptr) (fromIntegral -> a) b c d (fromIntegral . fromEnum -> e) f g
          array <- Array <$> newForeignPtr af_release_array_finalizer arr
          pure (feats, array)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 gloh
   :: Array a
   -> Int
@@ -186,16 +131,6 @@ gloh (Array fptr) (fromIntegral -> a) b c d (fromIntegral . fromEnum -> e) f g
          array <- Array <$> newForeignPtr af_release_array_finalizer arr
          pure (feats, array)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 hammingMatcher
  :: Array a
  -> Array a
@@ -205,16 +140,6 @@ hammingMatcher
 hammingMatcher a b (fromIntegral -> x) (fromIntegral -> y)
   = op2p2 a b (\p c d e -> af_hamming_matcher p c d e x y)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 nearestNeighbor
  :: Array a
  -> Array a
@@ -225,16 +150,6 @@ nearestNeighbor
 nearestNeighbor a b (fromIntegral -> x) (fromIntegral -> y) (fromMatchType -> match)
   = op2p2 a b (\p c d e -> af_nearest_neighbour p c d e x y match)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 matchTemplate
  :: Array a
  -> Array a

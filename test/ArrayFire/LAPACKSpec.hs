@@ -39,6 +39,6 @@ spec =
     it "Should calculate inverse" $ do
       let x = flip A.inverse A.None $ A.matrix @Double (2,2) [[4,7],[2,6]]
       x `shouldBe` A.matrix @Double (2,2) [[0.6,-0.2],[-0.7,0.4]]
-  -- it "Should calculate psuedo inverse" $ do
-  --   let x = A.pinverse (A.matrix @Double (2,2) [4,7,2,6]) 1.0 A.None
-  --   x `shouldBe` A.matrix @Double (2,2) [0.6,-0.2,-0.7,0.4]
+--    it "Should calculate psuedo inverse" $ do
+--      let x = A.pinverse (A.matrix @Double (2,2) [[4,7],[2,6]]) 1.0 A.None
+--      x `shouldBe` A.matrix @Double (2,2) [[0.6,-0.2],[-0.7,0.4]]

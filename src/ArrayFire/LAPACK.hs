@@ -7,22 +7,6 @@
 -- Maintainer  : David Johnson <djohnson.m@gmail.com>
 -- Stability   : Experimental
 -- Portability : GHC
---
--- LAPACK API
---
--- @
--- module Main where
---
--- import ArrayFire
---
--- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
--- @
 --------------------------------------------------------------------------------
 module ArrayFire.LAPACK where
 
@@ -50,48 +34,21 @@ svd
   -- 'vt' is the output array containing V^H
 svd = (`op3p` af_svd)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'svd' of an Array in place.
 svdInPlace
   :: AFType a
   => Array a
   -> (Array a, Array a, Array a)
 svdInPlace = (`op3p` af_svd_inplace)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'lu' decomposition of an Array.
 lu
   :: AFType a
   => Array a
   -> (Array a, Array a, Array a)
 lu = (`op3p` af_lu)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'lu' decomposition of an Array in place.
 luInPlace
   :: AFType a
   => Array a
@@ -99,67 +56,34 @@ luInPlace
   -> Array a
 luInPlace a (fromIntegral . fromEnum -> b) = a `op1` (\x y -> af_lu_inplace x y b)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'qr' decomposition of an Array.
 qr
   :: AFType a
   => Array a
   -> (Array a, Array a, Array a)
 qr = (`op3p` af_qr)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'qr' decomposition of an Array in place.
 qrInPlace
   :: AFType a
   => Array a
   -> Array a
 qrInPlace = (`op1` af_qr_inplace)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'cholesky' factorization of an 'Array'
 cholesky
   :: AFType a
   => Array a
+  -- ^ input 'Array'
   -> Bool
+  -- ^ a boolean determining if out is upper or lower triangular
   -> (Int, Array a)
+  -- ^ contains the triangular matrix. Multiply 'Int' with its conjugate transpose reproduces the input array.
 cholesky a (fromIntegral . fromEnum -> b) = do
   let (x',y') = op1b a (\x y z -> af_cholesky x y z b)
   (fromIntegral x', y')
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates the 'cholesky' factorization in place.
 choleskyInplace
   :: AFType a
   => Array a
@@ -168,16 +92,6 @@ choleskyInplace
 choleskyInplace a (fromIntegral . fromEnum -> b) =
   fromIntegral $ infoFromArray a (\x y -> af_cholesky_inplace x y b)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 solve
   :: AFType a
   => Array a
@@ -187,16 +101,6 @@ solve
 solve a b m =
   op2 a b (\x y z -> af_solve x y z (toMatProp m))
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 solveLU
   :: AFType a
   => Array a
@@ -207,16 +111,6 @@ solveLU
 solveLU a b c m =
   op3 a b c (\x y z w -> af_solve_lu x y z w (toMatProp m))
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 inverse
   :: AFType a
   => Array a
@@ -225,17 +119,8 @@ inverse
 inverse a m =
   a `op1` (\x y  -> af_inverse x y (toMatProp m))
 
--- | Not implemented in 3.6.4
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Not implemented in '3.6.4'
+-- Calculates pseudo inverse of 'Array'.
 pinverse
   :: AFType a
   => Array a
@@ -245,16 +130,7 @@ pinverse
 pinverse a d m =
   a `op1` (\x y  -> af_pinverse x y d (toMatProp m))
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Calculates 'rank' of 'Array'
 rank
   :: AFType a
   => Array a
@@ -264,31 +140,14 @@ rank a b =
   fromIntegral (a `infoFromArray` (\x y -> af_rank x y b))
 
 -- | Calculates the determinant of an 'Array'
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
 det
   :: AFType a
   => Array a
   -> (Double,Double)
 det = (`infoFromArray2` af_det)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+
+-- | Calculates the 'norm' of 'Array'.
 norm
   :: AFType a
   => Array a
@@ -299,16 +158,7 @@ norm
 norm arr (fromNormType -> a) b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
 
--- | Calculates 'mean' of 'Array' along user-specified dimension.
---
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
--- ArrayFire Array
---   [1 1 1 1]
---      5.5000
--- @
+-- | Is LAPACK available
 isLAPACKAvailable :: Bool
 isLAPACKAvailable =
   toEnum . fromIntegral $ afCall1' af_is_lapack_available
