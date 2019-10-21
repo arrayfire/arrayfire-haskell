@@ -12,21 +12,6 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
--- Various instances for 'Array'
---
--- @
--- module Main where
---
--- import ArrayFire
---
--- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
--- @
 --------------------------------------------------------------------------------
 module ArrayFire.Orphans where
 

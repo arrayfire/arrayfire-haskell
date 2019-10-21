@@ -48,6 +48,12 @@ import ArrayFire.Internal.Types
 -- optLhs an only be one of AF_MAT_NONE, AF_MAT_TRANS, AF_MAT_CTRANS.
 --
 -- optRhs can only be AF_MAT_NONE.
+--
+-- >>> matmul (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[1,2],[3,4]]) None None
+-- ArrayFire Array
+-- [2 2 1 1]
+--    7.0000    10.0000
+--   15.0000    22.0000
 matmul
   :: Array a
   -- ^ 2D matrix of Array a, left-hand side
@@ -62,8 +68,12 @@ matmul
 matmul arr1 arr2 prop1 prop2 = do
   op2 arr1 arr2 (\p a b -> af_matmul p a b (toMatProp prop1) (toMatProp prop2))
 
-
 -- | Scalar dot product between two vectors. Also referred to as the inner product.
+--
+-- >>> dot (vector @Double 10 [1..]) (vector @Double 10 [1..]) None None
+-- ArrayFire Array
+-- [1 1 1 1]
+--   385.0000
 dot
   :: Array a
   -- ^ Left-hand side input
@@ -79,6 +89,8 @@ dot arr1 arr2 prop1 prop2 =
   op2 arr1 arr2 (\p a b -> af_dot p a b (toMatProp prop1) (toMatProp prop2))
 
 -- | Scalar dot product between two vectors. Also referred to as the inner product. Returns the result as a host scalar.
+-- >>> dotAll (vector @Double 10 [1..]) (vector @Double 10 [1..]) None None
+-- 385.0 :+ 0.0
 dotAll
   :: Array a
   -- ^ Left-hand side array
@@ -97,6 +109,18 @@ dotAll arr1 arr2 prop1 prop2 = do
   real :+ imag
 
 -- | Transposes a matrix.
+-- >>> matrix @Double (2,3) [[2,3,4],[4,5,6]]
+-- ArrayFire Array
+-- [2 3 1 1]
+--    2.0000     3.0000
+--    4.0000     4.0000
+--    5.0000     6.0000
+--
+-- >>> transpose (matrix @Double (2,3) [[2,3,4],[4,5,6]]) True
+-- ArrayFire Array
+-- [3 2 1 1]
+--    2.0000     4.0000     5.0000
+--    3.0000     4.0000     6.0000
 transpose
   :: Array a
   -- ^ Input matrix to be transposed

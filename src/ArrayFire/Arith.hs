@@ -66,7 +66,7 @@ addBatched
   -> Bool
   -- ^ Use batch
   -> Array a
-v  -- ^ Result of add
+  -- ^ Result of add
 addBatched x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
     af_add arr arr1 arr2 batch

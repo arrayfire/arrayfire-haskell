@@ -6,6 +6,8 @@ module Main where
 
 import ArrayFire
 import Control.Concurrent
+import Control.Exception
+
 import Prelude            hiding (sum, product)
 -- import GHC.RTS
 
@@ -15,8 +17,14 @@ foreign import ccall safe "test_bool"
 foreign import ccall safe "test_window"
   testWindow :: IO ()
 
+main' :: IO ()
+main' = print newArray `catch` (\(e :: AFException) -> print e)
+  where
+    newArray = matrix @Double (2,2) [ [1..], [1..] ] * matrix @Double (2,2) [ [2..], [2..] ]
+
 main :: IO ()
 main = do
+  main'
   -- testWindow
   -- ks <- randn @Double [100,100]
   -- saveArray "key" ks "array.txt" False

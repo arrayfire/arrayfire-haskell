@@ -5,6 +5,7 @@
 
 ## Table of Contents
  - [Installation](#Installation)
+   - [Haskell Installation](#haskell-installation)
  - [Documentation](#Documentation)
  - [Hacking](#Hacking)
  - [Example](#Example)
@@ -13,6 +14,21 @@
 ## Installation
 Install `ArraryFire` via the download page.
   - https://arrayfire.com/download/
+
+`ArrayFire` can also be fetched from [nixpkgs](https://github.com/nixos/nixpkgs) `master`.
+
+### Haskell Installation
+
+`arrayfire` can be installed w/ `cabal`, `stack` or `nix`.
+
+```
+cabal install arrayfire
+```
+
+```
+stack install arrayfire
+```
+
 
 Also note, if you plan on using ArrayFire's visualization features, you must install `fontconfig` and `glfw` on OSX or Linux.
 
@@ -46,12 +62,6 @@ To interactively evaluate code in the `repl`
 
 ```bash
 nix-shell --run repl
-```
-
-To run the doctests on each file change
-
-```bash
-nix-shell --run doctest-runner
 ```
 
 To produce the haddocks and open them in a browser

@@ -20,21 +20,6 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
--- ArrayFire Types
---
--- @
--- module Main where
---
--- import ArrayFire
---
--- main :: IO ()
--- main = print =<< getAvailableBackends
--- @
---
--- @
--- [nix-shell:~\/arrayfire]$ .\/main
--- [CPU,OpenCL]
--- @
 --------------------------------------------------------------------------------
 module ArrayFire.Types
   ( AFException         (..)
