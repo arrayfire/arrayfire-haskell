@@ -49,7 +49,7 @@ op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
            pure (Array fptr)
 
 op2
-  :: Array a
+  :: Array b
   -> Array a
   -> (Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
   -> Array a

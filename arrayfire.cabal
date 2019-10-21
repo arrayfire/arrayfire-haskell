@@ -165,6 +165,8 @@ test-suite test
 test-suite doctests
   type:
     exitcode-stdio-1.0
+  buildable:
+    False
   ghc-options:
     -threaded
   main-is:
