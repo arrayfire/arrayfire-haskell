@@ -54,3 +54,18 @@ instance Show (Array a) where
 instance forall a . (Fractional a, AFType a) => Fractional (Array a) where
   x / y  = A.div x y
   fromRational n = A.scalar @a (fromRational n)
+
+instance forall a . (Ord a, AFType a, Fractional a) => Floating (Array a) where
+  pi   = A.scalar @a 3.14159
+  exp  = A.exp @a
+  log  = A.log @a
+  sin  = A.sin @a
+  cos  = A.cos @a
+  asin = A.asin @a
+  acos = A.acos @a
+  atan = A.atan @a
+  sinh = A.sinh @a
+  cosh = A.cosh @a
+  acosh = A.acosh @a
+  atanh = A.atanh @a
+  asinh = A.asinh @a
