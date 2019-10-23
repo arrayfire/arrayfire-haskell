@@ -89,6 +89,7 @@ dot arr1 arr2 prop1 prop2 =
   op2 arr1 arr2 (\p a b -> af_dot p a b (toMatProp prop1) (toMatProp prop2))
 
 -- | Scalar dot product between two vectors. Also referred to as the inner product. Returns the result as a host scalar.
+--
 -- >>> dotAll (vector @Double 10 [1..]) (vector @Double 10 [1..]) None None
 -- 385.0 :+ 0.0
 dotAll
@@ -109,6 +110,7 @@ dotAll arr1 arr2 prop1 prop2 = do
   real :+ imag
 
 -- | Transposes a matrix.
+--
 -- >>> matrix @Double (2,3) [[2,3,4],[4,5,6]]
 -- ArrayFire Array
 -- [2 3 1 1]
