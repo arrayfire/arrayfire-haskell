@@ -1278,6 +1278,49 @@ tanh
   -- ^ Result of calling 'tanh'
 tanh = flip op1 af_tanh
 
+-- | Execute asinh
+--
+-- >>> A.asinh (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+asinh
+  :: AFType a
+  => Array a
+  -- ^ Input array
+  -> Array a
+  -- ^ Result of calling 'tanh'
+asinh = flip op1 af_asinh
+
+-- | Execute acosh
+--
+-- >>> A.acosh (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+acosh
+  :: AFType a
+  => Array a
+  -- ^ Input array
+  -> Array a
+  -- ^ Result of calling 'tanh'
+acosh = flip op1 af_acosh
+
+-- | Execute atanh
+--
+-- >>> A.atanh (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+atanh
+  :: AFType a
+  => Array a
+  -- ^ Input array
+  -> Array a
+  -- ^ Result of calling 'tanh'
+atanh = flip op1 af_atanh
+
+
 -- | Execute root
 --
 -- >>> A.root (A.vector @Double 10 [1..]) (A.vector @Double 10 [1..])

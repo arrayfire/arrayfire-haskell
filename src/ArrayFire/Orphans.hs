@@ -66,15 +66,6 @@ instance forall a . (Ord a, AFType a, Fractional a) => Floating (Array a) where
   atan = A.atan @a
   sinh = A.sinh @a
   cosh = A.cosh @a
-  acosh x =
-    A.log (x + (x+1.0) * A.sqrt ((x-1.0)/(x+1.0)))
-  atanh x =
-    0.5 * A.log ((1.0+x) / (1.0-x))
-  asinh x
-    | x > huge  = A.log 2 + A.log x
-    | x < 0     = -asinh (-x)
-    | otherwise = A.log (x + A.sqrt (1 + x*x))
-       where
-         huge = 1e20
-
-
+  acosh = A.acosh @a
+  atanh = A.atanh @a
+  asinh = A.asinh @a
