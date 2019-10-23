@@ -98,6 +98,12 @@ import Data.Word
 -- main = print $ A.matrix @Double (2,2) [[1,2],[3,4]]
 -- @
 --
+-- @
+-- ArrayFire Array
+-- [2 2 1 1]
+--     1.0000     2.0000
+--     3.0000     4.0000
+-- @
 
 -- $modules
 --
@@ -133,19 +139,21 @@ import Data.Word
 -- An 'Array' can be constructed using the following smart constructors:
 --
 -- @
--- >>> scalar @Double 2.0
+-- >>> scalar \@Double 2.0
 -- ArrayFire Array
 -- [1 1 1 1]
 --    2.0000
 -- @
 --
 -- @
--- >>> vector @Double 10 [1..]
+-- >>> vector \@Double 10 [1..]
 -- ArrayFire Array
 -- [10 1 1 1]
 --    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+-- @
 --
--- >>> matrix @Double (2,2) [[1,2],[3,4]]
+-- @
+-- >>> matrix \@Double (2,2) [[1,2],[3,4]]
 -- ArrayFire Array
 -- [2 2 1 1]
 --    1.0000     2.0000
@@ -153,7 +161,7 @@ import Data.Word
 -- @
 --
 -- @
--- >>> cube @Double (2,2,2) [[[2,2],[2,2]],[[2,2],[2,2]]]
+-- >>> cube \@Double (2,2,2) [[[2,2],[2,2]],[[2,2],[2,2]]]
 -- ArrayFire Array
 -- [2 2 2 1]
 --    2.0000     2.0000
@@ -164,7 +172,7 @@ import Data.Word
 -- @
 --
 -- @
--- >>> tensor @Double (2,2,2,2) [[[[2,2],[2,2]],[[2,2],[2,2]]], [[[2,2],[2,2]],[[2,2],[2,2]]]]
+-- >>> tensor \@Double (2,2,2,2) [[[[2,2],[2,2]],[[2,2],[2,2]]], [[[2,2],[2,2]],[[2,2],[2,2]]]]
 -- ArrayFire Array
 -- [2 2 2 2]
 --     2.0000     2.0000
@@ -183,7 +191,7 @@ import Data.Word
 --
 -- Array construction can use Haskell's lazy lists, since 'take' is called on each dimension before sending to the 'C' API.
 --
--- >>> 'mkArray' @Double [2,2] [ [1..], [1..] ]
+-- >>> mkArray @Double [2,2] [ [1..], [1..] ]
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
@@ -191,7 +199,7 @@ import Data.Word
 -- Specifying up to 4 dimensions is allowed (anything high is ignored).
 
 -- $laws
--- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional', 'Floating' and 'SemiGroup'
+-- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional', 'Floating' and 'Semigroup'
 --
 -- 'Num'
 --
@@ -246,6 +254,14 @@ import Data.Word
 -- False
 -- >>> scalar @Double 1 [10] > scalar @Double 1 [10]
 -- False
+--
+-- 'Floating'
+--
+-- >>> pi :: Array Double
+-- ArrayFire Array
+-- [1 1 1 1]
+--    3.1416
+--
 
 -- $conversion
 -- 'Array' can be exported into 'Haskell' using `toVector'. This will create a 'Storable' vector suitable for use in other C programs.

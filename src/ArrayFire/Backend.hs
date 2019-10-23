@@ -19,7 +19,6 @@
 -- @
 --
 -- @
--- [nix-shell:~\/arrayfire]$ .\/main
 -- [CPU,OpenCL]
 -- @
 --------------------------------------------------------------------------------
@@ -31,9 +30,8 @@ import ArrayFire.Internal.Types
 
 -- | Set specific 'Backend' to use
 --
--- @
--- >>> 'setBackend' 'OpenCL'
--- @
+-- >>> setBackend OpenCL
+-- ()
 setBackend
   :: Backend
   -- ^ 'Backend' to use for 'Array' construction
@@ -42,12 +40,9 @@ setBackend = afCall . af_set_backend . toAFBackend
 
 -- | Retrieve count of Backends available
 --
--- @
--- >>> 'getBackendCount'
--- @
--- @
+-- >>> getBackendCount
 -- 2
--- @
+--
 getBackendCount :: IO Int
 getBackendCount =
   fromIntegral <$>
@@ -55,13 +50,9 @@ getBackendCount =
 
 -- | Retrieve available 'Backend's
 --
--- @
--- >>> 'mapM_' 'print' '=<<' 'getAvailableBackends'
--- @
--- @
--- 'CPU'
--- 'OpenCL'
--- @
+-- >>> mapM_ print =<< getAvailableBackends
+-- CPU
+-- OpenCL
 getAvailableBackends :: IO [Backend]
 getAvailableBackends =
   toBackends . fromIntegral <$>
@@ -69,33 +60,21 @@ getAvailableBackends =
 
 -- | Retrieve 'Backend' that specific 'Array' was created from
 --
--- @
--- >>> 'getBackend' ('scalar' \@'Double' 2.0)
--- @
--- @
--- 'OpenCL'
--- @
+-- >>> getBackend (scalar @Double 2.0)
+-- OpenCL
 getBackend :: Array a -> Backend
 getBackend = toBackend . flip infoFromArray af_get_backend_id
 
 -- | Retrieve active 'Backend'
 --
--- @
--- >>> 'getActiveBackend'
--- @
--- @
--- 'OpenCL'
--- @
+-- >>> getActiveBackend
+-- OpenCL
 getActiveBackend :: IO Backend
 getActiveBackend = toBackend <$> afCall1 af_get_active_backend
 
 -- | Retrieve Device ID that 'Array' was created from
 --
--- @
--- >>> 'getDeviceID' ('scalar' \@'Double' 2.0)
--- @
--- @
+-- >>> getDeviceID (scalar \@Double 2.0)
 -- 1
--- @
 getDeviceID :: Array a -> Int
 getDeviceID = fromIntegral . flip infoFromArray af_get_device_id

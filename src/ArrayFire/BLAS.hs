@@ -136,7 +136,9 @@ transpose arr1 (fromIntegral . fromEnum -> b) =
 -- | Transposes a matrix.
 --
 -- * Warning: This function mutates an array in-place, all subsequent references will be changed. Use carefully.
---
+-- >>> array = matrix @Double (2,2) [[1..2],[3..4]]
+-- >>> transposeInPlace array False
+-- ()
 transposeInPlace
   :: Array a
   -- ^ Input matrix to be transposed

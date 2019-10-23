@@ -10,11 +10,10 @@
 --
 -- Information about ArrayFire API and devices
 --
--- @
+-- >>> info
 --  ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)
 -- [0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB
 -- -1- APPLE: Intel(R) UHD Graphics 630, 1536 MB
--- @
 --
 --------------------------------------------------------------------------------
 module ArrayFire.Device where
@@ -24,6 +23,7 @@ import ArrayFire.Internal.Device
 import ArrayFire.FFI
 
 -- | Retrieve info from ArrayFire API
+--
 -- @
 -- ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)
 -- [0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB
@@ -33,25 +33,40 @@ info :: IO ()
 info = afCall af_info
 
 -- | Calls 'af_init' C function from ArrayFire API
+--
+-- >>> afInit
+-- ()
 afInit :: IO ()
 afInit = afCall af_init
 
 -- | Retrieves ArrayFire device information as 'String', same as 'info'.
+--
+-- >>> getInfoString
+-- "ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)\n[0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB\n-1- APPLE: Intel(R) UHD Graphics 630, 1536 MB\n"
 getInfoString :: IO String
 getInfoString = peekCString =<< afCall1 (flip af_info_string 1)
 
 -- af_err af_device_info(char* d_name, char* d_platform, char *d_toolkit, char* d_compute);
 
 -- | Retrieves count of devices
+--
+-- >>> getDeviceCount
+-- 2
 getDeviceCount :: IO Int
 getDeviceCount = fromIntegral <$> afCall1 af_get_device_count
 
 -- af_err af_get_dbl_support(bool* available, const int device);
 -- | Sets a device by 'Int'
+--
+-- >>> setDevice 0
+-- ()
 setDevice :: Int -> IO ()
 setDevice (fromIntegral -> x) = afCall (af_set_device x)
 
 -- | Retrieves device identifier
+--
+-- >>> getDevice
+-- 0
 getDevice :: IO Int
 getDevice = fromIntegral <$> afCall1 af_get_device
 

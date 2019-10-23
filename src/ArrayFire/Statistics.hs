@@ -131,7 +131,7 @@ stdev a n =
   a `op1` (\x y ->
     af_stdev x y (fromIntegral n))
 
--- | Calculates 'covariance' two 'Array's with a bias specifier.
+-- | Calculates 'covariance' of two 'Array's with a bias specifier.
 --
 -- >>> cov (vector @Double 10 (repeat 1)) (vector @Double 10 (repeat 1)) False
 -- ArrayFire Array
@@ -269,6 +269,7 @@ corrCoef a b =
 
 -- | This function returns the top k values along a given dimension of the input array.
 --
+-- @
 -- >>> let (vals,indexes) = 'topk' ( 'vector' \@'Double' 10 [1..] ) 3 'TopKDefault'
 -- >>> print indexes
 --
@@ -280,6 +281,7 @@ corrCoef a b =
 -- ArrayFire 'Array'
 -- [3 1 1 1]
 --    9          8          7
+-- @
 --
 -- The indices along with their values are returned. If the input is a multi-dimensional array, the indices will be the index of the value in that dimension. Order of duplicate values are not preserved. This function is optimized for small values of k.
 -- This function performs the operation across all dimensions of the input array.

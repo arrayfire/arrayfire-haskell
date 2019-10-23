@@ -1283,7 +1283,7 @@ tanh = flip op1 af_tanh
 -- >>> A.asinh (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+--    0.8814     1.4436     1.8184     2.0947     2.3124     2.4918     2.6441     2.7765     2.8934     2.9982 
 asinh
   :: AFType a
   => Array a
@@ -1294,10 +1294,10 @@ asinh = flip op1 af_asinh
 
 -- | Execute acosh
 --
--- >>> A.acosh (A.vector @Int 10 [1..])
+-- >>> A.acosh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+--    0.0000     1.3170     1.7627     2.0634     2.2924     2.4779     2.6339     2.7687     2.8873     2.9932 
 acosh
   :: AFType a
   => Array a
@@ -1308,10 +1308,10 @@ acosh = flip op1 af_acosh
 
 -- | Execute atanh
 --
--- >>> A.atanh (A.vector @Int 10 [1..])
+-- >>> A.atanh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+--        inf        nan        nan        nan        nan        nan        nan        nan        nan        nan 
 atanh
   :: AFType a
   => Array a
@@ -1319,7 +1319,6 @@ atanh
   -> Array a
   -- ^ Result of calling 'tanh'
 atanh = flip op1 af_atanh
-
 
 -- | Execute root
 --
@@ -1634,7 +1633,6 @@ isInf
 isInf = (`op1` af_isinf)
 
 -- | Execute isNaN
---
 --
 -- >>> A.isNaN $ A.acos (A.vector @Int 10 [1..])
 -- ArrayFire Array
