@@ -14,7 +14,6 @@ module ArrayFire.Signal where
 import Data.Complex
 
 import ArrayFire.FFI
-import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Signal
 import ArrayFire.Internal.Types
 
@@ -229,61 +228,62 @@ convolve1
   :: AFType a
   => Array a
   -> Array a
-  -> AFConvMode
-  -> AFConvDomain
+  -> ConvMode
+  -> ConvDomain
   -> Array a
-convolve1 a b cm cd = op2 a b (\x y z -> af_convolve1 x y z cm cd)
+convolve1 a b (toConvMode -> cm) (fromConvDomain -> cd) = op2 a b (\x y z -> af_convolve1 x y z cm cd)
 
 convolve2
   :: AFType a
   => Array a
   -> Array a
-  -> AFConvMode
-  -> AFConvDomain
+  -> ConvMode
+  -> ConvDomain
   -> Array a
-convolve2 a b cm cd = op2 a b (\x y z -> af_convolve2 x y z cm cd)
+convolve2 a b (toConvMode -> cm) (fromConvDomain -> cd) = op2 a b (\x y z -> af_convolve2 x y z cm cd)
 
 convolve3
   :: AFType a
   => Array a
   -> Array a
-  -> AFConvMode
-  -> AFConvDomain
+  -> ConvMode
+  -> ConvDomain
   -> Array a
-convolve3 a b cm cd = op2 a b (\x y z -> af_convolve3 x y z cm cd)
+convolve3 a b (toConvMode -> cm) (fromConvDomain -> cd) =
+  op2 a b (\x y z -> af_convolve3 x y z cm cd)
 
 convolve2Sep
   :: AFType a
   => Array a
   -> Array a
   -> Array a
-  -> AFConvMode
+  -> ConvMode
   -> Array a
-convolve2Sep a b c d = op3 a b c (\x y z j -> af_convolve2_sep x y z j d)
+convolve2Sep a b c (toConvMode -> d) = op3 a b c (\x y z j -> af_convolve2_sep x y z j d)
 
 fftConvolve1
   :: AFType a
   => Array a
   -> Array a
-  -> AFConvMode
+  -> ConvMode
   -> Array a
-fftConvolve1 a b c = op2 a b (\x y z -> af_fft_convolve1 x y z c)
+fftConvolve1 a b (toConvMode -> c) = op2 a b (\x y z -> af_fft_convolve1 x y z c)
 
 fftConvolve2
   :: AFType a
   => Array a
   -> Array a
-  -> AFConvMode
+  -> ConvMode
   -> Array a
-fftConvolve2 a b c = op2 a b (\x y z -> af_fft_convolve2 x y z c)
+fftConvolve2 a b (toConvMode -> c) = op2 a b (\x y z -> af_fft_convolve2 x y z c)
 
 fftConvolve3
   :: AFType a
   => Array a
   -> Array a
-  -> AFConvMode
+  -> ConvMode
   -> Array a
-fftConvolve3 a b c = op2 a b (\x y z -> af_fft_convolve3 x y z c)
+fftConvolve3 a b (toConvMode -> c) = op2 a b (\x y z -> af_fft_convolve3 x y z c)
 
 fir
   :: AFType a
@@ -305,18 +305,18 @@ medFilt
   => Array a
   -> Int
   -> Int
-  -> AFBorderType
+  -> BorderType
   -> Array a
-medFilt a l w b =
+medFilt a l w (fromBorderType -> b) =
  a `op1` (\x y -> af_medfilt x y (fromIntegral l) (fromIntegral w) b)
 
 medFilt1
   :: AFType a
   => Array a
   -> Int
-  -> AFBorderType
+  -> BorderType
   -> Array a
-medFilt1 a w b =
+medFilt1 a w (fromBorderType -> b) =
  a `op1` (\x y -> af_medfilt1 x y (fromIntegral w) b)
 
 medFilt2
@@ -324,9 +324,9 @@ medFilt2
   => Array a
   -> Int
   -> Int
-  -> AFBorderType
+  -> BorderType
   -> Array a
-medFilt2 a l w b =
+medFilt2 a l w (fromBorderType -> b) =
  a `op1` (\x y -> af_medfilt2 x y (fromIntegral l) (fromIntegral w) b)
 
 setFFTPlanCacheSize
