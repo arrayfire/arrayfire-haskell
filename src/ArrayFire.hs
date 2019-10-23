@@ -191,7 +191,7 @@ import Data.Word
 -- Specifying up to 4 dimensions is allowed (anything high is ignored).
 
 -- $laws
--- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional' and 'SemiGroup'
+-- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional', 'Floating' and 'SemiGroup'
 --
 -- 'Num'
 --

@@ -37,14 +37,10 @@ import ArrayFire.Internal.Types
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
--- @
--- >>> print $ mean 0 ( vector @Int 10 [1..] )
--- @
--- @
+-- >>> mean 0 ( vector @Int 10 [1..] )
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
--- @
 mean
   :: AFType a
   => Array a
@@ -59,14 +55,10 @@ mean a n =
 
 -- | Calculates 'meanWeighted' of 'Array' along user-specified dimension.
 --
--- @
--- >>> print $ meanWeighted (vector @Double 10 [1..10]) (vector @Double 10 [1..10]) 0
--- @
--- @
+-- >>> meanWeighted (vector @Double 10 [1..10]) (vector @Double 10 [1..10]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      7.0000
--- @
 meanWeighted
   :: AFType a
   => Array a
@@ -83,14 +75,10 @@ meanWeighted x y (fromIntegral -> n) =
 
 -- | Calculates 'variance' of 'Array' along user-specified dimension.
 --
--- @
--- >>> print $ var (vector @Double 8 [1..8]) False 0
--- @
--- @
+-- >>> var (vector @Double 8 [1..8]) False 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      6.0
--- @
 var
   :: AFType a
   => Array a
@@ -107,14 +95,10 @@ var arr (fromIntegral . fromEnum -> b) d =
 
 -- | Calculates 'varWeighted' of 'Array' along user-specified dimension.
 --
--- @
--- >>> print $ varWeighted 0 ( vector @Int 10 [1..] ) ( vector @Int 10 [1..] )
--- @
--- @
+-- >>> varWeighted 0 ( vector @Int 10 [1..] ) ( vector @Int 10 [1..] )
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
--- @
 varWeighted
   :: AFType a
   => Array a
@@ -131,14 +115,10 @@ varWeighted x y (fromIntegral -> n) =
 
 -- | Calculates 'stdev' of 'Array' along user-specified dimension.
 --
--- @
 -- >>> stdev (vector @Double 10 (cycle [1,-1])) 0
--- @
--- @
 -- ArrayFire Array
 --   [1 1 1 1]
 --      1.0
--- @
 stdev
   :: AFType a
   => Array a
@@ -153,14 +133,10 @@ stdev a n =
 
 -- | Calculates 'covariance' two 'Array's with a bias specifier.
 --
--- @
--- >>> print $ cov (vector @Double 10 (repeat 1)) (vector @Double 10 (repeat 1)) False
--- @
--- @
+-- >>> cov (vector @Double 10 (repeat 1)) (vector @Double 10 (repeat 1)) False
 -- ArrayFire Array
 --   [1 1 1 1]
 --      0.0
--- @
 cov
   :: AFType a
   => Array a
@@ -177,14 +153,10 @@ cov x y (fromIntegral . fromEnum -> n) =
 
 -- | Calculates 'median' of 'Array' along user-specified dimension.
 --
--- @
 -- >>> print $ median ( vector @Int 10 [1..] ) 0
--- @
--- @
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
--- @
 median
   :: AFType a
   => Array a
@@ -199,12 +171,8 @@ median a n =
 
 -- | Calculates 'mean' of all elements in an 'Array'
 --
--- @
--- >>> print $ fst (meanAll (matrix @Double (2,2) (repeat 10)))
--- @
--- @
--- >>> 10.0
--- @
+-- >>> fst (meanAll (matrix @Double (2,2) (repeat 10)))
+-- 10.0
 meanAll
   :: AFType a
   => Array a
@@ -215,12 +183,8 @@ meanAll = (`infoFromArray2` af_mean_all)
 
 -- | Calculates weighted mean of all elements in an 'Array'
 --
--- @
 -- >>> print $ fst (meanAllWeighted (matrix @Double (2,2) (repeat 10)) (matrix @Double (2,2) (repeat 0)))
--- @
--- @
 -- 10
--- @
 meanAllWeighted
   :: AFType a
   => Array a
@@ -234,12 +198,8 @@ meanAllWeighted a b =
 
 -- | Calculates variance of all elements in an 'Array'
 --
--- @
--- >>> print $ fst (varAll (vector @Double 10 (repeat 10)) False)
--- @
--- @
+-- >>> fst (varAll (vector @Double 10 (repeat 10)) False)
 -- 0
--- @
 varAll
   :: AFType a
   => Array a
@@ -254,12 +214,8 @@ varAll a (fromIntegral . fromEnum -> b) =
 
 -- | Calculates weighted variance of all elements in an 'Array'
 --
--- @
--- >>> print $ varAllWeighted ( vector @Int 10 [1..] ) ( vector @Int 10 [1..] )
--- @
--- @
+-- >>> varAllWeighted ( vector @Int 10 [1..] ) ( vector @Int 10 [1..] )
 -- 0
--- @
 varAllWeighted
   :: AFType a
   => Array a
@@ -273,12 +229,8 @@ varAllWeighted a b =
 
 -- | Calculates standard deviation of all elements in an 'Array'
 --
--- @
--- >>> print $ fst (stdevAll (vector @Double 10 (repeat 10)))
--- @
--- @
+-- >>> fst (stdevAll (vector @Double 10 (repeat 10)))
 -- 10
--- @
 stdevAll
   :: AFType a
   => Array a
@@ -289,12 +241,8 @@ stdevAll = (`infoFromArray2` af_stdev_all)
 
 -- | Calculates median of all elements in an 'Array'
 --
--- @
--- >>> print $ fst (medianAll (vector @Double 10 (repeat 10)))
--- @
--- @
+-- >>> fst (medianAll (vector @Double 10 (repeat 10)))
 -- 10
--- @
 medianAll
   :: (AFType a, Fractional a)
   => Array a
@@ -306,12 +254,8 @@ medianAll = (`infoFromArray2` af_median_all)
 -- | This algorithm returns Pearson product-moment correlation coefficient.
 -- <https://en.wikipedia.org/wiki/Pearson_correlation_coefficient>
 --
--- @
--- >>> print $ fst (corrCoef ( vector @Int 10 [1..] ) ( vector @Int 10 [10,9..] ))
--- @
--- @
+-- >>> fst (corrCoef ( vector @Int 10 [1..] ) ( vector @Int 10 [10,9..] ))
 -- -1
--- @
 corrCoef
   :: AFType a
   => Array a
@@ -325,21 +269,17 @@ corrCoef a b =
 
 -- | This function returns the top k values along a given dimension of the input array.
 --
--- @
 -- >>> let (vals,indexes) = 'topk' ( 'vector' \@'Double' 10 [1..] ) 3 'TopKDefault'
--- >>> print vals
 -- >>> print indexes
--- @
--- @
+--
 -- ArrayFire 'Array'
 -- [3 1 1 1]
 --   10.0000     9.0000     8.0000
--- @
--- @
+--
+-- >>> print vals
 -- ArrayFire 'Array'
 -- [3 1 1 1]
 --    9          8          7
--- @
 --
 -- The indices along with their values are returned. If the input is a multi-dimensional array, the indices will be the index of the value in that dimension. Order of duplicate values are not preserved. This function is optimized for small values of k.
 -- This function performs the operation across all dimensions of the input array.
