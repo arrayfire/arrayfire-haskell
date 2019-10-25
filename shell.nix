@@ -4,6 +4,7 @@ let
 in
   pkgs.lib.overrideDerivation pkg (drv: {
     shellHook = ''
+      export AF_PRINT_ERRORS=1
       export PATH=$PATH:${pkgs.haskellPackages.doctest}/bin
       export PATH=$PATH:${pkgs.haskellPackages.cabal-install}/bin
       function ghcid () {

@@ -275,7 +275,7 @@ rand dims f = mask_ $ do
 --
 randn
   :: forall a
-   . AFType a
+   . (AFType a, Fractional a)
   => [Int]
   -- ^ Dimensions of random array
   -> IO (Array a)

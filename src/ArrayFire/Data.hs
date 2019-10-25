@@ -178,6 +178,7 @@ constant dims val =
             n = fromIntegral (length dims')
 
 -- | Creates a range of values in an Array
+--
 -- >>> range @Double [10] (-1)
 -- ArrayFire Array
 -- [10 1 1 1]
@@ -187,8 +188,8 @@ range
    . AFType a
   => [Int]
   -> Int
-  -> IO (Array a)
-range dims (fromIntegral -> k) = do
+  -> Array a
+range dims (fromIntegral -> k) = unsafePerformIO $ do
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< af_range ptrPtr n dimArray k typ
@@ -201,28 +202,53 @@ range dims (fromIntegral -> k) = do
         n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
+-- | Create an sequence [0, dims.elements() - 1] and modify to specified dimensions dims and then tile it according to tile_dims.
+--
+-- <http://arrayfire.org/docs/group__data__func__iota.htm>
+--
+-- >>> iota @Double [5,3] []
+-- ArrayFire Array
+-- [5 3 1 1]
+--    0.0000     1.0000     2.0000     3.0000     4.0000
+--    5.0000     6.0000     7.0000     8.0000     9.0000
+--   10.0000    11.0000    12.0000    13.0000    14.0000
+--
+-- >>> iota @Double [5,3] [1,2]
+-- ArrayFire Array
+-- [5 6 1 1]
+--  0.0000     1.0000     2.0000     3.0000     4.0000
+--  5.0000     6.0000     7.0000     8.0000     9.0000
+-- 10.0000    11.0000    12.0000    13.0000    14.0000
+--  0.0000     1.0000     2.0000     3.0000     4.0000
+--  5.0000     6.0000     7.0000     8.0000     9.0000
+-- 10.0000    11.0000    12.0000    13.0000    14.0000
 iota
   :: forall a . AFType a
-  => [Int] -> [Int] -> IO (Array a)
-iota dims tdims = do
+  => [Int]
+  -- ^ is the array containing sizes of the dimension
+  -> [Int]
+  -- ^ is array containing the number of repetitions of the unit dimensions
+  -> Array a
+  -- ^ is the generated array
+iota dims tdims = unsafePerformIO $ do
+  let dims' = take 4 (dims ++ repeat 1)
+      tdims' =  take 4 (tdims ++ repeat 1)
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     zeroOutArray ptrPtr
-    withArray (fromIntegral <$> dims) $ \dimArray ->
-      withArray (fromIntegral <$> tdims) $ \tdimArray -> do
-        throwAFError =<< af_iota ptrPtr n dimArray tn tdimArray typ
+    withArray (fromIntegral <$> dims') $ \dimArray ->
+      withArray (fromIntegral <$> tdims') $ \tdimArray -> do
+        throwAFError =<< af_iota ptrPtr 4 dimArray 4 tdimArray typ
         peek ptrPtr
   Array <$>
     newForeignPtr
       af_release_array_finalizer
         ptr
       where
-        n = fromIntegral (length dims)
-        tn = fromIntegral (length tdims)
         typ = afType (Proxy @ a)
 
 -- | Creates the identity `Array` from given dimensions
 --
--- >>> identity [2,2] 2.0
+-- >>> identity [2,2]
 -- ArrayFire Array
 -- [2 2 1 1]
 --    1.0000     0.0000
@@ -233,9 +259,10 @@ identity
   -- ^ Dimensions
   -> Array a
 identity dims = unsafePerformIO . mask_ $ do
+  let dims' = take 4 (dims ++ repeat 1)
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     zeroOutArray ptrPtr
-    withArray (fromIntegral <$> dims) $ \dimArray -> do
+    withArray (fromIntegral <$> dims') $ \dimArray -> do
       throwAFError =<< af_identity ptrPtr n dimArray typ
       peek ptrPtr
   Array <$>
@@ -246,14 +273,29 @@ identity dims = unsafePerformIO . mask_ $ do
         n = fromIntegral (length dims)
         typ = afType (Proxy @ a)
 
+-- | Create a diagonal matrix from input array when extract is set to false
+--
+-- >>> diagCreate (vector @Double 2 [1..]) 0
+-- ArrayFire Array
+-- [2 2 1 1]
+--    1.0000     0.0000
+--    0.0000     2.0000
 diagCreate
   :: AFType (a :: *)
   => Array a
+  -- ^	is the input array which is the diagonal
   -> Int
+  -- ^ is the diagonal index
   -> Array a
 diagCreate x (fromIntegral -> n) =
   x `op1` (\p a -> af_diag_create p a n)
 
+-- | Create a diagonal matrix from input array when extract is set to false
+--
+-- >>> diagExtract (matrix @Double (2,2) [[1,2],[3,4]]) 0
+-- ArrayFire Array
+-- [2 1 1 1]
+--    1.0000     4.0000
 diagExtract
   :: AFType (a :: *)
   => Array a
@@ -262,6 +304,14 @@ diagExtract
 diagExtract x (fromIntegral -> n) =
   x `op1` (\p a -> af_diag_extract p a n)
 
+-- | Join two Arrays together along a specified dimension
+--
+-- >>> join 0 (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[5,6],[7,8]])
+-- ArrayFire Array
+-- [4 2 1 1]
+--    1.0000     2.0000     5.0000     6.0000
+--    3.0000     4.0000     7.0000     8.0000
+--
 join
   :: Int
   -> Array (a :: *)
@@ -269,6 +319,14 @@ join
   -> Array a
 join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
+-- | Join many Arrays together along a specified dimension
+--
+-- *FIX ME*
+-- >>> joinMany 0 [1,2,3]
+-- ArrayFire Array
+-- [3 1 1 1]
+--    1.0000     2.0000     3.0000
+--
 joinMany
   :: Int
   -> [Array a]
@@ -288,26 +346,48 @@ joinMany (fromIntegral -> n) arrays = unsafePerformIO . mask_ $ do
   where
     nArrays = fromIntegral (length arrays)
 
+-- | Tiles an Array according to specified dimensions
+--
+-- >>> tile @Double (scalar 22.0) [5,5]
+-- ArrayFire Array
+-- [5 5 1 1]
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
 tile
   :: Array (a :: *)
-  -> Int
-  -> Int
-  -> Int
-  -> Int
+  -> [Int]
   -> Array a
-tile a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
-  a `op1` (\p k -> af_tile p k x y z w)
+tile a (take 4 . (++repeat 1) -> [x,y,z,w]) =
+  a `op1` (\p k -> af_tile p k (fromIntegral x) (fromIntegral y) (fromIntegral z) (fromIntegral w))
+tile _ _ = error "impossible"
 
+-- | Reorders an Array according to newly specified dimensions
+--
+-- *FIX ME*
+-- >>> reorder @Double (scalar 22.0) [5,5]
+-- ArrayFire Array
+-- [5 5 1 1]
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
+-- 22.0000    22.0000    22.0000    22.0000    22.0000
 reorder
   :: Array (a :: *)
-  -> Int
-  -> Int
-  -> Int
-  -> Int
+  -> [Int]
   -> Array a
-reorder a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
-  a `op1` (\p k -> af_tile p k x y z w)
+reorder a (take 4 . (++ repeat 0) -> [x,y,z,w]) =
+  a `op1` (\p k -> af_reorder p k (fromIntegral x) (fromIntegral y) (fromIntegral z) (fromIntegral w))
+reorder _ _ = error "impossible"
 
+-- | Shift elements in an Array along a specified dimension (elements will wrap).
+-- >>> shift (vector @Double 4 [1..]) 2 0 0 0
+-- ArrayFire Array
+-- [4 1 1 1]
+--    3.0000     4.0000     1.0000     2.0000
 shift
   :: Array (a :: *)
   -> Int
@@ -318,12 +398,20 @@ shift
 shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegral -> w) =
   a `op1` (\p k -> af_shift p k x y z w)
 
+-- | Modify dimensions of array
+--
+-- >>> moddims (vector @Double 3 [1..]) [1,3]
+-- ArrayFire Array
+-- [1 3 1 1]
+--    1.0000
+--    2.0000
+--    3.0000
 moddims
   :: forall a
-   . [Int]
-  -> Array (a :: *)
+   . Array (a :: *)
+  -> [Int]
   -> Array a
-moddims dims (Array fptr) =
+moddims (Array fptr) dims =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
     newPtr <- alloca $ \aPtr -> do
       zeroOutArray aPtr
@@ -334,11 +422,30 @@ moddims dims (Array fptr) =
   where
     n = fromIntegral (length dims)
 
+-- | Flatten an Array into a single dimension
+--
+-- >>> flat (matrix @Double (2,2) [[1..],[1..]])
+-- ArrayFire Array
+-- [4 1 1 1]
+--    1.0000     2.0000     1.0000     2.0000
 flat
   :: Array a
   -> Array a
 flat = (`op1` af_flat)
 
+-- | Flip the values of an Array along a specified dimension
+--
+-- >>> matrix @Double (2,2) [[2,2],[3,3]]
+-- ArrayFire Array
+-- [2 2 1 1]
+--    2.0000     2.0000
+--    3.0000     3.0000
+--
+-- >>> A.flip (matrix @Double (2,2) [[2,2],[3,3]]) 1
+-- ArrayFire Array
+-- [2 2 1 1]
+--    3.0000     3.0000
+--    2.0000     2.0000
 flip
   :: Array a
   -> Int
