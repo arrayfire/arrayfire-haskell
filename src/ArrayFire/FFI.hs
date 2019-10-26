@@ -22,6 +22,7 @@ import ArrayFire.Internal.Types
 
 import Control.Exception
 import Control.Monad
+import Data.Int
 import Foreign.ForeignPtr
 import Foreign.Storable
 import Foreign.Ptr
@@ -37,6 +38,25 @@ op3
   -> Array a
 {-# NOINLINE op3 #-}
 op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
+  unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 ->
+      withForeignPtr fptr2 $ \ptr2 -> do
+         withForeignPtr fptr3 $ \ptr3 -> do
+           ptr <-
+             alloca $ \ptrInput -> do
+               throwAFError =<< op ptrInput ptr1 ptr2 ptr3
+               peek ptrInput
+           fptr <- newForeignPtr af_release_array_finalizer ptr
+           pure (Array fptr)
+
+op3Int
+  :: Array a
+  -> Array Int32
+  -> Array Int32
+  -> (Ptr AFArray -> AFArray -> AFArray -> AFArray -> IO AFErr)
+  -> Array a
+{-# NOINLINE op3Int #-}
+op3Int (Array fptr1) (Array fptr2) (Array fptr3) op =
   unsafePerformIO $ do
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do

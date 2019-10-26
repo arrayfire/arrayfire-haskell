@@ -324,6 +324,7 @@ join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 -- | Join many Arrays together along a specified dimension
 --
 -- *FIX ME*
+--
 -- >>> joinMany 0 [1,2,3]
 -- ArrayFire Array
 -- [3 1 1 1]
@@ -370,6 +371,7 @@ tile _ _ = error "impossible"
 -- | Reorders an Array according to newly specified dimensions
 --
 -- *FIX ME*
+--
 -- >>> reorder @Double (scalar 22.0) [5,5]
 -- ArrayFire Array
 -- [5 5 1 1]
@@ -511,23 +513,59 @@ upper a (fromIntegral . fromEnum -> b) =
 --
 select
   :: Array CBool
+  -- ^ is the conditional array
   -> Array a
+  -- ^ is the array containing elements from the true part of the condition
   -> Array a
+  -- ^	is the array containing elements from the false part of the condition
   -> Array a
+  -- ^ is the output containing elements of a when cond is true else elements from b
 select a b c = op3 a b c af_select
 
+-- | Selects elements from two arrays based on the values of a binary conditional array.
+--
+-- <http://arrayfire.org/docs/group__data__func__select.htm#gab6886120d0bac4717276910e468bbe88>
+--
+-- >>> cond = vector @CBool 5 [1,0,1,0,1]
+-- >>> arr1 = vector @Double 5 (repeat 1)
+-- >>> x = 99
+-- >>> selectScalarR cond x arr1
+-- ArrayFire Array
+-- [5 1 1 1]
+--    1.0000    99.0000     1.0000    99.0000     1.0000
+--
 selectScalarR
-  :: Array a
+  :: Array CBool
+  -- ^ is the conditional array
   -> Array a
+  -- ^ is the array containing elements from the true part of the condition
   -> Double
+  -- ^	is a scalar assigned to out when cond is false
   -> Array a
+  -- ^ the output containing elements of a when cond is true else elements from b
 selectScalarR a b c = op2 a b (\p w x -> af_select_scalar_r p w x c)
 
+-- | Selects elements from two arrays based on the values of a binary conditional array.
+--
+-- [ArrayFire Docs](http://arrayfire.org/docs/group__data__func__select.htm#ga0ccdc05779f88cab5095bce987c2da9d)
+--
+-- >>> cond = vector @CBool 5 [1,0,1,0,1]
+-- >>> arr1 = vector @Double 5 (repeat 1)
+-- >>> x = 99
+-- >>> selectScalarL cond x arr1
+-- ArrayFire Array
+-- [5 1 1 1]
+--   99.0000     1.0000    99.0000     1.0000    99.0000
+--
 selectScalarL
-  :: Array a
+  :: Array CBool
+  -- ^ the conditional array
   -> Double
+  -- ^ a scalar assigned to out when cond is true
   -> Array a
+  -- ^ the array containing elements from the false part of the condition
   -> Array a
+  -- ^ is the output containing elements of a when cond is true else elements from b
 selectScalarL a n b = op2 a b (\p w x -> af_select_scalar_l p w n x)
 
 -- af_err af_replace(af_array a, const af_array cond, const af_array b);
