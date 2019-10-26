@@ -39,11 +39,13 @@ import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Types
 import ArrayFire.Arith
 
--- | Creates an 'Array' 'Double' from a scalar value
+-- | Creates an 'Array' from a scalar value from given dimensions
 --
--- @
--- >>> 'constant' \@'Double' [2,2] 2.0
--- @
+-- >>> constant @Double [2,2] 2.0
+--  ArrayFire Array
+-- [2 2 1 1]
+--    2.0000     2.0000
+--    2.0000     2.0000
 constant
   :: forall a . AFType a
   => [Int]
@@ -356,6 +358,7 @@ joinMany (fromIntegral -> n) arrays = unsafePerformIO . mask_ $ do
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
+--
 tile
   :: Array (a :: *)
   -> [Int]
@@ -375,6 +378,7 @@ tile _ _ = error "impossible"
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
+--
 reorder
   :: Array (a :: *)
   -> [Int]
@@ -384,10 +388,12 @@ reorder a (take 4 . (++ repeat 0) -> [x,y,z,w]) =
 reorder _ _ = error "impossible"
 
 -- | Shift elements in an Array along a specified dimension (elements will wrap).
+--
 -- >>> shift (vector @Double 4 [1..]) 2 0 0 0
 -- ArrayFire Array
 -- [4 1 1 1]
 --    3.0000     4.0000     1.0000     2.0000
+--
 shift
   :: Array (a :: *)
   -> Int
@@ -406,6 +412,7 @@ shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegra
 --    1.0000
 --    2.0000
 --    3.0000
+--
 moddims
   :: forall a
    . Array (a :: *)
@@ -433,6 +440,7 @@ moddims (Array fptr) dims =
 -- ArrayFire Array
 -- [8 1 1 1]
 --     1          1          1          1          1          1          1          1
+--
 flat
   :: Array a
   -> Array a
@@ -451,6 +459,7 @@ flat = (`op1` af_flat)
 -- [2 2 1 1]
 --    3.0000     3.0000
 --    2.0000     2.0000
+--
 flip
   :: Array a
   -> Int
@@ -458,13 +467,31 @@ flip
 flip a (fromIntegral -> dim) =
   a `op1` (\p k -> af_flip p k dim)
 
+-- | Create a lower triangular matrix from input array.
+--
+-- >>> lower (constant [2,2] 10 :: Array Double) True
+-- ArrayFire Array
+-- [2 2 1 1]
+--    1.0000    10.0000
+--    0.0000     1.0000
+--
 lower
   :: Array a
+  -- ^ is the input matrix
   -> Bool
+  -- ^ 'is_unit_diag' is a boolean parameter specifying if the diagonal elements should be 1
   -> Array a
 lower a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_lower p k b)
 
+-- | Create an upper triangular matrix from input array.
+--
+-- >>> upper (constant [2,2] 10 :: Array Double) True
+-- ArrayFire Array
+-- [2 2 1 1]
+--    1.0000     0.0000
+--   10.0000     1.0000
+--
 upper
   :: Array a
   -> Bool
@@ -472,8 +499,18 @@ upper
 upper a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_upper p k b)
 
+-- | Selects elements from two arrays based on the values of a binary conditional array.
+--
+-- >>> cond = vector @CBool 5 [1,0,1,0,1]
+-- >>> arr1 = vector @Double 5 (repeat 1)
+-- >>> arr2 = vector @Double 5 (repeat 2)
+-- >>> select cond arr1 arr2
+-- ArrayFire Array
+-- [5 1 1 1]
+--    1.0000     2.0000     1.0000     2.0000     1.0000
+--
 select
-  :: Array a
+  :: Array CBool
   -> Array a
   -> Array a
   -> Array a

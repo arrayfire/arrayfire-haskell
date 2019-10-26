@@ -30,7 +30,7 @@ import Foreign.Marshal.Alloc
 import System.IO.Unsafe
 
 op3
-  :: Array a
+  :: Array b
   -> Array a
   -> Array a
   -> (Ptr AFArray -> AFArray -> AFArray -> AFArray -> IO AFErr)

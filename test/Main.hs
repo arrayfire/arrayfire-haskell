@@ -32,9 +32,9 @@ main = do
   -- checks (Proxy :: Proxy (A.Array A.Word8))
   -- checks (Proxy :: Proxy (A.Array A.Word16))
   -- checks (Proxy :: Proxy (A.Array A.Word32))
---  lawsCheck $ semigroupLaws (Proxy :: Proxy (A.Array Double))
+  lawsCheck $ semigroupLaws (Proxy :: Proxy (A.Array Double))
 --  lawsCheck $ semigroupLaws (Proxy :: Proxy (A.Array Float))
-  hspec spec
+--  hspec spec
 
 checks proxy = do
   lawsCheck (numLaws proxy)

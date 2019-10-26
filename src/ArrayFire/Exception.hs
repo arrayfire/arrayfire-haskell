@@ -62,6 +62,7 @@ data AFExceptionType
   | UnhandledError
   deriving (Show, Eq, Typeable)
 
+-- | Exception type for ArrayFire API
 data AFException
   = AFException
   { afExceptionType :: AFExceptionType

@@ -123,6 +123,7 @@ dotAll arr1 arr2 prop1 prop2 = do
 -- [3 2 1 1]
 --    2.0000     4.0000     5.0000
 --    3.0000     4.0000     6.0000
+--
 transpose
   :: Array a
   -- ^ Input matrix to be transposed
@@ -136,9 +137,11 @@ transpose arr1 (fromIntegral . fromEnum -> b) =
 -- | Transposes a matrix.
 --
 -- * Warning: This function mutates an array in-place, all subsequent references will be changed. Use carefully.
+--
 -- >>> array = matrix @Double (2,2) [[1..2],[3..4]]
 -- >>> transposeInPlace array False
 -- ()
+--
 transposeInPlace
   :: Array a
   -- ^ Input matrix to be transposed
