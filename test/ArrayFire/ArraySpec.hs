@@ -45,7 +45,7 @@ spec =
       setManualEvalFlag False
       (`shouldBe` False) =<< getManualEvalFlag
     it "Should return the number of elements" $ do
-      let arr = mkArray @Int [9,9,1,1] []
+      let arr = mkArray @Int [9,9,1,1] [1..]
       getElements arr `shouldBe` 81
 --    it "Should give an empty array" $ do
 --      let arr = mkArray @Int [-1,1,1,1] []
@@ -57,9 +57,9 @@ spec =
     it "Should get number of dims specified" $ do
       let arr = mkArray @Int [1,1,1,1] [1]
       getNumDims arr `shouldBe` 1
-      let arr = mkArray @Int [2,3,4,5] [1]
+      let arr = mkArray @Int [2,3,4,5] [1..]
       getNumDims arr `shouldBe` 4
-      let arr = mkArray @Int [2,3,4] [1]
+      let arr = mkArray @Int [2,3,4] [1..]
       getNumDims arr `shouldBe` 3
     it "Should get value of dims specified" $ do
       let arr = mkArray @Int [2,3,4,5] (repeat 1)

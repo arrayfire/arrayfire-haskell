@@ -138,6 +138,8 @@ test-suite test
     directory,
     hspec,
     hspec-discover,
+    QuickCheck,
+    quickcheck-classes,
     vector
   default-language:
     Haskell2010

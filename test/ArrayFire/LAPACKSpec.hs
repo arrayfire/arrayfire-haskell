@@ -11,7 +11,7 @@ spec =
     it "Should have LAPACK available" $ do
       A.isLAPACKAvailable `shouldBe` True
     it "Should perform svd" $ do
-      let (s,v,d) = A.svd $ A.matrix @Double (4,2) [[1..],[1..]]
+      let (s,v,d) = A.svd $ A.matrix @Double (4,2) [ [1,2], [3,4], [5,6], [7,8] ]
       A.getDims s `shouldBe` (4,4,1,1)
       A.getDims v `shouldBe` (2,1,1,1)
       A.getDims d `shouldBe` (2,2,1,1)

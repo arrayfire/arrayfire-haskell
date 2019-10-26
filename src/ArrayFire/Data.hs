@@ -428,6 +428,11 @@ moddims (Array fptr) dims =
 -- ArrayFire Array
 -- [4 1 1 1]
 --    1.0000     2.0000     1.0000     2.0000
+--
+-- >>> flat $ cube @Int (2,2,2) [[[1,1],[1,1]],[[1,1],[1,1]]]
+-- ArrayFire Array
+-- [8 1 1 1]
+--     1          1          1          1          1          1          1          1
 flat
   :: Array a
   -> Array a

@@ -13,7 +13,7 @@ spec :: Spec
 spec =
   describe "Signal spec" $ do
     it "Should do FFT in place" $ do
-      A.fftInPlace (A.matrix @(Complex Double) (10,10) [[1 :+ 1]]) 10.2
+      A.fftInPlace (A.matrix @(Complex Double) (1,1) [[1 :+ 1]]) 10.2
         `shouldReturn` ()
     it "Should do FFT" $ do
       A.fft (A.matrix @(Complex Float) (1,1) [[1 :+ 1]]) 1 1

@@ -37,6 +37,7 @@
 module ArrayFire.Array where
 
 import           Control.Exception
+import           Control.Monad
 import           Data.Proxy
 import           Data.Vector.Storable       hiding (mapM_, take, concat, concatMap)
 import qualified Data.Vector.Storable       as V
@@ -106,7 +107,7 @@ cube (x,y,z)
   . concat
   . fmap concat
   . take x
-  . (fmap . take) y
+  . fmap (take y)
   . (fmap . fmap . take) z
 
 -- | Smart constructor for creating a tensor 'Array'
@@ -158,7 +159,14 @@ mkArray
   -- ^ Returned array
 {-# NOINLINE mkArray #-}
 mkArray dims xs =
-  unsafePerformIO . mask_ $ do
+  unsafePerformIO $ do
+    when (Prelude.length (take size xs) < size) $ do
+      let msg = "Invalid elements provided. "
+           <> "Expected "
+           <> show size
+           <> " elements received "
+           <> show (Prelude.length xs)
+      throwIO (AFException SizeError 203 msg)
     dataPtr <- castPtr <$> newArray (Prelude.take size xs)
     let ndims = fromIntegral (Prelude.length dims)
     alloca $ \arrayPtr -> do
@@ -169,7 +177,7 @@ mkArray dims xs =
       arr <- peek arrayPtr
       Array <$> newForeignPtr af_release_array_finalizer arr
     where
-      size  = Prelude.product (fromIntegral <$> dims)
+      size  = Prelude.product dims
       dType = afType (Proxy @ array)
 
 -- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
