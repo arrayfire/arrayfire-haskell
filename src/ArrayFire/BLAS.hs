@@ -41,7 +41,7 @@ import ArrayFire.Internal.Types
 --
 -- This function can be used with one sparse input. The sparse input must always be the lhs and the dense matrix must be rhs.
 --
--- The sparse array can only be of AF_STORAGE_CSR format.
+-- The sparse array can only be of 'CSR' format.
 --
 -- The returned array is always dense.
 --

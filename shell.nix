@@ -22,6 +22,9 @@ in
              'cabal v1-configure --enable-tests && \
                 cabal v1-build doctests && dist/build/doctests/doctests src/ArrayFire/Algorithm.hs'
       }
+      function exe () {
+         cabal run main
+      }
       function repl () {
         cabal v1-repl lib:arrayfire
       }
