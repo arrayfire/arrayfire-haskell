@@ -18,12 +18,12 @@
 --
 -- main :: IO ()
 -- main = do
---   let arr = A.'constant' [1,1,1,1] 10
---   idx <- A.'saveArray' "key" arr "file.array" False
---   foundIndex <- A.'readArrayKeyCheck' "file.array" "key"
---   'when' (idx == foundIndex) $ do
---     array <- A.'readArrayKey' "file.array" "key"
---     'print' array
+--   let arr = A.constant [1,1,1,1] 10
+--   idx <- A.saveArray "key" arr "file.array" False
+--   foundIndex <- A.readArrayKeyCheck "file.array" "key"
+--   when (idx == foundIndex) $ do
+--     array <- A.readArrayKey "file.array" "key"
+--     print array
 -- @
 -- @
 -- ArrayFire Array
@@ -56,7 +56,7 @@ import ArrayFire.FFI
 -- @
 -- (3.6.4)
 -- @
-getVersion :: IO Version
+getVersion :: IO (Int,Int,Int)
 getVersion =
   alloca $ \x ->
     alloca $ \y ->
@@ -69,7 +69,7 @@ getVersion =
 -- | Prints array to stdout
 --
 -- @
--- >>> 'printArray' ('constant' \@'Double' [1] 1)
+-- >>> 'printArray' (constant \@'Double' [1] 1)
 -- @
 -- @
 -- ArrayFire Array
@@ -98,7 +98,7 @@ getRevision = peekCString =<< af_get_revision
 -- | Prints 'Array' with error codes
 --
 -- @
--- >>> 'printArrayGen' "test" ('constant' \@'Double' [1] 1) 2
+-- >>> printArrayGen "test" (constant \@'Double' [1] 1) 2
 -- @
 -- @
 -- ArrayFire Array
@@ -121,18 +121,18 @@ printArrayGen s (Array fptr) (fromIntegral -> prec) = do
 -- | Saves 'Array' to disk
 --
 -- Save an array to a binary file.
--- The 'saveArray' and 'readArray' functions are designed to provide store and read access to arrays using files written to disk.
+-- The 'saveArray' and readArray functions are designed to provide store and read access to arrays using files written to disk.
 -- <http://arrayfire.org/docs/group__stream__func__save.htm>
 --
 -- @
--- >>> 'saveArray' "my array" ('constant' \@'Double' [1] 1) "array.file" 'True'
+-- >>> saveArray "my array" (constant \@'Double' [1] 1) "array.file" 'True'
 -- @
 -- @
 -- 0
 -- @
 saveArray
   :: String
-  -- ^ An expression used as tag/key for the 'Array' during 'readArray'
+  -- ^ An expression used as tag/key for the 'Array' during readArray
   -> Array a
   -- ^ Input 'Array'
   -> FilePath
@@ -153,11 +153,11 @@ saveArray key (Array fptr) filename (fromIntegral . fromEnum -> append) = do
 
 -- | Reads Array by index
 --
--- The 'saveArray' and 'readArray' functions are designed to provide store and read access to arrays using files written to disk.
+-- The 'saveArray' and readArray functions are designed to provide store and read access to arrays using files written to disk.
 -- <http://arrayfire.org/docs/group__stream__func__save.htm>
 --
 -- @
--- >>> 'readArrayIndex' "array.file" 0
+-- >>> readArrayIndex "array.file" 0
 -- @
 -- @
 -- ArrayFire Array
@@ -177,7 +177,7 @@ readArrayIndex str (fromIntegral -> idx') =
 -- | Reads 'Array' by key
 --
 -- @
--- >>> 'readArrayKey' "array.file" "my array"
+-- >>> readArrayKey "array.file" "my array"
 -- @
 -- @
 -- ArrayFire 'Array'
@@ -202,7 +202,7 @@ readArrayKey fn key =
 -- <http://arrayfire.org/docs/group__stream__func__read.htm#ga31522b71beee2b1c06d49b5aa65a5c6f>
 --
 -- @
--- >>> 'readArrayCheck' "array.file" "my array"
+-- >>> readArrayCheck "array.file" "my array"
 -- @
 -- @
 -- 0
@@ -223,7 +223,7 @@ readArrayKeyCheck a b =
 -- | Convert ArrayFire 'Array' to 'String', used for 'Show' instance.
 --
 -- @
--- >>> 'putStrLn' '$' 'arrayString' ('constant' \@'Double' 10 [1,1,1,1])
+-- >>> 'putStrLn' '$' 'arrayString' (constant \@'Double' 10 [1,1,1,1])
 -- @
 -- @
 -- ArrayFire 'Array'
@@ -240,7 +240,7 @@ arrayString a = arrayToString "ArrayFire Array" a 4 False
 -- | Convert ArrayFire Array to String
 --
 -- @
--- >>> 'putStrLn' '$' 'arrayToString' "ArrayFire Array" ('constant' \@'Double' 10 [1,1,1,1]) 4 'False'
+-- >>> print (constant \@'Double' 10 [1,1,1,1]) 4 'False'
 -- @
 -- @
 -- ArrayFire 'Array'

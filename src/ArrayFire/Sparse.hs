@@ -92,9 +92,9 @@ createSparseArrayFromDense a s =
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__sparse__func__convert__to.htm)
 --
--- Converting storage formats is allowed between 'CSR', 'COO' and 'DENSE'.
+-- Converting storage formats is allowed between 'CSR', 'COO' and DENSE.
 --
--- When converting to 'DENSE', a dense array is returned.
+-- When converting to DENSE, a dense array is returned.
 --
 -- *Note*
 -- 'CSC' is currently not supported.

@@ -32,7 +32,7 @@ import ArrayFire.FFI
 info :: IO ()
 info = afCall af_info
 
--- | Calls 'af_init' C function from ArrayFire API
+-- | Calls /af_init/ C function from ArrayFire API
 --
 -- >>> afInit
 -- ()

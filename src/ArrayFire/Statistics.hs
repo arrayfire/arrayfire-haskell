@@ -10,7 +10,7 @@
 -- Portability : GHC
 --
 -- Statistics API.
--- Example of finding the top `k` elements along with their indices from an 'Array'
+-- Example of finding the top k elements along with their indices from an 'Array'
 --
 -- @
 -- >>> let (vals,indexes) = 'topk' ( 'vector' \@'Double' 10 [1..] ) 3 'TopKDefault'
@@ -73,7 +73,7 @@ meanWeighted x y (fromIntegral -> n) =
   op2 x y $ \a b c ->
     af_mean_weighted a b c n
 
--- | Calculates 'variance' of 'Array' along user-specified dimension.
+-- | Calculates /variance/ of 'Array' along user-specified dimension.
 --
 -- >>> var (vector @Double 8 [1..8]) False 0
 -- ArrayFire Array
@@ -131,7 +131,7 @@ stdev a n =
   a `op1` (\x y ->
     af_stdev x y (fromIntegral n))
 
--- | Calculates 'covariance' of two 'Array's with a bias specifier.
+-- | Calculates /covariance/ of two 'Array's with a bias specifier.
 --
 -- >>> cov (vector @Double 10 (repeat 1)) (vector @Double 10 (repeat 1)) False
 -- ArrayFire Array
@@ -291,7 +291,7 @@ corrCoef a b =
 topk
   :: AFType a
   => Array a
-  -- ^ First input 'Array', with at least `k` elements along `dim`
+  -- ^ First input 'Array', with at least /k/ elements along /dim/
   -> Int
   -- ^ The number of elements to be retrieved along the dim dimension
   -> TopK

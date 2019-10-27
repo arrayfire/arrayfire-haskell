@@ -21,7 +21,7 @@ import ArrayFire.Internal.Types
 import ArrayFire.FFI
 import ArrayFire.Exception
 
--- | Construct 'Features'
+-- | Construct Features
 --
 -- >>> features = createFeatures (createFeatures 10)
 --
@@ -37,7 +37,7 @@ createFeatures (fromIntegral -> n) =
     fptr <- newForeignPtr af_release_features ptr
     pure (Features fptr)
 
--- | Retain 'Features'
+-- | Retain Features
 --
 -- >>> features = retainFeatures (createFeatures 10)
 --
@@ -46,7 +46,7 @@ retainFeatures
   -> Features
 retainFeatures = (`op1f` af_retain_features)
 
--- | Get number of 'Feature's
+-- | Get number of Features
 --
 -- link
 --
@@ -58,7 +58,7 @@ getFeaturesNum
   -> Int
 getFeaturesNum = fromIntegral . (`infoFromFeatures` af_get_features_num)
 
--- | Get 'Feature' X-position
+-- | Get Feature X-position
 --
 -- >>> getFeaturesXPos (createFeatures 10)
 -- ArrayFire Array
@@ -70,7 +70,7 @@ getFeaturesXPos
   -> Array a
 getFeaturesXPos = (`featuresToArray` af_get_features_xpos)
 
--- | Get 'Feature' Y-position
+-- | Get Feature Y-position
 --
 -- >>> getFeaturesYPos (createFeatures 10)
 -- ArrayFire Array
@@ -82,7 +82,7 @@ getFeaturesYPos
   -> Array a
 getFeaturesYPos = (`featuresToArray` af_get_features_ypos)
 
--- | Get 'Feature' Score
+-- | Get Feature Score
 --
 -- >>> getFeaturesScore (createFeatures 10)
 -- ArrayFire Array
@@ -94,7 +94,7 @@ getFeaturesScore
   -> Array a
 getFeaturesScore = (`featuresToArray` af_get_features_score)
 
--- | Get 'Feature' orientation
+-- | Get Feature orientation
 --
 -- >>> getFeaturesOrientation (createFeatures 10)
 -- ArrayFire Array
@@ -106,7 +106,7 @@ getFeaturesOrientation
   -> Array a
 getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
 
--- | Get 'Feature' size
+-- | Get Feature size
 --
 -- >>> getFeaturesSize (createFeatures 10)
 -- ArrayFire Array

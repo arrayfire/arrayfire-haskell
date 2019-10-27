@@ -481,7 +481,7 @@ lower
   :: Array a
   -- ^ is the input matrix
   -> Bool
-  -- ^ 'is_unit_diag' is a boolean parameter specifying if the diagonal elements should be 1
+  -- ^ boolean parameter specifying if the diagonal elements should be 1
   -> Array a
 lower a (fromIntegral . fromEnum -> b) =
   a `op1` (\p k -> af_lower p k b)

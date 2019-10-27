@@ -23,7 +23,7 @@
 -- {-\# LANGUAGE TypeApplications \#-}
 -- module Main where
 --
--- import 'ArrayFire'
+-- import ArrayFire
 --
 -- main :: IO ()
 -- main = do

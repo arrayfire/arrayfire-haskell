@@ -57,6 +57,7 @@ module ArrayFire
   , module Data.Int
   , module Data.Word
   , module Data.Complex
+  , module Foreign.Storable
   ) where
 
 import ArrayFire.Algorithm
@@ -79,6 +80,7 @@ import ArrayFire.Types
 import ArrayFire.Util
 import ArrayFire.Vision
 import ArrayFire.Orphans ()
+import Foreign.Storable
 import Foreign.C.Types
 import Data.Int
 import Data.Complex
@@ -189,7 +191,7 @@ import Data.Word
 --     2.0000     2.0000
 -- @
 --
--- Array construction can use Haskell's lazy lists, since 'take' is called on each dimension before sending to the 'C' API.
+-- Array construction can use Haskell's lazy lists, since 'take' is called on each dimension before sending to the C API.
 --
 -- >>> mkArray @Double [2,2] [ [1..], [1..] ]
 -- ArrayFire Array
@@ -254,7 +256,7 @@ import Data.Word
 --
 
 -- $conversion
--- 'Array' can be exported into 'Haskell' using `toVector'. This will create a 'Storable' vector suitable for use in other C programs.
+-- 'Array' can be exported into Haskell using `toVector'. This will create a Storable vector suitable for use in other C programs.
 --
 -- >>> vector :: Vector Double <- toVector <$> randu @Double [10,10]
 --
@@ -271,7 +273,7 @@ import Data.Word
 --   let arr = A.'constant' [1,1,1,1] 10
 --   idx <- A.'saveArray' "key" arr "file.array" False
 --   foundIndex <- A.'readArrayKeyCheck' "file.array" "key"
---   'when' (idx == foundIndex) $ do
+--   when (idx == foundIndex) $ do
 --     array <- A.'readArrayKey' "file.array" "key"
 --     'print' array
 --

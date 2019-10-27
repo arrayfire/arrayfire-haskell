@@ -17,8 +17,9 @@ import Data.Proxy
 import Data.Word
 
 import ArrayFire.Internal.Types
-import ArrayFire.FFI
 import ArrayFire.Internal.Image
+import ArrayFire.FFI
+import ArrayFire.Arith
 
 -- | Calculates the gradient of an image
 --
@@ -241,7 +242,8 @@ skew a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterp
 -- A histogram is a representation of the distribution of given data. This representation is essentially a graph consisting of the data range or domain on one axis and frequency of occurence on the other axis. All the data in the domain is counted in the appropriate bin. The total number of elements belonging to each bin is known as the bin's frequency.
 --
 histogram
-  :: Array a
+  :: AFType a
+  => Array a
   -- ^ the input array
   -> Int
   -- ^ Number of bins to populate between min and max
@@ -252,7 +254,7 @@ histogram
   -> Array Word32
   -- ^ (type u32) is the histogram for input array in
 histogram a (fromIntegral -> b) c d =
-  castArray (a `op1` (\ptr x -> af_histogram ptr x b c d))
+  cast (a `op1` (\ptr x -> af_histogram ptr x b c d))
 
 -- | Dilation(morphological operator) for images.
 --
@@ -407,7 +409,7 @@ maxFilt in' (fromIntegral -> a) (fromIntegral -> b) (fromBorderType -> c) =
 regions
   :: forall a . (AFType a)
   => Array a
-  -- ^ array should be binary image of type 'CBool'
+  -- ^ array should be binary image of type CBool
   -> Connectivity
   -- ^
   -> Array a

@@ -40,6 +40,7 @@ instance Storable AFSeq where
     #{poke af_seq, end} ptr afSeqEnd
     #{poke af_seq, step} ptr afSeqStep
 
+-- | Type used for indexing into 'Array'
 data AFIndex
   = AFIndex
   { afIdx :: !(Either AFArray AFSeq)
@@ -262,6 +263,7 @@ toBinaryOp Mul = AFBinaryOp 1
 toBinaryOp Min = AFBinaryOp 2
 toBinaryOp Max = AFBinaryOp 3
 
+-- | 'BinaryOp' conversion helper
 fromBinaryOp :: AFBinaryOp -> BinaryOp
 fromBinaryOp (AFBinaryOp 0) = Add
 fromBinaryOp (AFBinaryOp 1) = Mul
@@ -269,6 +271,7 @@ fromBinaryOp (AFBinaryOp 2) = Min
 fromBinaryOp (AFBinaryOp 3) = Max
 fromBinaryOp x = error ("Invalid Binary Op: " <> show x)
 
+-- | Storage type used for Sparse arrays
 data Storage
   = Dense
   | CSR
@@ -284,6 +287,7 @@ fromStorage (AFStorage (fromIntegral -> x))
   | x `elem` [0..3] = toEnum x
   | otherwise = error $ "Invalid Storage " <> (show x)
 
+-- | Type for different RandomEngines
 data RandomEngineType
   = Philox
   | ThreeFry
@@ -302,6 +306,7 @@ fromRandomEngine Philox = (AFRandomEngineType 100)
 fromRandomEngine ThreeFry = (AFRandomEngineType 200)
 fromRandomEngine Mersenne = (AFRandomEngineType 300)
 
+-- | Interpolation type
 data InterpType
   = Nearest
   | Linear
@@ -321,6 +326,7 @@ toInterpType (AFInterpType (fromIntegral -> x)) = toEnum x
 fromInterpType :: InterpType -> AFInterpType
 fromInterpType = AFInterpType . fromIntegral . fromEnum
 
+-- | Border Type
 data BorderType
   = PadZero
   | PadSym
@@ -332,6 +338,7 @@ toBorderType (AFBorderType (fromIntegral -> x)) = toEnum x
 fromBorderType :: BorderType -> AFBorderType
 fromBorderType = AFBorderType . fromIntegral . fromEnum
 
+-- | Connectivity Type
 data Connectivity
   = Conn4
   | Conn8
@@ -346,6 +353,7 @@ fromConnectivity :: Connectivity -> AFConnectivity
 fromConnectivity Conn4 = AFConnectivity 4
 fromConnectivity Conn8 = AFConnectivity 8
 
+-- | Color Space type
 data CSpace
   = Gray
   | RGB
@@ -359,6 +367,7 @@ toCSpace (AFCSpace (fromIntegral -> x)) = toEnum x
 fromCSpace :: CSpace -> AFCSpace
 fromCSpace = AFCSpace . fromIntegral . fromEnum
 
+-- | YccStd type
 data YccStd
   = Ycc601
   | Ycc709
@@ -376,6 +385,7 @@ fromAFYccStd Ycc601 = afYcc601
 fromAFYccStd Ycc709 = afYcc709
 fromAFYccStd Ycc2020 = afYcc2020
 
+-- | Moment types
 data MomentType
   = M00
   | M01
@@ -400,6 +410,7 @@ fromMomentType M10 = afMomentM10
 fromMomentType M11 = afMomentM11
 fromMomentType FirstOrder = afMomentFirstOrder
 
+-- | Canny Theshold type
 data CannyThreshold
   = Manual
   | AutoOtsu
@@ -411,6 +422,7 @@ toCannyThreshold (AFCannyThreshold (fromIntegral -> x)) = toEnum x
 fromCannyThreshold :: CannyThreshold -> AFCannyThreshold
 fromCannyThreshold = AFCannyThreshold . fromIntegral . fromEnum
 
+-- | Flux function type
 data FluxFunction
   = FluxDefault
   | FluxQuadratic
@@ -423,6 +435,7 @@ toFluxFunction (AFFluxFunction (fromIntegral -> x)) = toEnum x
 fromFluxFunction :: FluxFunction -> AFFluxFunction
 fromFluxFunction = AFFluxFunction . fromIntegral . fromEnum
 
+-- | Diffusion type
 data DiffusionEq
   = DiffusionDefault
   | DiffusionGrad
@@ -435,6 +448,7 @@ toDiffusionEq (AFDiffusionEq (fromIntegral -> x)) = toEnum x
 fromDiffusionEq :: DiffusionEq -> AFDiffusionEq
 fromDiffusionEq = AFDiffusionEq . fromIntegral . fromEnum
 
+-- | Iterative deconvolution algo type
 data IterativeDeconvAlgo
   = DeconvDefault
   | DeconvLandweber
@@ -447,6 +461,7 @@ toIterativeDeconvAlgo (AFIterativeDeconvAlgo (fromIntegral -> x)) = toEnum x
 fromIterativeDeconvAlgo :: IterativeDeconvAlgo -> AFIterativeDeconvAlgo
 fromIterativeDeconvAlgo = AFIterativeDeconvAlgo . fromIntegral . fromEnum
 
+-- | Inverse deconvolution algo type
 data InverseDeconvAlgo
   = InverseDeconvDefault
   | InverseDeconvTikhonov
@@ -458,6 +473,7 @@ toInverseDeconvAlgo (AFInverseDeconvAlgo (fromIntegral -> x)) = toEnum x
 fromInverseDeconvAlgo :: InverseDeconvAlgo -> AFInverseDeconvAlgo
 fromInverseDeconvAlgo = AFInverseDeconvAlgo . fromIntegral . fromEnum
 
+-- | Cell type, used in Graphics module
 data Cell
   = Cell
   { cellRow :: Int
@@ -475,6 +491,7 @@ cellToAFCell Cell {..} =
                 , afCellColorMap = fromColorMap cellColorMap
                 }
 
+-- | ColorMap type
 data ColorMap
   = ColorMapDefault
   | ColorMapSpectrum
@@ -495,6 +512,7 @@ fromColorMap = AFColorMap . fromIntegral . fromEnum
 toColorMap :: AFColorMap -> ColorMap
 toColorMap (AFColorMap (fromIntegral -> x)) = toEnum x
 
+-- | Marker type
 data MarkerType
   = MarkerTypeNone
   | MarkerTypePoint
@@ -512,6 +530,7 @@ fromMarkerType = AFMarkerType . fromIntegral . fromEnum
 toMarkerType :: AFMarkerType -> MarkerType
 toMarkerType (AFMarkerType (fromIntegral -> x)) = toEnum x
 
+-- | Match type
 data MatchType
   = MatchTypeSAD
   | MatchTypeZSAD
@@ -530,6 +549,7 @@ fromMatchType = AFMatchType . fromIntegral . fromEnum
 toMatchType :: AFMatchType -> MatchType
 toMatchType (AFMatchType (fromIntegral -> x)) = toEnum x
 
+-- | TopK type
 data TopK
   = TopKDefault
   | TopKMin
@@ -542,6 +562,7 @@ fromTopK = AFTopkFunction . fromIntegral . fromEnum
 toTopK :: AFTopkFunction -> TopK
 toTopK (AFTopkFunction (fromIntegral -> x)) = toEnum x
 
+-- | Homography Type
 data HomographyType
   = RANSAC
   | LMEDS
@@ -553,6 +574,7 @@ fromHomographyType = AFHomographyType . fromIntegral . fromEnum
 toHomographyType :: AFHomographyType -> HomographyType
 toHomographyType (AFHomographyType (fromIntegral -> x)) = toEnum x
 
+-- | Sequence Type
 data Seq
   = Seq
   { seqBegin :: !Double
@@ -563,6 +585,7 @@ data Seq
 toAFSeq :: Seq -> AFSeq
 toAFSeq (Seq x y z) = (AFSeq x y z)
 
+-- | Index Type
 data Index a
   = Index
   { idx :: Either (Array a) Seq

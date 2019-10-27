@@ -24,7 +24,7 @@
 -- import ArrayFire
 --
 -- main :: 'IO' ()
--- main = 'print' ('matrix' \@'Double' (2,2) [ [1..], [1..] ])
+-- main = 'print' (matrix \@'Double' (2,2) [ [1..], [1..] ])
 -- @
 --
 -- @
@@ -361,7 +361,7 @@ isVector
   -> Bool
 isVector a = toEnum . fromIntegral $ (a `infoFromArray` af_is_vector)
 
--- | Checks if an 'Array' is a 'Complex'
+-- | Checks if an 'Array' is a Complex
 --
 -- >>> isComplex (scalar (1.0 :+ 1.0) :: Array (Complex Double))
 -- True
@@ -372,7 +372,7 @@ isComplex
   -> Bool
 isComplex a = toEnum . fromIntegral $ (a `infoFromArray` af_is_complex)
 
--- | Checks if an 'Array' is 'Real'
+-- | Checks if an 'Array' is Real
 --
 -- >>> isReal (scalar 1.0 :: Array Double)
 -- True
@@ -405,7 +405,7 @@ isSingle
   -> Bool
 isSingle a = toEnum . fromIntegral $ (a `infoFromArray` af_is_single)
 
--- | Checks if an 'Array' is 'Double', 'Float', 'Complex Double', or 'Complex Float'
+-- | Checks if an 'Array' is 'Double', 'Float', Complex 'Double', or Complex 'Float'
 --
 -- >>> isRealFloating (scalar 1.0 :: Array Double)
 -- True
@@ -426,7 +426,7 @@ isFloating
   -> Bool
 isFloating a = toEnum . fromIntegral $ (a `infoFromArray` af_is_floating)
 
--- | Checks if an 'Array' is of type 'Int16', 'Int32', or 'Int64'
+-- | Checks if an 'Array' is of type Int16, Int32, or Int64
 --
 -- >>> isInteger (scalar 1 :: Array Int16)
 -- True
@@ -436,7 +436,7 @@ isInteger
   -> Bool
 isInteger a = toEnum . fromIntegral $ (a `infoFromArray` af_is_integer)
 
--- | Checks if an 'Array' is of type 'CBool'
+-- | Checks if an 'Array' is of type CBool
 --
 -- >>> isBool (scalar 1 :: Array CBool)
 -- True
