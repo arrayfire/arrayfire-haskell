@@ -199,7 +199,7 @@ import Data.Word
 -- Specifying up to 4 dimensions is allowed (anything high is ignored).
 
 -- $laws
--- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional', 'Floating' and 'Semigroup'
+-- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional', 'Floating'
 --
 -- 'Num'
 --
@@ -230,16 +230,6 @@ import Data.Word
 -- ArrayFire Array
 -- [1 1 1 1]
 --    1.0000
---
--- 'Semigroup'
---
--- /'Array' forms a 'Semigroup' via pointwise-multiplication./
---
--- >>> matrix @Double (2,2) [[1,2],[3,4]] <> matrix @Double (2,2) [[1,2],[3,4]]
--- ArrayFire Array
--- [2 2 1 1]
---    1.0000     4.0000
---    9.0000    16.0000
 --
 -- 'Eq'
 --

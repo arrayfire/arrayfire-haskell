@@ -20,7 +20,7 @@ spec =
     it "Should subtract two scalar arrays" $ do
       scalar @Int 4 - 2 `shouldBe` 2
     it "Should multiply two scalar arrays" $ do
-      scalar @Double 4 <> 2 `shouldBe` 8
+      scalar @Double 4 `mul` 2 `shouldBe` 8
     it "Should divide two scalar arrays" $ do
       div @Double 8 2 `shouldBe` 4
     it "Should add two matrices" $ do

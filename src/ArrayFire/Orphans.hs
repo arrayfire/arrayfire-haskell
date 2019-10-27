@@ -45,9 +45,6 @@ instance (Ord a, AFType a) => Ord (Array a) where
   x <= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.le x y)
   x >= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.ge x y)
 
-instance (Fractional a, AFType a) => Semigroup (Array a) where
-  (<>) = A.mul
-
 instance Show (Array a) where
   show = arrayString
 
