@@ -12,13 +12,13 @@
 --
 -- @
 -- main :: IO ()
--- main = 'print' ('matmul' x y xProp yProp)
+-- main = print (matmul x y xProp yProp)
 --  where
---     x,y :: 'Array' 'Double'
---     x = 'matrix' (2,3) [1..]
---     y = 'matrix' (3,2) [1..]
+--     x,y :: Array Double
+--     x = matrix (2,3) [1..]
+--     y = matrix (3,2) [1..]
 --
---     xProp, yProp :: 'MatProp'
+--     xProp, yProp :: MatProp
 --     xProp = None
 --     yProp = None
 -- @

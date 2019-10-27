@@ -263,6 +263,7 @@ norm arr (fromNormType -> a) b c =
 -- | Is LAPACK available
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__helper__func__available.htm)
+--
 isLAPACKAvailable
   :: Bool
   -- ^ Returns if LAPACK is available
