@@ -112,7 +112,13 @@ drawImage (Window wfptr) (Array fptr) cell =
 -- @
 -- >>> drawPlot window ('constant' \@'Int' 1) ('constant' \@'Int' 1) ('Cell' 10 10 "test" 'ColorMapSpectrum')
 -- @
-drawPlot :: Window -> Array a -> Array a -> Cell -> IO ()
+--
+drawPlot
+  :: Window
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawPlot (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
@@ -122,7 +128,11 @@ drawPlot (Window w) (Array fptr1) (Array fptr2) cell =
         throwAFError =<< af_draw_plot wptr ptr1 ptr2 cellPtr
         free cellPtr
 
-drawPlot3 :: Window -> Array a -> Cell -> IO ()
+drawPlot3
+  :: Window
+  -> Array a
+  -> Cell
+  -> IO ()
 drawPlot3 (Window w) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
     withForeignPtr w $ \wptr ->
@@ -131,7 +141,11 @@ drawPlot3 (Window w) (Array fptr) cell =
       throwAFError =<< af_draw_plot3 wptr aptr cellPtr
       free cellPtr
 
-drawPlotNd :: Window -> Array a -> Cell -> IO ()
+drawPlotNd
+  :: Window
+  -> Array a
+  -> Cell
+  -> IO ()
 drawPlotNd (Window w) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
     withForeignPtr w $ \wptr ->
@@ -140,7 +154,12 @@ drawPlotNd (Window w) (Array fptr) cell =
       throwAFError =<< af_draw_plot_nd wptr aptr cellPtr
       free cellPtr
 
-drawPlot2d :: Window -> Array a -> Array a -> Cell -> IO ()
+drawPlot2d
+  :: Window
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawPlot2d (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
@@ -150,7 +169,13 @@ drawPlot2d (Window w) (Array fptr1) (Array fptr2) cell =
         throwAFError =<< af_draw_plot_2d wptr ptr1 ptr2 cellPtr
         free cellPtr
 
-drawPlot3d :: Window -> Array a -> Array a -> Array a -> Cell -> IO ()
+drawPlot3d
+  :: Window
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
@@ -161,7 +186,13 @@ drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
             throwAFError =<< af_draw_plot_3d wptr ptr1 ptr2 ptr3 cellPtr
             free cellPtr
 
-drawScatter :: Window -> Array a -> Array a -> MarkerType -> Cell -> IO ()
+drawScatter
+  :: Window
+  -> Array a
+  -> Array a
+  -> MarkerType
+  -> Cell
+  -> IO ()
 drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
@@ -171,7 +202,12 @@ drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
         throwAFError =<< af_draw_scatter wptr ptr1 ptr2 m cellPtr
         free cellPtr
 
-drawScatter3 :: Window -> Array a -> MarkerType -> Cell -> IO ()
+drawScatter3
+  :: Window
+  -> Array a
+  -> MarkerType
+  -> Cell
+  -> IO ()
 drawScatter3 (Window w) (Array fptr1) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
@@ -180,8 +216,12 @@ drawScatter3 (Window w) (Array fptr1) (fromMarkerType -> m) cell =
       throwAFError =<< af_draw_scatter3 wptr ptr1 m cellPtr
       free cellPtr
 
-
-drawScatterNd :: Window -> Array a -> MarkerType -> Cell -> IO ()
+drawScatterNd
+  :: Window
+  -> Array a
+  -> MarkerType
+  -> Cell
+  -> IO ()
 drawScatterNd (Window w) (Array fptr1) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
@@ -190,8 +230,13 @@ drawScatterNd (Window w) (Array fptr1) (fromMarkerType -> m) cell =
       throwAFError =<< af_draw_scatter_nd wptr ptr1 m cellPtr
       free cellPtr
 
-
-drawScatter2d :: Window -> Array a -> Array a -> MarkerType -> Cell -> IO ()
+drawScatter2d
+  :: Window
+  -> Array a
+  -> Array a
+  -> MarkerType
+  -> Cell
+  -> IO ()
 drawScatter2d (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
@@ -201,8 +246,14 @@ drawScatter2d (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell 
       throwAFError =<< af_draw_scatter_2d wptr ptr1 ptr2 m cellPtr
       free cellPtr
 
-
-drawScatter3d :: Window -> Array a -> Array a -> Array a -> MarkerType -> Cell -> IO ()
+drawScatter3d
+  :: Window
+  -> Array a
+  -> Array a
+  -> Array a
+  -> MarkerType
+  -> Cell
+  -> IO ()
 drawScatter3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
@@ -213,8 +264,13 @@ drawScatter3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromMarkerTy
         throwAFError =<< af_draw_scatter_3d wptr ptr1 ptr2 ptr3 m cellPtr
         free cellPtr
 
-
-drawHistogram :: Window -> Array a -> Double -> Double -> Cell -> IO ()
+drawHistogram
+  :: Window
+  -> Array a
+  -> Double
+  -> Double
+  -> Cell
+  -> IO ()
 drawHistogram (Window w) (Array fptr1) minval maxval cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
@@ -222,8 +278,13 @@ drawHistogram (Window w) (Array fptr1) minval maxval cell =
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_hist wptr ptr1 minval maxval cellPtr
 
-
-drawSurface :: Window -> Array a -> Array a -> Array a -> Cell -> IO ()
+drawSurface
+  :: Window
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawSurface (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
@@ -235,7 +296,12 @@ drawSurface (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
         free cellPtr
 
 
-drawVectorFieldND :: Window -> Array a -> Array a -> Cell -> IO ()
+drawVectorFieldND
+  :: Window
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawVectorFieldND (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr fptr2 $ \ptr2 ->
@@ -246,7 +312,16 @@ drawVectorFieldND (Window w) (Array fptr1) (Array fptr2) cell =
         free cellPtr
 
 
-drawVectorField3d :: Window -> Array a -> Array a -> Array a -> Array a -> Array a -> Array a -> Cell -> IO ()
+drawVectorField3d
+  :: Window
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawVectorField3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3)
   (Array fptr4) (Array fptr5) (Array fptr6) cell =
   mask_ $ do
@@ -262,8 +337,14 @@ drawVectorField3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3)
                   throwAFError =<< af_draw_vector_field_3d wptr ptr1 ptr2 ptr3 ptr4 ptr5 ptr6 cellPtr
                   free cellPtr
 
-
-drawVectorField2d :: Window -> Array a -> Array a -> Array a -> Array a -> Cell -> IO ()
+drawVectorField2d
+  :: Window
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Cell
+  -> IO ()
 drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fptr4) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
@@ -276,14 +357,24 @@ drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fp
               throwAFError =<< af_draw_vector_field_2d wptr ptr1 ptr2 ptr3 ptr4 cellPtr
               free cellPtr
 
-
-grid :: Window -> Int -> Int -> IO ()
+grid
+  :: Window
+  -> Int
+  -> Int
+  -> IO ()
 grid (Window w) (fromIntegral -> rows) (fromIntegral -> cols) =
   mask_ . withForeignPtr w $ \wptr ->
     throwAFError =<< af_grid wptr rows cols
 
 
-setAxesLimitsCompute :: Window -> Array a -> Array a -> Array a -> Bool -> Cell -> IO ()
+setAxesLimitsCompute
+  :: Window
+  -> Array a
+  -> Array a
+  -> Array a
+  -> Bool
+  -> Cell
+  -> IO ()
 setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
@@ -296,7 +387,15 @@ setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromI
             free cellPtr
 
 
-setAxesLimits2d :: Window -> Float -> Float -> Float -> Float -> Bool -> Cell -> IO ()
+setAxesLimits2d
+  :: Window
+  -> Float
+  -> Float
+  -> Float
+  -> Float
+  -> Bool
+  -> Cell
+  -> IO ()
 setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
@@ -306,7 +405,17 @@ setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact
       free cellPtr
 
 
-setAxesLimits3d :: Window -> Float -> Float -> Float -> Float -> Float -> Float -> Bool -> Cell -> IO ()
+setAxesLimits3d
+  :: Window
+  -> Float
+  -> Float
+  -> Float
+  -> Float
+  -> Float
+  -> Float
+  -> Bool
+  -> Cell
+  -> IO ()
 setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
@@ -315,9 +424,13 @@ setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnu
       throwAFError =<< af_set_axes_limits_3d wptr xmin xmax ymin ymax zmin zmax exact cellPtr
       free cellPtr
 
-
-
-setAxesTitles :: Window -> String -> String -> String -> Cell -> IO ()
+setAxesTitles
+  :: Window
+  -> String
+  -> String
+  -> String
+  -> Cell
+  -> IO ()
 setAxesTitles (Window w) x y z cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
@@ -329,10 +442,10 @@ setAxesTitles (Window w) x y z cell =
             throwAFError =<< af_set_axes_titles wptr xstr ystr zstr cellPtr
             free cellPtr
 
-
-showWindow :: Window -> IO ()
+showWindow
+  :: Window
+  -> IO ()
 showWindow = (`opw` af_show)
-
 
 isWindowClosed :: Window -> IO Bool
 isWindowClosed w =
@@ -340,5 +453,8 @@ isWindowClosed w =
     <$> (w `opw1` af_is_window_closed)
 
 
-setVisibility :: Window -> Bool -> IO ()
+setVisibility
+  :: Window
+  -> Bool
+  -> IO ()
 setVisibility w (fromIntegral . fromEnum -> b) = w `opw` (`af_set_visibility` b)
