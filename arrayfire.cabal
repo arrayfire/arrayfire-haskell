@@ -96,7 +96,7 @@ library
     extra-lib-dirs:
       /opt/arrayfire/lib
     ld-options:
-      -Wl -rpath /opt/arrayfire/lib
+      -Wl,-rpath /opt/arrayfire/lib
 
 executable main
   hs-source-dirs:
