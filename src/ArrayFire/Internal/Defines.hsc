@@ -42,9 +42,14 @@ newtype AFErr = AFErr { afError :: CInt }
  , afErrUnknown = AF_ERR_UNKNOWN
  }
 
-newtype AFDtype = AFDtype { afDType :: CInt }
-  deriving (Show, Eq, Storable)
+-- | Low-level for representation of ArrayFire types
+newtype AFDtype
+  = AFDtype
+  { afDType :: CInt
+  -- ^ Value corresponding to ArrayFire type
+  } deriving (Show, Eq, Storable)
 
+-- | Enums for AFDtype
 #{enum AFDtype, AFDtype
  , f32 = f32
  , c32 = c32

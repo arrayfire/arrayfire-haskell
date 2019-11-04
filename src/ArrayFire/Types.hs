@@ -56,8 +56,10 @@ module ArrayFire.Types
   , BorderType          (..)
   , Storage             (..)
   , AFDType             (..)
+  , AFDtype             (..)
   , ColorMap            (..)
   ) where
 
 import ArrayFire.Exception
 import ArrayFire.Internal.Types
+import ArrayFire.Internal.Defines
