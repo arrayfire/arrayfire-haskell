@@ -199,14 +199,14 @@ inverse a m =
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__factor__func__p_inv.htm)
 --
-pinverse
-  :: AFType a
-  => Array a
-  -> Double
-  -> MatProp
-  -> Array a
-pinverse a d m =
-  a `op1` (\x y  -> af_pinverse x y d (toMatProp m))
+-- pinverse
+--   :: AFType a
+--   => Array a
+--   -> Double
+--   -> MatProp
+--   -> Array a
+-- pinverse a d m =
+--   a `op1` (\x y  -> af_pinverse x y d (toMatProp m))
 
 -- | Find the rank of the input matrix
 --

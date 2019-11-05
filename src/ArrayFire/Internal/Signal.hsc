@@ -10,10 +10,6 @@ foreign import ccall unsafe "af_approx1"
     af_approx1 :: Ptr AFArray -> AFArray -> AFArray -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_approx2"
     af_approx2 :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> AFInterpType -> Float -> IO AFErr
-foreign import ccall unsafe "af_approx1_uniform"
-    af_approx1_uniform :: Ptr AFArray -> AFArray -> AFArray -> CInt -> Double -> Double -> AFInterpType -> Float -> IO AFErr
-foreign import ccall unsafe "af_approx2_uniform"
-    af_approx2_uniform :: Ptr AFArray -> AFArray -> AFArray -> CInt -> Double -> Double -> AFArray -> CInt -> Double -> Double -> AFInterpType -> Float -> IO AFErr
 foreign import ccall unsafe "af_fft"
     af_fft :: Ptr AFArray -> AFArray -> Double -> DimT -> IO AFErr
 foreign import ccall unsafe "af_fft_inplace"

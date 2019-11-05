@@ -29,8 +29,6 @@ foreign import ccall unsafe "af_solve_lu"
     af_solve_lu :: Ptr AFArray -> AFArray -> AFArray -> AFArray -> AFMatProp -> IO AFErr
 foreign import ccall unsafe "af_inverse"
     af_inverse :: Ptr AFArray -> AFArray -> AFMatProp -> IO AFErr
-foreign import ccall unsafe "af_pinverse"
-    af_pinverse :: Ptr AFArray -> AFArray -> Double -> AFMatProp -> IO AFErr
 foreign import ccall unsafe "af_rank"
     af_rank :: Ptr CUInt -> AFArray -> Double -> IO AFErr
 foreign import ccall unsafe "af_det"
