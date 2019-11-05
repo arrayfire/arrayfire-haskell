@@ -6,6 +6,10 @@ import           Prelude
 import           Test.Hspec
 
 spec :: Spec
+spec = pure ()
+
+{-
+spec :: Spec
 spec =
   describe "LAPACK spec" $ do
     it "Should have LAPACK available" $ do
@@ -42,3 +46,4 @@ spec =
 --    it "Should calculate psuedo inverse" $ do
 --      let x = A.pinverse (A.matrix @Double (2,2) [[4,7],[2,6]]) 1.0 A.None
 --      x `shouldBe` A.matrix @Double (2,2) [[0.6,-0.2],[-0.7,0.4]]
+-}
