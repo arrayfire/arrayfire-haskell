@@ -2,8 +2,6 @@
 
 af_err af_approx1(af_array *out, const af_array in, const af_array pos, const af_interp_type method, const float off_grid);
 af_err af_approx2(af_array *out, const af_array in, const af_array pos0, const af_array pos1, const af_interp_type method, const float off_grid);
-af_err af_approx1_uniform(af_array *out, const af_array in,const af_array pos, const int interp_dim, const double idx_start, const double idx_step, const af_interp_type method, const float off_grid);
-af_err af_approx2_uniform(af_array *out, const af_array in,const af_array pos0, const int interp_dim0, const double idx_start_dim0, const double idx_step_dim0, const af_array pos1, const int interp_dim1, const double idx_start_dim1, const double idx_step_dim1, const af_interp_type method, const float off_grid);
 af_err af_fft(af_array *out, const af_array in, const double norm_factor, const dim_t odim0);
 af_err af_fft_inplace(af_array in, const double norm_factor);
 af_err af_fft2(af_array *out, const af_array in, const double norm_factor, const dim_t odim0, const dim_t odim1);

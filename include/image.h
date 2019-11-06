@@ -43,5 +43,3 @@ af_err af_moments(af_array *out, const af_array in, const af_moment_type moment)
 af_err af_moments_all(double* out, const af_array in, const af_moment_type moment);
 af_err af_canny(af_array* out, const af_array in, const af_canny_threshold threshold_type, const float low_threshold_ratio, const float high_threshold_ratio, const unsigned sobel_window, const bool is_fast);
 af_err af_anisotropic_diffusion(af_array* out, const af_array in, const float timestep, const float conductance, const unsigned iterations, const af_flux_function fftype,const af_diffusion_eq diffusion_kind);
-af_err af_iterative_deconv(af_array* out, const af_array in, const af_array ker,const unsigned iterations, const float relax_factor, const af_iterative_deconv_algo algo);
-af_err af_inverse_deconv(af_array* out, const af_array in, const af_array psf, const float gamma, const af_inverse_deconv_algo algo);
