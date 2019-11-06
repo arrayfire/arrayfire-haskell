@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "arrayfire";
-  version = "0.2.0.0";
+  version = "0.3.0.0";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
