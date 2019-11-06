@@ -25,7 +25,7 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real)
+import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFrac)
 
 import Data.Coerce
 import Data.Proxy
@@ -1202,7 +1202,7 @@ cplx = flip op1 af_cplx
 -- [10 1 1 1]
 --    10.0000
 real
-  :: (AFType a, AFType (Complex b))
+  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
   => Array (Complex b)
   -- ^ Input array
   -> Array a
@@ -1216,7 +1216,7 @@ real = flip op1d af_real
 -- [10 1 1 1]
 --    11.0000
 imag
-  :: (AFType a, AFType (Complex b))
+  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
   => Array (Complex b)
   -- ^ Input array
   -> Array a
