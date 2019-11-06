@@ -235,7 +235,7 @@ arrayString
   -- ^ Input 'Array'
   -> String
   -- ^ 'String' representation of 'Array'
-arrayString a = arrayToString "ArrayFire Array" a 4 False
+arrayString a = arrayToString "ArrayFire Array" a 4 True
 
 -- | Convert ArrayFire Array to String
 --
