@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
@@ -24,10 +25,11 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real)
+import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFrac)
 
 import Data.Coerce
 import Data.Proxy
+import Data.Complex
 
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
@@ -1195,31 +1197,31 @@ cplx = flip op1 af_cplx
 
 -- | Execute real
 --
--- >>> A.real (A.vector @Double 10 [1..])
+-- >>> A.real (A.scalar @(Complex Double) (10 :+ 11)) :: Array Double
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--    10.0000
 real
-  :: AFType a
-  => Array a
+  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
+  => Array (Complex b)
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'real'
-real = flip op1 af_real
+real = flip op1d af_real
 
 -- | Execute imag
 --
--- >>> A.imag (A.vector @Double 10 [1..])
+-- >>> A.imag (A.scalar @(Complex Double) (10 :+ 11)) :: Array Double
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
+--    11.0000
 imag
-  :: AFType a
-  => Array a
+  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
+  => Array (Complex b)
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'imag'
-imag = flip op1 af_imag
+imag = flip op1d af_imag
 
 -- | Execute conjg
 --

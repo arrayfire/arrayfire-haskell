@@ -220,6 +220,22 @@ opw1 (Window fptr) op
          throwAFError =<< op p ptr
          peek p
 
+op1d
+  :: Array a
+  -> (Ptr AFArray -> AFArray -> IO AFErr)
+  -> Array b
+{-# NOINLINE op1d #-}
+op1d (Array fptr1) op =
+  unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 -> do
+      ptr <-
+        alloca $ \ptrInput -> do
+          throwAFError =<< op ptrInput ptr1
+          peek ptrInput
+      fptr <- newForeignPtr af_release_array_finalizer ptr
+      pure (Array fptr)
+
+
 op1
   :: Array a
   -> (Ptr AFArray -> AFArray -> IO AFErr)
