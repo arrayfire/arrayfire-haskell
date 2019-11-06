@@ -34,6 +34,7 @@ import Data.Complex
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
 import ArrayFire.Internal.Types
+import Foreign.C.Types
 
 -- | Adds two 'Array' objects
 --
@@ -202,10 +203,10 @@ lt
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than
 lt x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_lt arr arr1 arr2 1
 
 -- | Test if on 'Array' is less than another 'Array'
@@ -224,10 +225,10 @@ ltBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than
 ltBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_lt arr arr1 arr2 batch
 
 -- | Test if an 'Array' is greater than another 'Array'
@@ -244,10 +245,10 @@ gt
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of gt
 gt x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_gt arr arr1 arr2 1
 
 -- | Test if an 'Array' is greater than another 'Array'
@@ -262,10 +263,10 @@ gtBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of gt
 gtBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_gt arr arr1 arr2 batch
 
 -- | Test if one 'Array' is less than or equal to another 'Array'
@@ -282,10 +283,10 @@ le
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than or equal
 le x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_le arr arr1 arr2 1
 
 -- | Test if one 'Array' is less than or equal to another 'Array'
@@ -304,10 +305,10 @@ leBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than or equal
 leBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_le arr arr1 arr2 batch
 
 -- | Test if one 'Array' is greater than or equal to another 'Array'
@@ -324,10 +325,10 @@ ge
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of greater than or equal
 ge x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 1
 
 -- | Test if one 'Array' is greater than or equal to another 'Array'
@@ -343,10 +344,10 @@ geBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of greater than or equal
 geBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 batch
 
 -- | Test if one 'Array' is equal to another 'Array'

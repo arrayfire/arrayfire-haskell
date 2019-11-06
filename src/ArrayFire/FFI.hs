@@ -85,6 +85,24 @@ op2 (Array fptr1) (Array fptr2) op =
         fptr <- newForeignPtr af_release_array_finalizer ptr
         pure (Array fptr)
 
+op2bool
+  :: Array b
+  -> Array a
+  -> (Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
+  -> Array CBool
+{-# NOINLINE op2bool #-}
+op2bool (Array fptr1) (Array fptr2) op =
+  unsafePerformIO $ do
+    withForeignPtr fptr1 $ \ptr1 ->
+      withForeignPtr fptr2 $ \ptr2 -> do
+        ptr <-
+          alloca $ \ptrInput -> do
+            throwAFError =<< op ptrInput ptr1 ptr2
+            peek ptrInput
+        fptr <- newForeignPtr af_release_array_finalizer ptr
+        pure (Array fptr)
+
+
 op2p
   :: Array a
   -> (Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr)
