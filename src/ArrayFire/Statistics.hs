@@ -37,7 +37,7 @@ import ArrayFire.Internal.Types
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
--- >>> mean 0 ( vector @Int 10 [1..] )
+-- >>> mean ( vector @Int 10 [1..] ) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
@@ -95,7 +95,7 @@ var arr (fromIntegral . fromEnum -> b) d =
 
 -- | Calculates 'varWeighted' of 'Array' along user-specified dimension.
 --
--- >>> varWeighted 0 ( vector @Int 10 [1..] ) ( vector @Int 10 [1..] )
+-- >>> varWeighted ( vector @Int 10 [1..] ) ( vector @Int 10 [1..] ) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
