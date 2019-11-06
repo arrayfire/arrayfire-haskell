@@ -17,16 +17,16 @@ module ArrayFire.Orphans where
 
 import           Prelude
 
-import qualified ArrayFire.Arith as A
-import qualified ArrayFire.Array as A
-import qualified ArrayFire.Data  as A
+import qualified ArrayFire.Arith     as A
+import qualified ArrayFire.Array     as A
+import qualified ArrayFire.Algorithm as A
+import qualified ArrayFire.Data      as A
 import           ArrayFire.Types
 import           ArrayFire.Util
-import           Foreign.C
 
 instance (AFType a, Eq a) => Eq (Array a) where
-  x == y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.eq x y
-  x /= y = toEnum . fromIntegral $ A.getScalar @CBool @a $! A.neq x y
+  x == y = A.allTrueAll (A.eqBatched x y False) == (1.0,0.0)
+  x /= y = A.allTrueAll (A.neqBatched x y False) == (0.0,0.0)
 
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
@@ -40,10 +40,10 @@ instance (Num a, AFType a) => Num (Array a) where
   fromInteger = A.scalar . fromIntegral
 
 instance (Ord a, AFType a) => Ord (Array a) where
-  x < y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.lt x y)
-  x > y  = toEnum . fromIntegral $ A.getScalar @CBool @a (A.gt x y)
-  x <= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.le x y)
-  x >= y = toEnum . fromIntegral $ A.getScalar @CBool @a (A.ge x y)
+  x < y  = A.allTrueAll (A.ltBatched x y False) == (1.0,0.0)
+  x > y  = A.allTrueAll (A.gtBatched x y False) == (1.0,0.0)
+  x <= y = A.allTrueAll (A.leBatched x y False) == (1.0,0.0)
+  x >= y = A.allTrueAll (A.geBatched x y False) == (1.0,0.0)
 
 instance Show (Array a) where
   show = arrayString
