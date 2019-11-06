@@ -201,7 +201,7 @@ import Data.Word
 -- Specifying up to 4 dimensions is allowed (anything high is ignored).
 
 -- $laws
--- Every 'Array' is an instance of 'Eq', 'Ord', 'Num', 'Fractional', 'Floating'
+-- Every 'Array' is an instance of 'Eq', 'Num', 'Fractional', 'Floating'
 --
 -- 'Num'
 --
@@ -240,12 +240,6 @@ import Data.Word
 -- >>> scalar @Double 1 [10] /= scalar @Double 1 [10]
 -- False
 --
--- 'Ord'
---
--- >>> scalar @Double 1 [10] < scalar @Double 1 [10]
--- False
--- >>> scalar @Double 1 [10] > scalar @Double 1 [10]
--- False
 --
 -- 'Floating'
 --
