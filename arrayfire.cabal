@@ -1,5 +1,5 @@
 name:                arrayfire
-version:             0.3.0.0
+version:             0.4.0.0
 synopsis:            Haskell bindings to the ArrayFire general-purpose GPU library
 homepage:            https://github.com/arrayfire/arrayfire-haskell
 license:             BSD3
