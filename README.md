@@ -73,9 +73,11 @@ nix-shell --run docs
 
 ## Example
 ```haskell
+{-# LANGUAGE TypeApplications, ScopedTypeVariables #-}
 module Main where
 
 import qualified ArrayFire as A
+import           Control.Exception (catch)
 
 main :: IO ()
 main = print newArray `catch` (\(e :: A.AFException) -> print e)
