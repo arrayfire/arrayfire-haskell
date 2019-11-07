@@ -12,7 +12,7 @@
 
 
 ## Installation
-Install `ArraryFire` via the download page.
+Install `ArrayFire` via the download page.
   - https://arrayfire.com/download/
 
 `ArrayFire` can also be fetched from [nixpkgs](https://github.com/nixos/nixpkgs) `master`.
