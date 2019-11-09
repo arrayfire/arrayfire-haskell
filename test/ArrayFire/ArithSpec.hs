@@ -31,14 +31,15 @@ spec =
       3 `shouldBe` cbrt @Double 27
     it "Should take square root" $ do
       2 `shouldBe` sqrt @Double 4
-    it "Should lt Array" $ do
-      2 < (3 :: Array Double) `shouldBe` True
+
     it "Should lte Array" $ do
-      2 <= (3 :: Array Double) `shouldBe` True
+      2 `le` (3 :: Array Double) `shouldBe` 1
     it "Should gte Array" $ do
-      2 >= (3 :: Array Double) `shouldBe` False
+      2 `ge` (3 :: Array Double) `shouldBe` 0
     it "Should gt Array" $ do
-      2 > (3 :: Array Double) `shouldBe` False
+      2 `gt` (3 :: Array Double) `shouldBe` 0
+    it "Should lt Array" $ do
+      2 `le` (3 :: Array Double) `shouldBe` 1
     it "Should eq Array" $ do
       3 == (3 :: Array Double) `shouldBe` True
     it "Should and Array" $ do

@@ -24,30 +24,26 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
 
-import ArrayFire.Array
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Types
-
-import Foreign.C.Types
-import Data.Word
 
 -- | Sum all of the elements in 'Array' along the specified dimension
 --
 -- >>> A.sum (A.vector @Double 10 [1..]) 0
 -- 55.0
 --
--- >>> A.sum (A.matrix @Double (10,10) [[2..],[2..]]) 0
+-- >>> A.matrix @Double (10,10) $ replicate 10 [1..]
 -- 65.0
 sum
   :: AFType a
   => Array a
   -- ^ Array to sum
   -> Int
-  -- ^ Dimension along which to perform sum
-  -> a
+  -- ^ 0-based Dimension along which to perform sum
+  -> Array a
   -- ^ Will return the sum of all values in the input array along the specified dimension
-sum x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_sum p a n))
+sum x (fromIntegral -> n) = (x `op1` (\p a -> af_sum p a n))
 
 -- | Sum all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
@@ -61,9 +57,9 @@ sumNaN
   -- ^ Dimension along which to perform sum
   -> Double
   -- ^ Default value to use in the case of NaN
-  -> a
+  -> Array a
   -- ^ Will return the sum of all values in the input array along the specified dimension, substituted with the default value
-sumNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_sum_nan p a i d))
+sumNaN n (fromIntegral -> i) d = (n `op1` (\p a -> af_sum_nan p a i d))
 
 -- | Product all of the elements in 'Array' along the specified dimension
 --
@@ -75,9 +71,9 @@ product
   -- ^ Array to product
   -> Int
   -- ^ Dimension along which to perform product
-  -> a
+  -> Array a
   -- ^ Will return the product of all values in the input array along the specified dimension
-product x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_product p a n))
+product x (fromIntegral -> n) = (x `op1` (\p a -> af_product p a n))
 
 -- | Product all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
@@ -91,9 +87,9 @@ productNaN
   -- ^ Dimension along which to perform product
   -> Double
   -- ^ Default value to use in the case of NaN
-  -> a
+  -> Array a
   -- ^ Will return the product of all values in the input array along the specified dimension, substituted with the default value
-productNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_product_nan p a i d))
+productNaN n (fromIntegral -> i) d = n `op1` (\p a -> af_product_nan p a i d)
 
 -- | Take the minimum of an 'Array' along a specific dimension
 --
@@ -105,9 +101,9 @@ min
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to retrieve the min element
-  -> a
+  -> Array a
   -- ^ Will contain the minimum of all values in the input array along dim
-min x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_min p a n))
+min x (fromIntegral -> n) = x `op1` (\p a -> af_min p a n)
 
 -- | Take the maximum of an 'Array' along a specific dimension
 --
@@ -119,9 +115,9 @@ max
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to retrieve the max element
-  -> a
+  -> Array a
   -- ^ Will contain the maximum of all values in the input array along dim
-max x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_max p a n))
+max x (fromIntegral -> n) = x `op1` (\p a -> af_max p a n)
 
 -- | Find if all elements in an 'Array' are 'True' along a dimension
 --
@@ -133,10 +129,10 @@ allTrue
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to see if all elements are True
-  -> Bool
+  -> Array a
   -- ^ Will contain the maximum of all values in the input array along dim
 allTrue x (fromIntegral -> n) =
-  toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_all_true p a n))
+  x `op1` (\p a -> af_all_true p a n)
 
 -- | Find if any elements in an 'Array' are 'True' along a dimension
 --
@@ -148,10 +144,10 @@ anyTrue
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to see if all elements are True
-  -> Bool
+  -> Array a
   -- ^ Returns if all elements are true
 anyTrue x (fromIntegral -> n) =
-  toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_any_true p a n))
+  (x `op1` (\p a -> af_any_true p a n))
 
 -- | Count elements in an 'Array' along a dimension
 --
@@ -163,9 +159,9 @@ count
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to count
-  -> Int
+  -> Array Int
   -- ^ Count of all elements along dimension
-count x (fromIntegral -> n) = fromIntegral $ getScalar @Word32 @a (x `op1` (\p a -> af_count p a n))
+count x (fromIntegral -> n) = x `op1d` (\p a -> af_count p a n)
 
 -- | Sum all elements in an 'Array' along all dimensions
 --
