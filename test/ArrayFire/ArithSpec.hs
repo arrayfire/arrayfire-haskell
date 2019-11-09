@@ -32,13 +32,7 @@ spec =
     it "Should take square root" $ do
       2 `shouldBe` sqrt @Double 4
     it "Should lt Array" $ do
-      2 < (3 :: Array Double) `shouldBe` True
-    it "Should lte Array" $ do
-      2 <= (3 :: Array Double) `shouldBe` True
-    it "Should gte Array" $ do
-      2 >= (3 :: Array Double) `shouldBe` False
-    it "Should gt Array" $ do
-      2 > (3 :: Array Double) `shouldBe` False
+      2 `le` (3 :: Array Double) `shouldBe` (1 :: Array CBool)
     it "Should eq Array" $ do
       3 == (3 :: Array Double) `shouldBe` True
     it "Should and Array" $ do
