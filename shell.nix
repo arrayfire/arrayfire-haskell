@@ -32,5 +32,9 @@ in
         cabal haddock
         open ./dist-newstyle/*/*/*/*/doc/html/arrayfire/index.html
       }
+      function upload-docs () {
+        cabal haddock --haddock-for-hackage
+        cabal upload -d dist-newstyle/arrayfire-*.*.*.*-docs.tar.gz --publish
+      }
     '';
   })
