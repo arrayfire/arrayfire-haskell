@@ -301,13 +301,13 @@ randu dims = rand @a dims af_randu
 
 -- | Generate random uniform 'Array'
 --
--- >>> randonUniform @Double [2,2] =<< getDefaultRandomEngine
+-- >>> randomUniform @Double [2,2] =<< getDefaultRandomEngine
 --
 -- @
 -- ArrayFire Array
 -- [2 2 1 1]
---    0.0655     0.5497
---    0.2864     0.3410
+--     0.6010     0.9806
+--     0.0278     0.2126
 -- @
 --
 randomUniform
@@ -322,13 +322,13 @@ randomUniform dims eng =
 
 -- | Generate random uniform 'Array'
 --
--- >>> randonNormal @Double [2,2] =<< getDefaultRandomEngine
+-- >>> randomNormal @Double [2,2] =<< getDefaultRandomEngine
 --
 -- @
 -- ArrayFire Array
 -- [2 2 1 1]
---   -1.1850    -0.2946
---   -0.7206    -0.6813
+--    -1.4394     0.1952
+--     0.7982    -0.9783
 -- @
 --
 randomNormal

@@ -7,6 +7,33 @@
 -- Maintainer  : David Johnson <djohnson.m@gmail.com>
 -- Stability   : Experimental
 -- Portability : GHC
+--
+-- LAPACK — Linear Algebra PACKage
+--
+-- @
+-- >>> (u,e,d) = svd (constant @Double [3,3] 10)
+-- >>> u
+-- ArrayFire Array
+-- [3 3 1 1]
+--    -0.5774     0.8165    -0.0000
+--    -0.5774    -0.4082    -0.7071
+--    -0.5774    -0.4082     0.7071
+--
+-- >>> e
+-- ArrayFire Array
+-- [3 1 1 1]
+--    30.0000
+--     0.0000
+--     0.0000
+--
+-- >>> d
+-- ArrayFire Array
+-- [3 3 1 1]
+--   -0.5774    -0.5774    -0.5774
+--   -0.8165     0.4082     0.4082
+--   -0.0000     0.7071    -0.7071
+--
+-- @
 --------------------------------------------------------------------------------
 module ArrayFire.LAPACK where
 
@@ -206,7 +233,7 @@ inverse a m =
 --   -> MatProp
 --   -> Array a
 -- pinverse a d m =
---   a `op1` (\x y  -> af_pinverse x y d (toMatProp m))
+--   op1 a (\x y  -> af_pinverse x y d (toMatProp m))
 
 -- | Find the rank of the input matrix
 --

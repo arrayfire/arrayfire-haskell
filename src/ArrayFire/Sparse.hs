@@ -106,13 +106,23 @@ createSparseArrayFromDense a s =
 -- [2 2 1 1]
 -- ArrayFire Array: Values
 -- [4 1 1 1]
---     1.0000     3.0000     2.0000     4.0000
+--     1.0000
+--     3.0000
+--     2.0000
+--     4.0000
+
 -- ArrayFire Array: RowIdx
 -- [3 1 1 1]
---          0          2          4
+--          0
+--          2
+--          4
+
 -- ArrayFire Array: ColIdx
 -- [4 1 1 1]
---          0          1          0          1
+--          0
+--          1
+--          0
+--          1
 --
 -- >>> sparseConvertTo array COO
 -- ArrayFire Array
@@ -120,13 +130,24 @@ createSparseArrayFromDense a s =
 -- [2 2 1 1]
 -- ArrayFire Array: Values
 -- [4 1 1 1]
---     1.0000     2.0000     3.0000     4.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
+
 -- ArrayFire Array: RowIdx
 -- [4 1 1 1]
---          0          1          0          1
+--          0
+--          1
+--          0
+--          1
+
 -- ArrayFire Array: ColIdx
 -- [4 1 1 1]
---          0          0          1          1
+--          0
+--          0
+--          1
+--          1
 --
 sparseConvertTo
   :: (AFType a, Fractional a)
@@ -152,19 +173,23 @@ sparseConvertTo a s =
 -- [2 2 1 1]
 -- ArrayFire Array: Values
 -- [4 1 1 1]
---     1.0000     3.0000     2.0000     4.0000
+--     1.0000
+--     3.0000
+--     2.0000
+--     4.0000
+--
 -- ArrayFire Array: RowIdx
 -- [3 1 1 1]
---          0          2          4
+--          0
+--          2
+--          4
+--
 -- ArrayFire Array: ColIdx
 -- [4 1 1 1]
---          0          1          0          1
---
--- >>> sparseToDense array
--- ArrayFire Array
--- [2 2 1 1]
---     1.0000     2.0000
---     3.0000     4.0000
+--          0
+--          1
+--          0
+--          1
 --
 sparseToDense
   :: (AFType a, Fractional a)
@@ -182,17 +207,25 @@ sparseToDense = (`op1` af_sparse_to_dense)
 -- >>> values
 -- ArrayFire Array
 -- [4 1 1 1]
---    1.0000     3.0000     2.0000     4.0000
+--     1.0000
+--     3.0000
+--     2.0000
+--     4.0000
 --
 -- >>> cols
 -- ArrayFire Array
 -- [3 1 1 1]
---         0          2          4
+--          0
+--          2
+--          4
 --
 -- >>> rows
 -- ArrayFire Array
 -- [4 1 1 1]
---         0          1          0          1
+--          0
+--          1
+--          0
+--          1
 --
 -- >>> storage
 -- CSR
@@ -215,7 +248,10 @@ sparseGetInfo x = do
 -- >>> sparseGetValues (createSparseArrayFromDense (matrix @Double (2,2) [[1,2],[3,4]]) CSR)
 -- ArrayFire Array
 -- [4 1 1 1]
---    1.0000     3.0000     2.0000     4.0000
+--     1.0000
+--     3.0000
+--     2.0000
+--     4.0000
 --
 sparseGetValues
   :: (AFType a, Fractional a)
@@ -233,7 +269,9 @@ sparseGetValues = (`op1` af_sparse_get_values)
 -- >>> sparseGetRowIdx (createSparseArrayFromDense (matrix @Double (2,2) [[1,2],[3,4]]) CSR)
 -- ArrayFire Array
 -- [3 1 1 1]
---         0          2          4
+--          0
+--          2
+--          4
 --
 sparseGetRowIdx
   :: (AFType a, Fractional a)
@@ -251,7 +289,10 @@ sparseGetRowIdx = (`op1` af_sparse_get_row_idx)
 -- >>> sparseGetColIdx (createSparseArrayFromDense (matrix @Double (2,2) [[1,2],[3,4]]) CSR)
 -- ArrayFire Array
 -- [4 1 1 1]
---         0          1          0          1
+--          0
+--          1
+--          0
+--          1
 --
 sparseGetColIdx
   :: (AFType a, Fractional a)
@@ -292,4 +333,3 @@ sparseGetNNZ
   -> Int
 sparseGetNNZ a =
   fromIntegral (a `infoFromArray` af_sparse_get_nnz)
-
