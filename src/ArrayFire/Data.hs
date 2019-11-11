@@ -16,6 +16,16 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for populating 'Array' with Data.
+--
+-- @
+-- >>> constant @Double [2,2] 2.0
+--  ArrayFire Array
+-- [2 2 1 1]
+--    2.0000     2.0000
+--    2.0000     2.0000
+-- @
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Data where
 
@@ -184,7 +194,16 @@ constant dims val =
 -- >>> range @Double [10] (-1)
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000
+--     0.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
 range
   :: forall a
    . AFType a
@@ -211,19 +230,20 @@ range dims (fromIntegral -> k) = unsafePerformIO $ do
 -- >>> iota @Double [5,3] []
 -- ArrayFire Array
 -- [5 3 1 1]
---    0.0000     1.0000     2.0000     3.0000     4.0000
---    5.0000     6.0000     7.0000     8.0000     9.0000
---   10.0000    11.0000    12.0000    13.0000    14.0000
+--     0.0000     5.0000    10.0000
+--     1.0000     6.0000    11.0000
+--     2.0000     7.0000    12.0000
+--     3.0000     8.0000    13.0000
+--     4.0000     9.0000    14.0000
 --
 -- >>> iota @Double [5,3] [1,2]
 -- ArrayFire Array
 -- [5 6 1 1]
---  0.0000     1.0000     2.0000     3.0000     4.0000
---  5.0000     6.0000     7.0000     8.0000     9.0000
--- 10.0000    11.0000    12.0000    13.0000    14.0000
---  0.0000     1.0000     2.0000     3.0000     4.0000
---  5.0000     6.0000     7.0000     8.0000     9.0000
--- 10.0000    11.0000    12.0000    13.0000    14.0000
+--     0.0000     5.0000    10.0000     0.0000     5.0000    10.0000
+--     1.0000     6.0000    11.0000     1.0000     6.0000    11.0000
+--     2.0000     7.0000    12.0000     2.0000     7.0000    12.0000
+--     3.0000     8.0000    13.0000     3.0000     8.0000    13.0000
+--     4.0000     9.0000    14.0000     4.0000     9.0000    14.0000
 iota
   :: forall a . AFType a
   => [Int]
@@ -297,7 +317,8 @@ diagCreate x (fromIntegral -> n) =
 -- >>> diagExtract (matrix @Double (2,2) [[1,2],[3,4]]) 0
 -- ArrayFire Array
 -- [2 1 1 1]
---    1.0000     4.0000
+--     1.0000
+--     4.0000
 diagExtract
   :: AFType (a :: *)
   => Array a
@@ -311,8 +332,10 @@ diagExtract x (fromIntegral -> n) =
 -- >>> join 0 (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[5,6],[7,8]])
 -- ArrayFire Array
 -- [4 2 1 1]
---    1.0000     2.0000     5.0000     6.0000
---    3.0000     4.0000     7.0000     8.0000
+--     1.0000     3.0000
+--     2.0000     4.0000
+--     5.0000     7.0000
+--     6.0000     8.0000
 --
 join
   :: Int
@@ -394,7 +417,10 @@ reorder _ _ = error "impossible"
 -- >>> shift (vector @Double 4 [1..]) 2 0 0 0
 -- ArrayFire Array
 -- [4 1 1 1]
---    3.0000     4.0000     1.0000     2.0000
+--     3.0000
+--     4.0000
+--     1.0000
+--     2.0000
 --
 shift
   :: Array (a :: *)
@@ -411,9 +437,7 @@ shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegra
 -- >>> moddims (vector @Double 3 [1..]) [1,3]
 -- ArrayFire Array
 -- [1 3 1 1]
---    1.0000
---    2.0000
---    3.0000
+--     1.0000     2.0000     3.0000
 --
 moddims
   :: forall a
@@ -436,12 +460,22 @@ moddims (Array fptr) dims =
 -- >>> flat (matrix @Double (2,2) [[1..],[1..]])
 -- ArrayFire Array
 -- [4 1 1 1]
---    1.0000     2.0000     1.0000     2.0000
+--     1.0000
+--     2.0000
+--     1.0000
+--     2.0000
 --
 -- >>> flat $ cube @Int (2,2,2) [[[1,1],[1,1]],[[1,1],[1,1]]]
 -- ArrayFire Array
 -- [8 1 1 1]
---     1          1          1          1          1          1          1          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
 --
 flat
   :: Array a
@@ -453,14 +487,14 @@ flat = (`op1` af_flat)
 -- >>> matrix @Double (2,2) [[2,2],[3,3]]
 -- ArrayFire Array
 -- [2 2 1 1]
---    2.0000     2.0000
---    3.0000     3.0000
+--     2.0000     3.0000
+--     2.0000     3.0000
 --
 -- >>> A.flip (matrix @Double (2,2) [[2,2],[3,3]]) 1
 -- ArrayFire Array
 -- [2 2 1 1]
---    3.0000     3.0000
---    2.0000     2.0000
+--     3.0000     2.0000
+--     3.0000     2.0000
 --
 flip
   :: Array a
@@ -474,8 +508,8 @@ flip a (fromIntegral -> dim) =
 -- >>> lower (constant [2,2] 10 :: Array Double) True
 -- ArrayFire Array
 -- [2 2 1 1]
---    1.0000    10.0000
---    0.0000     1.0000
+--     1.0000     0.0000
+--    10.0000     1.0000
 --
 lower
   :: Array a
@@ -491,8 +525,8 @@ lower a (fromIntegral . fromEnum -> b) =
 -- >>> upper (constant [2,2] 10 :: Array Double) True
 -- ArrayFire Array
 -- [2 2 1 1]
---    1.0000     0.0000
---   10.0000     1.0000
+--    1.0000     10.0000
+--    0.0000     1.0000
 --
 upper
   :: Array a
@@ -509,7 +543,11 @@ upper a (fromIntegral . fromEnum -> b) =
 -- >>> select cond arr1 arr2
 -- ArrayFire Array
 -- [5 1 1 1]
---    1.0000     2.0000     1.0000     2.0000     1.0000
+--     1.0000
+--     2.0000
+--     1.0000
+--     2.0000
+--     1.0000
 --
 select
   :: Array CBool
@@ -529,10 +567,14 @@ select a b c = op3 a b c af_select
 -- >>> cond = vector @CBool 5 [1,0,1,0,1]
 -- >>> arr1 = vector @Double 5 (repeat 1)
 -- >>> x = 99
--- >>> selectScalarR cond x arr1
+-- >>> selectScalarR cond arr1 x
 -- ArrayFire Array
 -- [5 1 1 1]
---    1.0000    99.0000     1.0000    99.0000     1.0000
+--     1.0000
+--    99.0000
+--     1.0000
+--    99.0000
+--     1.0000
 --
 selectScalarR
   :: Array CBool
@@ -555,7 +597,11 @@ selectScalarR a b c = op2 a b (\p w x -> af_select_scalar_r p w x c)
 -- >>> selectScalarL cond x arr1
 -- ArrayFire Array
 -- [5 1 1 1]
---   99.0000     1.0000    99.0000     1.0000    99.0000
+--    99.0000
+--     1.0000
+--    99.0000
+--     1.0000
+--    99.0000
 --
 selectScalarL
   :: Array CBool

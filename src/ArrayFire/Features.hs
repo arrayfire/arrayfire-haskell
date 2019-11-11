@@ -8,6 +8,12 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for constructing and querying 'Features'
+--
+-- @
+-- >>> createFeatures 10
+-- @
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Features where
 
@@ -23,7 +29,7 @@ import ArrayFire.Exception
 
 -- | Construct Features
 --
--- >>> features = createFeatures (createFeatures 10)
+-- >>> features = createFeatures 10
 --
 createFeatures
   :: Int
@@ -63,8 +69,16 @@ getFeaturesNum = fromIntegral . (`infoFromFeatures` af_get_features_num)
 -- >>> getFeaturesXPos (createFeatures 10)
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     0.0000     0.0000     0.0000     0.0000     2.1250     0.0000     2.2500     0.0000     0.0000
---
+--     0.0000
+--     1.8750
+--     0.0000
+--     2.3750
+--     0.0000
+--     2.5938
+--     0.0000
+--     2.0000
+--     0.0000
+--     2.4375
 getFeaturesXPos
   :: Features
   -> Array a
@@ -75,8 +89,16 @@ getFeaturesXPos = (`featuresToArray` af_get_features_xpos)
 -- >>> getFeaturesYPos (createFeatures 10)
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
---
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 getFeaturesYPos
   :: Features
   -> Array a
@@ -87,8 +109,16 @@ getFeaturesYPos = (`featuresToArray` af_get_features_ypos)
 -- >>> getFeaturesScore (createFeatures 10)
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     1.8750     0.0000     2.0000     0.0000     2.1250     0.0000     2.2500        nan        nan
---
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 getFeaturesScore
   :: Features
   -> Array a
@@ -99,8 +129,16 @@ getFeaturesScore = (`featuresToArray` af_get_features_score)
 -- >>> getFeaturesOrientation (createFeatures 10)
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     1.8750     0.0000     2.0000     0.0000     2.1250     0.0000     2.2500     0.0000     0.0000
---
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 getFeaturesOrientation
   :: Features
   -> Array a
@@ -111,8 +149,16 @@ getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
 -- >>> getFeaturesSize (createFeatures 10)
 -- ArrayFire Array
 -- [10 1 1 1]
---       nan        nan        nan        nan        nan        nan        nan        nan        nan        nan
---
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 getFeaturesSize
   :: Features
   -> Array a

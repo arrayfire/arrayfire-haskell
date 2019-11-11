@@ -8,6 +8,12 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for displaying 'Array' graphically.
+--
+-- @
+-- >>> window <- createWindow 800 600 "New Chart"
+-- @
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Graphics where
 
@@ -98,7 +104,7 @@ setSize w (fromIntegral -> x) (fromIntegral -> y) =
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__gfx__func__draw.htm)
 --
 -- >>> drawImage window ('constant' \@'Int' 1) ('Cell' 10 10 "test" 'ColorMapSpectrum')
--- 
+--
 drawImage
   :: Window
   -- ^ 'Window' handle
@@ -355,7 +361,7 @@ drawScatter3d
   -> Array a
   -- ^ is an af_array with the y-axis data points
   -> Array a
-  -- ^ is an af_array with the z-axis data points  
+  -- ^ is an af_array with the z-axis data points
   -> MarkerType
   -- ^ is an af_marker_type enum specifying which marker to use in the scatter plot
   -> Cell

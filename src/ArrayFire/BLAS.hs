@@ -15,18 +15,18 @@
 -- main = print (matmul x y xProp yProp)
 --  where
 --     x,y :: Array Double
---     x = matrix (2,3) [1..]
---     y = matrix (3,2) [1..]
+--     x = matrix (2,3) [[1,2],[3,4],[5,6]]
+--     y = matrix (3,2) [[1,2,3],[4,5,6]]
 --
 --     xProp, yProp :: MatProp
 --     xProp = None
 --     yProp = None
 -- @
 -- @
--- ArrayFire Array
--- [2 2 1 1]
---   22.0000    28.0000
---   49.0000    64.0000
+--  ArrayFire Array
+--  [2 2 1 1]
+--     22.0000    49.0000
+--     28.0000    64.0000
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.BLAS where
@@ -52,8 +52,8 @@ import ArrayFire.Internal.Types
 -- >>> matmul (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[1,2],[3,4]]) None None
 -- ArrayFire Array
 -- [2 2 1 1]
---    7.0000    10.0000
---   15.0000    22.0000
+--     7.0000    15.0000
+--    10.0000    22.0000
 matmul
   :: Array a
   -- ^ 2D matrix of Array a, left-hand side
@@ -111,18 +111,19 @@ dotAll arr1 arr2 prop1 prop2 = do
 
 -- | Transposes a matrix.
 --
--- >>> matrix @Double (2,3) [[2,3,4],[4,5,6]]
+-- >>> array = matrix @Double (2,3) [[2,3],[3,4],[5,6]]
+-- >>> array
 -- ArrayFire Array
 -- [2 3 1 1]
---    2.0000     3.0000
---    4.0000     4.0000
---    5.0000     6.0000
+--     2.0000     3.0000     5.0000
+--     3.0000     4.0000     6.0000
 --
--- >>> transpose (matrix @Double (2,3) [[2,3,4],[4,5,6]]) True
+-- >>> transpose array True
 -- ArrayFire Array
 -- [3 2 1 1]
---    2.0000     4.0000     5.0000
---    3.0000     4.0000     6.0000
+--     2.0000     3.0000
+--     3.0000     4.0000
+--     5.0000     6.0000
 --
 transpose
   :: Array a
@@ -138,9 +139,20 @@ transpose arr1 (fromIntegral . fromEnum -> b) =
 --
 -- * Warning: This function mutates an array in-place, all subsequent references will be changed. Use carefully.
 --
--- >>> array = matrix @Double (2,2) [[1..2],[3..4]]
+-- >>> array = matrix @Double (2,2) [[1,2],[3,4]]
+-- >>> array
+-- ArrayFire Array
+-- [3 2 1 1]
+--    1.0000     4.0000
+--    2.0000     5.0000
+--    3.0000     6.0000
+--
 -- >>> transposeInPlace array False
--- ()
+-- >>> array
+-- ArrayFire Array
+-- [2 2 1 1]
+--    1.0000     2.0000
+--    3.0000     4.0000
 --
 transposeInPlace
   :: Array a

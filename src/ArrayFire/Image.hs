@@ -10,6 +10,12 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for loading and manipulating images with 'Array'
+--
+-- @
+-- >>> image <- 'loadImage' "image.png" True
+-- @
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Image where
 
@@ -380,7 +386,7 @@ minFilt
 minFilt in' (fromIntegral -> a) (fromIntegral -> b) (fromBorderType -> c) =
   in' `op1` (\ptr k -> af_minfilt ptr k a b c)
 
--- | Find maximum value from a window. 
+-- | Find maximum value from a window.
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__image__func__maxfilt.htm)
 --
@@ -518,7 +524,7 @@ gaussianKernel (fromIntegral -> i1) (fromIntegral -> i2) d1 d2 =
 -- C Interface for converting HSV to RGB.
 --
 -- *Note* input must be three dimensional
--- 
+--
 hsv2rgb
   :: Array a
   -- ^ is an array in the HSV color space
@@ -657,7 +663,7 @@ rgb2ycbcr
 rgb2ycbcr a y = a `op1` (\p k -> af_rgb2ycbcr p k (fromAFYccStd y))
 
 -- | Finding different properties of image regions.
--- 
+--
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__image__func__moments.htm)
 --
 -- C Interface for calculating image moment(s) of a single image.
@@ -673,7 +679,7 @@ moments in' m =
   in' `op1` (\p k -> af_moments p k (fromMomentType m))
 
 -- | Finding different properties of image regions.
--- 
+--
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__image__func__moments.htm)
 --
 -- C Interface for calculating image moment(s) of a single image.
@@ -689,7 +695,7 @@ momentsAll in' m =
   in' `infoFromArray` (\p a -> af_moments_all p a (fromMomentType m))
 
 -- | Canny Edge Detector
--- 
+--
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__image__func__canny.htm)
 --
 -- The Canny edge detector is an edge detection operator that uses a multi-stage algorithm to detect a wide range of edges in images.
@@ -713,7 +719,7 @@ canny in' (fromCannyThreshold -> canny') low high (fromIntegral -> window) (from
   in' `op1` (\p a -> af_canny p a canny' low high window fast)
 
 -- | Anisotropic Smoothing Filter.
--- 
+--
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__image__func__anisotropic__diffusion.htm)
 --
 -- C Interface for anisotropic diffusion.
