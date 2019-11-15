@@ -248,8 +248,10 @@ import Data.Word
 -- [1 1 1 1]
 --   10.0000
 --
--- >>> negate (scalar @Double 1 [10])
--- -10.0
+-- >>> negate (scalar @Double 10)
+-- ArrayFire Array
+-- [1 1 1 1]
+--   -10.0000
 --
 -- >>> fromInteger 1.0 :: Array Double
 -- ArrayFire Array
