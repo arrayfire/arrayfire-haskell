@@ -55,7 +55,8 @@ import ArrayFire.Internal.Types
 --     7.0000    15.0000
 --    10.0000    22.0000
 matmul
-  :: Array a
+  :: AFType a
+  => Array a
   -- ^ 2D matrix of Array a, left-hand side
   -> Array a
   -- ^ 2D matrix of Array a, right-hand side
@@ -75,7 +76,8 @@ matmul arr1 arr2 prop1 prop2 = do
 -- [1 1 1 1]
 --   385.0000
 dot
-  :: Array a
+  :: AFType a
+  => Array a
   -- ^ Left-hand side input
   -> Array a
   -- ^ Right-hand side input
@@ -93,7 +95,8 @@ dot arr1 arr2 prop1 prop2 =
 -- >>> dotAll (vector @Double 10 [1..]) (vector @Double 10 [1..]) None None
 -- 385.0 :+ 0.0
 dotAll
-  :: Array a
+  :: AFType a
+  => Array a
   -- ^ Left-hand side array
   -> Array a
   -- ^ Right-hand side array
@@ -126,7 +129,8 @@ dotAll arr1 arr2 prop1 prop2 = do
 --     5.0000     6.0000
 --
 transpose
-  :: Array a
+  :: AFType a
+  => Array a
   -- ^ Input matrix to be transposed
   -> Bool
   -- ^ Should perform conjugate transposition
@@ -155,7 +159,8 @@ transpose arr1 (fromIntegral . fromEnum -> b) =
 --    3.0000     4.0000
 --
 transposeInPlace
-  :: Array a
+  :: AFType a
+  => Array a
   -- ^ Input matrix to be transposed
   -> Bool
   -- ^ Should perform conjugate transposition
