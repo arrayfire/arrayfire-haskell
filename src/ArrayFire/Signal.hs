@@ -10,6 +10,19 @@
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__signal__func__fft.htm)
 --
+-- Functions performing signal processing on 'Array'
+--
+-- >>> input = vector 3 [10,20,30]
+-- >>> positions = vector 5 [0.0, 0.5, 1.0, 1.5, 2.0]
+-- >>> approx1 @Double input positions Cubic 0.0
+-- ArrayFire Array
+-- [5 1 1 1]
+--    10.0000
+--    13.7500
+--    20.0000
+--    26.2500
+--    30.0000
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Signal where
 
@@ -30,8 +43,11 @@ import ArrayFire.Internal.Types
 -- >>> approx1 @Double input positions Cubic 0.0
 -- ArrayFire Array
 -- [5 1 1 1]
---   10.0000    13.7500    20.0000    26.2500    30.0000
---
+--    10.0000
+--    13.7500
+--    20.0000
+--    26.2500
+--    30.0000
 approx1
   :: AFType a
   => Array a
@@ -59,8 +75,8 @@ approx1 arr1 arr2 (fromInterpType -> i1) f =
 -- >>> approx2 @Double input positions1 positions2 Cubic 0.0
 -- ArrayFire Array
 -- [2 2 1 1]
---    1.3750     1.3750
---    2.6250     2.6250
+--     1.3750     2.6250
+--     1.3750     2.6250
 --
 approx2
   :: AFType a
@@ -119,10 +135,17 @@ approx2 arr1 arr2 arr3 (fromInterpType -> i1) f =
 --
 -- >>> fft (vector @Double 10 [1..]) 2.0 10
 -- ArrayFire Array
--- [2 2 1 1]
---    1.3750     1.3750 
---    2.6250     2.6250
---
+-- [10 1 1 1]
+--          (110.0000,0.0000)
+--          (-10.0000,30.7768)
+--          (-10.0000,13.7638)
+--          (-10.0000,7.2654)
+--          (-10.0000,3.2492)
+--          (-10.0000,0.0000)
+--          (-10.0000,-3.2492)
+--          (-10.0000,-7.2654)
+--          (-10.0000,-13.7638)
+--          (-10.0000,-30.7768)
 fft
   :: (AFType a, Fractional a)
   => Array a
@@ -143,7 +166,7 @@ fft a d (fromIntegral -> x) =
 -- C Interface for fast fourier transform on one dimensional signals.
 --
 -- *Note* The input in must be a complex array
--- 
+--
 fftInPlace
   :: (AFType a, Fractional a)
   => Array (Complex a)
@@ -158,7 +181,7 @@ fftInPlace a d = a `inPlace` (flip af_fft_inplace d)
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__signal__func__fft2.htm#gaab3fb1ed398e208a615036b4496da611)
 --
 -- C Interface for fast fourier transform on two dimensional signals.
--- 
+--
 fft2
   :: AFType a
   => Array a
@@ -181,7 +204,7 @@ fft2 a d x y =
 -- C Interface for fast fourier transform on two dimensional signals.
 --
 -- *Note* The input in must be a complex array
--- 
+--
 fft2_inplace
   :: (Fractional a, AFType a)
   => Array (Complex a)
@@ -196,7 +219,7 @@ fft2_inplace a d = a `inPlace` (flip af_fft2_inplace d)
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__signal__func__fft3.htm#ga5138ef1740ece0fde2c796904d733c12)
 --
 -- C Interface for fast fourier transform on three dimensional signals.
--- 
+--
 fft3
   :: AFType a
   => Array a
@@ -221,7 +244,7 @@ fft3 a d x y z =
 -- C Interface for fast fourier transform on three dimensional signals.
 --
 -- *Note* The input in must be a complex array
--- 
+--
 fft3_inplace
   :: (Fractional a, AFType a)
   => Array (Complex a)
@@ -568,7 +591,7 @@ convolve2Sep a b c (toConvMode -> d) = op3 a b c (\x y z j -> af_convolve2_sep x
 -- fftConvolve1 a b (toConvMode -> c) = op2 a b (\x y z -> af_fft_convolve1 x y z c)
 
 -- | 2D Convolution using Fast Fourier Transform
---  
+--
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__signal__func__fft__convolve2.htm#gab52ebe631d8358cdef1b5c8a95550556)
 --
 -- A convolution is a common operation between a source array, a, and a filter (or kernel) array b. The answer to the convolution is the same as computing the coefficients in polynomial multiplication, if a and b are the coefficients.
@@ -588,7 +611,7 @@ fftConvolve2
 fftConvolve2 a b (toConvMode -> c) = op2 a b (\x y z -> af_fft_convolve2 x y z c)
 
 -- | 3D Convolution using Fast Fourier Transform
---  
+--
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__signal__func__fft__convolve3.htm)
 --
 -- A convolution is a common operation between a source array, a, and a filter (or kernel) array b. The answer to the convolution is the same as computing the coefficients in polynomial multiplication, if a and b are the coefficients.

@@ -20,7 +20,10 @@
 --
 -- main :: IO ()
 -- main = print $ A.scalar \@Int 1 \`A.add\` A.scalar \@Int 1
--- -- 2
+--
+-- -- ArrayFire Array
+-- -- [1 1 1 1]
+-- --        2
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
@@ -34,6 +37,8 @@ import Data.Complex
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
 import ArrayFire.Internal.Types
+
+import Foreign.C.Types
 
 -- | Adds two 'Array' objects
 --
@@ -131,7 +136,6 @@ mul x y = do
 
 -- | Multiply two 'Array' objects
 --
---
 -- >>> (A.scalar @Int 2 `mulBatched` A.scalar @Int 2) True
 -- ArrayFire Array
 -- [1 1 1 1]
@@ -194,18 +198,16 @@ divBatched x y (fromIntegral . fromEnum -> batch) = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         0
--- >>> A.scalar @Int 1 < A.scalar @Int 1
--- False
 lt
   :: AFType a
   => Array a
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than
 lt x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_lt arr arr1 arr2 1
 
 -- | Test if on 'Array' is less than another 'Array'
@@ -214,8 +216,6 @@ lt x y = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         0
--- >>> A.scalar @Int 1 < A.scalar @Int 1
--- False
 ltBatched
   :: AFType a
   => Array a
@@ -224,10 +224,10 @@ ltBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than
 ltBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_lt arr arr1 arr2 batch
 
 -- | Test if an 'Array' is greater than another 'Array'
@@ -236,24 +236,24 @@ ltBatched x y (fromIntegral . fromEnum -> batch) = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         0
--- >>> A.scalar @Int 1 > A.scalar @Int 2
--- False
 gt
   :: AFType a
   => Array a
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of gt
 gt x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_gt arr arr1 arr2 1
 
 -- | Test if an 'Array' is greater than another 'Array'
 --
 -- >>> (A.scalar @Int 1 `gtBatched` A.scalar @Int 1) True
--- False
+-- ArrayFire Array
+-- [1 1 1 1]
+--          0
 gtBatched
   :: AFType a
   => Array a
@@ -262,10 +262,10 @@ gtBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of gt
 gtBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_gt arr arr1 arr2 batch
 
 -- | Test if one 'Array' is less than or equal to another 'Array'
@@ -274,18 +274,16 @@ gtBatched x y (fromIntegral . fromEnum -> batch) = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         1
--- >>> A.scalar @Int 1 <= A.scalar @Int 1
--- False
 le
   :: AFType a
   => Array a
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than or equal
 le x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_le arr arr1 arr2 1
 
 -- | Test if one 'Array' is less than or equal to another 'Array'
@@ -294,8 +292,6 @@ le x y = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         1
--- >>> A.scalar @Int 1 <= A.scalar @Int 1
--- True
 leBatched
   :: AFType a
   => Array a
@@ -304,10 +300,10 @@ leBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of less than or equal
 leBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_le arr arr1 arr2 batch
 
 -- | Test if one 'Array' is greater than or equal to another 'Array'
@@ -316,24 +312,24 @@ leBatched x y (fromIntegral . fromEnum -> batch) = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         1
--- >>> A.scalar @Int 1 >= A.scalar @Int 1
--- True
 ge
   :: AFType a
   => Array a
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of greater than or equal
 ge x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 1
 
 -- | Test if one 'Array' is greater than or equal to another 'Array'
 --
---
 -- >>> (A.scalar @Int 1 `A.geBatched` A.scalar @Int 1) True
+-- ArrayFire Array
+-- [1 1 1 1]
+--          1
 --
 geBatched
   :: AFType a
@@ -343,10 +339,10 @@ geBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of greater than or equal
 geBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_ge arr arr1 arr2 batch
 
 -- | Test if one 'Array' is equal to another 'Array'
@@ -355,24 +351,24 @@ geBatched x y (fromIntegral . fromEnum -> batch) = do
 -- ArrayFire Array
 -- [1 1 1 1]
 --         1
---
--- >>> A.scalar @Int 1 == A.scalar @Int 1
--- True
 eq
   :: AFType a
   => Array a
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of equal
 eq x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_eq arr arr1 arr2 1
 
 -- | Test if one 'Array' is equal to another 'Array'
 --
 -- >>> (A.scalar @Int 1 `A.eqBatched` A.scalar @Int 1) True
+-- ArrayFire Array
+-- [1 1 1 1]
+--          1
 --
 eqBatched
   :: AFType a
@@ -382,36 +378,36 @@ eqBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of equal
 eqBatched x y (fromIntegral . fromEnum -> batch) =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_eq arr arr1 arr2 batch
 
 -- | Test if one 'Array' is not equal to another 'Array'
 --
 -- >>> A.scalar @Int 1 `A.neq` A.scalar @Int 1
 -- ArrayFire Array
---[1 1 1 1]
+-- [1 1 1 1]
 --         0
--- >>> A.scalar @Int 1 /= A.scalar @Int 1
--- False
 neq
   :: AFType a
   => Array a
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of not equal
 neq x y =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_neq arr arr1 arr2 1
 
 -- | Test if one 'Array' is not equal to another 'Array'
 --
 -- >>> (A.scalar @Int 1 `A.neqBatched` A.scalar @Int 1) True
--- False
+-- ArrayFire Array
+-- [1 1 1 1]
+--          0
 neqBatched
   :: AFType a
   => Array a
@@ -420,10 +416,10 @@ neqBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of not equal
 neqBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_neq arr arr1 arr2 batch
 
 -- | Logical 'and' one 'Array' with another
@@ -439,10 +435,10 @@ and
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of and
 and x y =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_and arr arr1 arr2 1
 
 -- | Logical 'and' one 'Array' with another
@@ -459,10 +455,10 @@ andBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of and
 andBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_and arr arr1 arr2 batch
 
 -- | Logical 'or' one 'Array' with another
@@ -478,14 +474,13 @@ or
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of or
 or x y =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_or arr arr1 arr2 1
 
 -- | Logical 'or' one 'Array' with another
---
 --
 -- >>> (A.scalar @Int 1 `A.orBatched` A.scalar @Int 1) True
 -- ArrayFire Array
@@ -499,10 +494,10 @@ orBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of or
 orBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_or arr arr1 arr2 batch
 
 -- | Not the values of an 'Array'
@@ -515,9 +510,9 @@ not
   :: AFType a
   => Array a
   -- ^ Input 'Array'
-  -> Array a
+  -> Array CBool
   -- ^ Result of 'not' on an 'Array'
-not = flip op1 af_not
+not = flip op1d af_not
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
 --
@@ -531,10 +526,10 @@ bitAnd
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of bitwise and
 bitAnd x y =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 1
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
@@ -551,10 +546,10 @@ bitAndBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of bitwise and
 bitAndBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 batch
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
@@ -569,10 +564,10 @@ bitOr
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit or
 bitOr x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 1
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
@@ -589,10 +584,10 @@ bitOrBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit or
 bitOrBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 batch
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
@@ -607,10 +602,10 @@ bitXor
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit xor
 bitXor x y = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 1
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
@@ -627,10 +622,10 @@ bitXorBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit xor
 bitXorBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 batch
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
@@ -645,10 +640,10 @@ bitShiftL
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit shift left
 bitShiftL x y =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 1
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
@@ -665,10 +660,10 @@ bitShiftLBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit shift left
 bitShiftLBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
@@ -683,10 +678,10 @@ bitShiftR
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit shift right
 bitShiftR x y =
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 1
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
@@ -703,14 +698,13 @@ bitShiftRBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array CBool
   -- ^ Result of bit shift left
 bitShiftRBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2` y $ \arr arr1 arr2 ->
+  x `op2bool` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
 
 -- | Cast one 'Array' into another
---
 --
 -- >>> A.cast (A.scalar @Int 1) :: Array Double
 -- ArrayFire Array
@@ -788,7 +782,7 @@ maxOf x y =
 --
 -- >>> A.maxOfBatched (A.scalar @Int 1) (A.scalar @Int 0) False
 -- ArrayFire Array
---[1 1 1 1]
+-- [1 1 1 1]
 --         1
 maxOfBatched
   :: AFType a
@@ -805,7 +799,6 @@ maxOfBatched x y (fromIntegral . fromEnum -> batch) = do
     af_maxof arr arr1 arr2 batch
 
 -- | Should take the clamp
---
 --
 -- >>> clamp (A.scalar @Int 2) (A.scalar @Int 1) (A.scalar @Int 3)
 -- ArrayFire Array
@@ -851,7 +844,16 @@ clampBatched a b c (fromIntegral . fromEnum -> batch) =
 -- >>> A.rem (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         0          0          0          0          0          0          0          0          0          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
 rem
   :: AFType a
   => Array a
@@ -866,9 +868,19 @@ rem x y =
 
 -- | Find the remainder of two 'Array's
 --
---
--- >>> A.remBatched (A.vector @Int 10 [1..])  (vector @Int 10 [1..]) True
---
+-- >>> A.remBatched (A.vector @Int 10 [1..])  (vector @Int 10 [2..]) True
+-- ArrayFire Array
+-- [10 1 1 1]
+--          1
+--          2
+--          3
+--          4
+--          5
+--          6
+--          7
+--          8
+--          9
+--         10
 remBatched
   :: AFType a
   => Array a
@@ -887,8 +899,17 @@ remBatched x y (fromIntegral . fromEnum -> batch) = do
 --
 -- >>> A.mod (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
 -- ArrayFire Array
---[10 1 1 1]
---         0          0          0          0          0          0          0          0          0          0
+-- [10 1 1 1]
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
 mod
   :: AFType a
   => Array a
@@ -906,7 +927,16 @@ mod x y = do
 -- >>> A.modBatched (vector @Int 10 [1..]) (vector @Int 10 [1..]) True
 -- ArrayFire Array
 -- [10 1 1 1]
---         0          0          0          0          0          0          0          0          0          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
 modBatched
   :: AFType a
   => Array a
@@ -941,7 +971,16 @@ abs = flip op1 af_abs
 -- >>> A.arg (vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         0          0          0          0          0          0          0          0          0          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
 arg
   :: AFType a
   => Array a
@@ -955,7 +994,16 @@ arg = flip op1 af_arg
 -- >>> A.sign (vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---   0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
 sign
   :: AFType a
   => Array a
@@ -966,10 +1014,19 @@ sign = flip op1 af_sign
 
 -- | Round the values in an 'Array'
 --
--- >>> A.round (A.vector @Int 10 [1..])
+-- >>> A.round (A.vector @Double 10 [1.4,1.5..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--     1.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
 round
   :: AFType a
   => Array a
@@ -980,10 +1037,19 @@ round = flip op1 af_round
 
 -- | Truncate the values of an 'Array'
 --
--- >>> A.trunc (A.vector @Int 10 [1..])
+-- >>> A.trunc (A.vector @Double 10 [0.9,1.0..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--     0.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
 trunc
   :: AFType a
   => Array a
@@ -994,10 +1060,19 @@ trunc = flip op1 af_trunc
 
 -- | Take the floor of all values in an 'Array'
 --
--- >>> A.floor (A.vector @Int 10 [10,9..])
+-- >>> A.floor (A.vector @Double 10 [11.0,10.9..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--    11.0000
+--    10.0000
+--    10.0000
+--    10.0000
+--    10.0000
+--    10.0000
+--    10.0000
+--    10.0000
+--    10.0000
+--    10.0000
 floor
   :: AFType a
   => Array a
@@ -1008,10 +1083,19 @@ floor = flip op1 af_floor
 
 -- | Take the ceil of all values in an 'Array'
 --
--- >>> A.ceil (A.vector @Int 10 [1..])
+-- >>> A.ceil (A.vector @Double 10 [0.9,1.0..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--     1.0000
+--     1.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
+--     2.0000
 ceil
   :: AFType a
   => Array a
@@ -1025,7 +1109,16 @@ ceil = flip op1 af_ceil
 -- >>> A.sin (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.8415     0.9093     0.1411    -0.7568    -0.9589    -0.2794     0.6570     0.9894     0.4121    -0.5440
+--     0.8415
+--     0.9093
+--     0.1411
+--    -0.7568
+--    -0.9589
+--    -0.2794
+--     0.6570
+--     0.9894
+--     0.4121
+--    -0.5440
 sin
   :: AFType a
   => Array a
@@ -1039,7 +1132,16 @@ sin = flip op1 af_sin
 -- >>> A.cos (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.5403    -0.4161    -0.9900    -0.6536     0.2837     0.9602     0.7539    -0.1455    -0.9111    -0.8391
+--     0.5403
+--    -0.4161
+--    -0.9900
+--    -0.6536
+--     0.2837
+--     0.9602
+--     0.7539
+--    -0.1455
+--    -0.9111
+--    -0.8391
 cos
   :: AFType a
   => Array a
@@ -1053,7 +1155,16 @@ cos = flip op1 af_cos
 -- >>> A.tan (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.5574    -2.1850    -0.1425     1.1578    -3.3805    -0.2910     0.8714    -6.7997    -0.4523     0.6484
+--     1.5574
+--    -2.1850
+--    -0.1425
+--     1.1578
+--    -3.3805
+--    -0.2910
+--     0.8714
+--    -6.7997
+--    -0.4523
+--     0.6484
 tan
   :: AFType a
   => Array a
@@ -1067,7 +1178,16 @@ tan = flip op1 af_tan
 -- >>> A.asin (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.5708        nan        nan        nan        nan        nan        nan        nan        nan        nan
+--     1.5708
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 --
 asin
   :: AFType a
@@ -1082,7 +1202,16 @@ asin = flip op1 af_asin
 -- >>> A.acos (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000        nan        nan        nan        nan        nan        nan        nan        nan        nan
+--     0.0000
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 acos
   :: AFType a
   => Array a
@@ -1096,7 +1225,16 @@ acos = flip op1 af_acos
 -- >>> A.atan (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7854     1.1071     1.2490     1.3258     1.3734     1.4056     1.4289     1.4464     1.4601     1.4711
+--     0.7854
+--     1.1071
+--     1.2490
+--     1.3258
+--     1.3734
+--     1.4056
+--     1.4289
+--     1.4464
+--     1.4601
+--     1.4711
 atan
   :: AFType a
   => Array a
@@ -1107,10 +1245,19 @@ atan = flip op1 af_atan
 
 -- | Take the atan2 of all values in an 'Array'
 --
--- >>> A.atan2 (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
+-- >>> A.atan2 (A.vector @Double 10 [1..]) (A.vector @Double 10 [2..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854
+--     0.4636
+--     0.5880
+--     0.6435
+--     0.6747
+--     0.6947
+--     0.7086
+--     0.7188
+--     0.7266
+--     0.7328
+--     0.7378
 atan2
   :: AFType a
   => Array a
@@ -1125,10 +1272,19 @@ atan2 x y =
 
 -- | Take the atan2 of all values in an 'Array'
 --
--- >>> A.atan2Batched (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
+-- >>> A.atan2Batched (A.vector @Double 10 [1..]) (A.vector @Double 10 [2..]) True
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854     0.7854
+--     0.4636
+--     0.5880
+--     0.6435
+--     0.6747
+--     0.6947
+--     0.7086
+--     0.7188
+--     0.7266
+--     0.7328
+--     0.7378
 atan2Batched
   :: AFType a
   => Array a
@@ -1148,7 +1304,16 @@ atan2Batched x y (fromIntegral . fromEnum -> batch) = do
 -- >>> A.cplx2 (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         (1.0000,1.0000)          (2.0000,2.0000)          (3.0000,3.0000)          (4.0000,4.0000)          (5.0000,5.0000)          (6.0000,6.0000)          (7.0000,7.0000)          (8.0000,8.0000)          (9.0000,9.0000)          (10.0000,10.0000)
+--          (1.0000,1.0000)
+--          (2.0000,2.0000)
+--          (3.0000,3.0000)
+--          (4.0000,4.0000)
+--          (5.0000,5.0000)
+--          (6.0000,6.0000)
+--          (7.0000,7.0000)
+--          (8.0000,8.0000)
+--          (9.0000,9.0000)
+--          (10.0000,10.0000)
 cplx2
   :: AFType a
   => Array a
@@ -1163,10 +1328,19 @@ cplx2 x y =
 
 -- | Take the cplx2Batched of all values in an 'Array'
 --
--- >>> A.cplx2Batched (A..vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
+-- >>> A.cplx2Batched (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
 -- ArrayFire Array
 -- [10 1 1 1]
---         (1.0000,1.0000)          (2.0000,2.0000)          (3.0000,3.0000)          (4.0000,4.0000)          (5.0000,5.0000)          (6.0000,6.0000)          (7.0000,7.0000)          (8.0000,8.0000)          (9.0000,9.0000)          (10.0000,10.0000)
+--          (1.0000,1.0000)
+--          (2.0000,2.0000)
+--          (3.0000,3.0000)
+--          (4.0000,4.0000)
+--          (5.0000,5.0000)
+--          (6.0000,6.0000)
+--          (7.0000,7.0000)
+--          (8.0000,8.0000)
+--          (9.0000,9.0000)
+--          (10.0000,10.0000)
 cplx2Batched
   :: AFType a
   => Array a
@@ -1186,7 +1360,16 @@ cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
 -- >>> A.cplx (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         (1.0000,0.0000)          (2.0000,0.0000)          (3.0000,0.0000)          (4.0000,0.0000)          (5.0000,0.0000)          (6.0000,0.0000)          (7.0000,0.0000)          (8.0000,0.0000)          (9.0000,0.0000)          (10.0000,0.0000)
+--          (1.0000,0.0000)
+--          (2.0000,0.0000)
+--          (3.0000,0.0000)
+--          (4.0000,0.0000)
+--          (5.0000,0.0000)
+--          (6.0000,0.0000)
+--          (7.0000,0.0000)
+--          (8.0000,0.0000)
+--          (9.0000,0.0000)
+--          (10.0000,0.0000)
 cplx
   :: AFType a
   => Array a
@@ -1199,7 +1382,7 @@ cplx = flip op1 af_cplx
 --
 -- >>> A.real (A.scalar @(Complex Double) (10 :+ 11)) :: Array Double
 -- ArrayFire Array
--- [10 1 1 1]
+-- [1 1 1 1]
 --    10.0000
 real
   :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
@@ -1213,7 +1396,7 @@ real = flip op1d af_real
 --
 -- >>> A.imag (A.scalar @(Complex Double) (10 :+ 11)) :: Array Double
 -- ArrayFire Array
--- [10 1 1 1]
+-- [1 1 1 1]
 --    11.0000
 imag
   :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
@@ -1228,7 +1411,16 @@ imag = flip op1d af_imag
 -- >>> A.conjg (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 conjg
   :: AFType a
   => Array a
@@ -1242,7 +1434,16 @@ conjg = flip op1 af_conjg
 -- >>> A.sinh (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.1752     3.6269    10.0179    27.2899    74.2032   201.7132   548.3161  1490.4788  4051.5419 11013.2329
+--     1.1752
+--     3.6269
+--    10.0179
+--    27.2899
+--    74.2032
+--   201.7132
+--   548.3161
+--  1490.4789
+--  4051.5420
+-- 11013.2324
 sinh
   :: AFType a
   => Array a
@@ -1253,11 +1454,19 @@ sinh = flip op1 af_sinh
 
 -- | Execute cosh
 --
---
 -- >>> A.cosh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.5431     3.7622    10.0677    27.3082    74.2099   201.7156   548.3170  1490.4792  4051.5420 11013.2329
+--     1.5431
+--     3.7622
+--    10.0677
+--    27.3082
+--    74.2099
+--   201.7156
+--   548.3170
+--  1490.4792
+--  4051.5420
+-- 11013.2329
 cosh
   :: AFType a
   => Array a
@@ -1271,7 +1480,16 @@ cosh = flip op1 af_cosh
 -- >>> A.tanh (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7616     0.9640     0.9951     0.9993     0.9999     1.0000     1.0000     1.0000     1.0000     1.0000
+--     0.7616
+--     0.9640
+--     0.9951
+--     0.9993
+--     0.9999
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
 tanh
   :: AFType a
   => Array a
@@ -1285,7 +1503,16 @@ tanh = flip op1 af_tanh
 -- >>> A.asinh (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.8814     1.4436     1.8184     2.0947     2.3124     2.4918     2.6441     2.7765     2.8934     2.9982 
+--     0.8814
+--     1.4436
+--     1.8184
+--     2.0947
+--     2.3124
+--     2.4918
+--     2.6441
+--     2.7765
+--     2.8934
+--     2.9982
 asinh
   :: AFType a
   => Array a
@@ -1299,7 +1526,16 @@ asinh = flip op1 af_asinh
 -- >>> A.acosh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     1.3170     1.7627     2.0634     2.2924     2.4779     2.6339     2.7687     2.8873     2.9932 
+--     0.0000
+--     1.3170
+--     1.7627
+--     2.0634
+--     2.2924
+--     2.4779
+--     2.6339
+--     2.7687
+--     2.8873
+--     2.9932
 acosh
   :: AFType a
   => Array a
@@ -1313,7 +1549,16 @@ acosh = flip op1 af_acosh
 -- >>> A.atanh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---        inf        nan        nan        nan        nan        nan        nan        nan        nan        nan 
+--        inf
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
+--        nan
 atanh
   :: AFType a
   => Array a
@@ -1327,7 +1572,16 @@ atanh = flip op1 af_atanh
 -- >>> A.root (A.vector @Double 10 [1..]) (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     1.4142     1.4422     1.4142     1.3797     1.3480     1.3205     1.2968     1.2765     1.2589
+--     1.0000
+--     1.4142
+--     1.4422
+--     1.4142
+--     1.3797
+--     1.3480
+--     1.3205
+--     1.2968
+--     1.2765
+--     1.2589
 root
   :: AFType a
   => Array a
@@ -1345,7 +1599,16 @@ root x y =
 -- >>> A.rootBatched (vector @Double 10 [1..]) (vector @Double 10 [1..]) True
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     1.4142     1.4422     1.4142     1.3797     1.3480     1.3205     1.2968     1.2765     1.2589
+--     1.0000
+--     1.4142
+--     1.4422
+--     1.4142
+--     1.3797
+--     1.3480
+--     1.3205
+--     1.2968
+--     1.2765
+--     1.2589
 rootBatched
   :: AFType a
   => Array a
@@ -1365,7 +1628,16 @@ rootBatched x y (fromIntegral . fromEnum -> batch) = do
 -- >>> A.pow (A.vector @Int 10 [1..]) 2
 -- ArrayFire Array
 -- [10 1 1 1]
---         1          4          9         16         25         36         49         64         81        100
+--          1
+--          4
+--          9
+--         16
+--         25
+--         36
+--         49
+--         64
+--         81
+--        100
 pow
   :: AFType a
   => Array a
@@ -1378,13 +1650,21 @@ pow x y =
   x `op2` y $ \arr arr1 arr2 ->
     af_pow arr arr1 arr2 1
 
-
 -- | Execute powBatched
 --
 -- >>> A.powBatched (A.vector @Int 10 [1..]) (A.constant @Int [1] 2) True
 -- ArrayFire Array
 -- [10 1 1 1]
---         1          4          9         16         25         36         49         64         81        100
+--          1
+--          4
+--          9
+--         16
+--         25
+--         36
+--         49
+--         64
+--         81
+--        100
 powBatched
   :: AFType a
   => Array a
@@ -1404,7 +1684,16 @@ powBatched x y (fromIntegral . fromEnum -> batch) = do
 -- >>> A.pow2 (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         2          4          8         16         32         64        128        256        512       1024
+--          2
+--          4
+--          8
+--         16
+--         32
+--         64
+--        128
+--        256
+--        512
+--       1024
 pow2
   :: AFType a
   => Array a
@@ -1418,7 +1707,16 @@ pow2 = flip op1 af_pow2
 -- >>> A.exp (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    2.7183     7.3891    20.0855    54.5982   148.4132   403.4288  1096.6332  2980.9580  8103.0839 22026.4658 
+--     2.7183
+--     7.3891
+--    20.0855
+--    54.5982
+--   148.4132
+--   403.4288
+--  1096.6332
+--  2980.9580
+--  8103.0839
+-- 22026.4658
 exp
   :: AFType a
   => Array a
@@ -1432,7 +1730,16 @@ exp = flip op1 af_exp
 -- >>> A.sigmoid (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.7311     0.8808     0.9526     0.9820     0.9933     0.9975     0.9991     0.9997     0.9999     1.0000
+--     0.7311
+--     0.8808
+--     0.9526
+--     0.9820
+--     0.9933
+--     0.9975
+--     0.9991
+--     0.9997
+--     0.9999
+--     1.0000
 sigmoid
   :: AFType a
   => Array a
@@ -1446,7 +1753,16 @@ sigmoid = flip op1 af_sigmoid
 -- >>> A.expm1 (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.7183     6.3891    19.0855    53.5981   147.4132   402.4288  1095.6332  2979.9580  8102.0840 22025.4648
+--     1.7183
+--     6.3891
+--    19.0855
+--    53.5981
+--   147.4132
+--   402.4288
+--  1095.6332
+--  2979.9580
+--  8102.0840
+-- 22025.4648
 expm1
   :: AFType a
   => Array a
@@ -1460,7 +1776,16 @@ expm1 = flip op1 af_expm1
 -- >>> A.erf (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.8427     0.9953     1.0000     1.0000     1.0000     1.0000     1.0000     1.0000     1.0000     1.0000
+--     0.8427
+--     0.9953
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
+--     1.0000
 erf
   :: AFType a
   => Array a
@@ -1474,7 +1799,16 @@ erf = flip op1 af_erf
 -- >>> A.erfc (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.1573     0.0047     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
+--     0.1573
+--     0.0047
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
+--     0.0000
 erfc
   :: AFType a
   => Array a
@@ -1488,7 +1822,16 @@ erfc = flip op1 af_erfc
 -- >>> A.log (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     0.6931     1.0986     1.3863     1.6094     1.7918     1.9459     2.0794     2.1972     2.3026
+--     0.0000
+--     0.6931
+--     1.0986
+--     1.3863
+--     1.6094
+--     1.7918
+--     1.9459
+--     2.0794
+--     2.1972
+--     2.3026
 log
   :: AFType a
   => Array a
@@ -1502,7 +1845,16 @@ log = flip op1 af_log
 -- >>> A.log1p (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.6931     1.0986     1.3863     1.6094     1.7918     1.9459     2.0794     2.1972     2.3026     2.3979
+--     0.6931
+--     1.0986
+--     1.3863
+--     1.6094
+--     1.7918
+--     1.9459
+--     2.0794
+--     2.1972
+--     2.3026
+--     2.3979
 log1p
   :: AFType a
   => Array a
@@ -1516,7 +1868,16 @@ log1p = flip op1 af_log1p
 -- >>> A.log10 (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     0.3010     0.4771     0.6021     0.6990     0.7782     0.8451     0.9031     0.9542     1.0000
+--     0.0000
+--     0.3010
+--     0.4771
+--     0.6021
+--     0.6990
+--     0.7782
+--     0.8451
+--     0.9031
+--     0.9542
+--     1.0000
 log10
   :: AFType a
   => Array a
@@ -1530,7 +1891,16 @@ log10 = flip op1 af_log10
 -- >>> A.log2 (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     1.0000     1.5850     2.0000     2.3219     2.5850     2.8074     3.0000     3.1699     3.3219
+--     0.0000
+--     1.0000
+--     1.5850
+--     2.0000
+--     2.3219
+--     2.5850
+--     2.8074
+--     3.0000
+--     3.1699
+--     3.3219
 log2
   :: AFType a
   => Array a
@@ -1544,7 +1914,16 @@ log2 = flip op1 af_log2
 -- >>> A.sqrt (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     1.4142     1.7321     2.0000     2.2361     2.4495     2.6458     2.8284     3.0000     3.1623
+--     1.0000
+--     1.4142
+--     1.7321
+--     2.0000
+--     2.2361
+--     2.4495
+--     2.6458
+--     2.8284
+--     3.0000
+--     3.1623
 sqrt
   :: AFType a
   => Array a
@@ -1558,7 +1937,16 @@ sqrt = flip op1 af_sqrt
 -- >>> A.cbrt (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     1.2599     1.4422     1.5874     1.7100     1.8171     1.9129     2.0000     2.0801     2.1544
+--     1.0000
+--     1.2599
+--     1.4422
+--     1.5874
+--     1.7100
+--     1.8171
+--     1.9129
+--     2.0000
+--     2.0801
+--     2.1544
 cbrt
   :: AFType a
   => Array a
@@ -1567,10 +1955,21 @@ cbrt
   -- ^ Result of calling 'cbrt'
 cbrt = flip op1 af_cbrt
 
--- | Execute factorial1
+-- | Execute factorial
 --
--- >>> A.factorial1 (A.vector @Int 10 [1..])
---
+-- >>> A.factorial (A.vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--     1.0000
+--     2.0000
+--     6.0000
+--    24.0000
+--   120.0000
+--   720.0001
+--  5040.0020
+-- 40319.9961
+-- 362880.0000
+-- 3628801.7500
 factorial
   :: AFType a
   => Array a
@@ -1581,9 +1980,19 @@ factorial = flip op1 af_factorial
 
 -- | Execute tgamma
 --
---
--- >>> 'tgamma' (vector @Int 10 [1..])
---
+-- >>> tgamma (vector @Int 10 [1..])
+-- ArrayFire Array
+-- [10 1 1 1]
+--     1.0000
+--     1.0000
+--     2.0000
+--     6.0000
+--    24.0000
+--   120.0000
+--   720.0001
+--  5040.0020
+-- 40319.9961
+-- 362880.0000
 tgamma
   :: AFType a
   => Array a
@@ -1597,7 +2006,16 @@ tgamma = flip op1 af_tgamma
 -- >>> A.lgamma (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---    0.0000     0.0000     0.6931     1.7918     3.1781     4.7875     6.5793     8.5252    10.6046    12.8018
+--     0.0000
+--     0.0000
+--     0.6931
+--     1.7918
+--     3.1781
+--     4.7875
+--     6.5793
+--     8.5252
+--    10.6046
+--    12.8018
 lgamma
   :: AFType a
   => Array a
@@ -1611,7 +2029,16 @@ lgamma = flip op1 af_lgamma
 -- >>> A.isZero (A.vector @CBool 10 (repeat 0))
 -- ArrayFire Array
 -- [10 1 1 1]
---         1          1          1          1          1          1          1          1          1          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
 isZero
   :: AFType a
   => Array a
@@ -1625,7 +2052,16 @@ isZero = (`op1` af_iszero)
 -- >>> A.isInf (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         0          0          0          0          0          0          0          0          0          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
 isInf
   :: (Real a, AFType a)
   => Array a
@@ -1639,7 +2075,16 @@ isInf = (`op1` af_isinf)
 -- >>> A.isNaN $ A.acos (A.vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---         0          1          1          1          1          1          1          1          1          1
+--          0
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
+--          1
 isNaN
   :: forall a. (AFType a, Real a)
   => Array a

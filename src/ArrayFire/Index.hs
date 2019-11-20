@@ -7,6 +7,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for indexing into an 'Array'
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Index where
 

@@ -8,6 +8,12 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions for displaying 'Array' graphically.
+--
+-- @
+-- >>> window <- createWindow 800 600 "New Chart"
+-- @
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Graphics where
 
@@ -98,7 +104,7 @@ setSize w (fromIntegral -> x) (fromIntegral -> y) =
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__gfx__func__draw.htm)
 --
 -- >>> drawImage window ('constant' \@'Int' 1) ('Cell' 10 10 "test" 'ColorMapSpectrum')
--- 
+--
 drawImage
   :: Window
   -- ^ 'Window' handle
@@ -113,7 +119,6 @@ drawImage (Window wfptr) (Array fptr) cell =
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_image wptr aptr cellPtr
-        free cellPtr
 
 -- | Draw a plot onto a 'Window'
 --
@@ -140,7 +145,6 @@ drawPlot (Window w) (Array fptr1) (Array fptr2) cell =
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_plot wptr ptr1 ptr2 cellPtr
-        free cellPtr
 
 -- | Draw a plot onto a 'Window'
 --
@@ -162,7 +166,6 @@ drawPlot3 (Window w) (Array fptr) cell =
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_plot3 wptr aptr cellPtr
-      free cellPtr
 
 -- | Draw a plot onto a 'Window'
 --
@@ -184,7 +187,6 @@ drawPlotNd (Window w) (Array fptr) cell =
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_plot_nd wptr aptr cellPtr
-      free cellPtr
 
 -- | Draw a plot onto a 'Window'
 --
@@ -209,7 +211,6 @@ drawPlot2d (Window w) (Array fptr1) (Array fptr2) cell =
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_plot_2d wptr ptr1 ptr2 cellPtr
-        free cellPtr
 
 -- | Draw a 3D plot onto a 'Window'
 --
@@ -237,7 +238,6 @@ drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
           alloca $ \cellPtr -> do
             poke cellPtr =<< cellToAFCell cell
             throwAFError =<< af_draw_plot_3d wptr ptr1 ptr2 ptr3 cellPtr
-            free cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
 --
@@ -264,7 +264,6 @@ drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_scatter wptr ptr1 ptr2 m cellPtr
-        free cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
 --
@@ -288,7 +287,6 @@ drawScatter3 (Window w) (Array fptr1) (fromMarkerType -> m) cell =
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_scatter3 wptr ptr1 m cellPtr
-      free cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
 --
@@ -312,7 +310,6 @@ drawScatterNd (Window w) (Array fptr1) (fromMarkerType -> m) cell =
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_scatter_nd wptr ptr1 m cellPtr
-      free cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
 --
@@ -339,7 +336,6 @@ drawScatter2d (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell 
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_draw_scatter_2d wptr ptr1 ptr2 m cellPtr
-      free cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
 --
@@ -355,7 +351,7 @@ drawScatter3d
   -> Array a
   -- ^ is an af_array with the y-axis data points
   -> Array a
-  -- ^ is an af_array with the z-axis data points  
+  -- ^ is an af_array with the z-axis data points
   -> MarkerType
   -- ^ is an af_marker_type enum specifying which marker to use in the scatter plot
   -> Cell
@@ -369,7 +365,6 @@ drawScatter3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromMarkerTy
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_scatter_3d wptr ptr1 ptr2 ptr3 m cellPtr
-        free cellPtr
 
 -- | Draw a Histogram onto a 'Window'
 --
@@ -422,7 +417,6 @@ drawSurface (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_surface wptr ptr1 ptr2 ptr3 cellPtr
-        free cellPtr
 
 -- | Draw a Vector Field onto a 'Window'
 --
@@ -447,7 +441,6 @@ drawVectorFieldND (Window w) (Array fptr1) (Array fptr2) cell =
       alloca $ \cellPtr -> do
         poke cellPtr =<< cellToAFCell cell
         throwAFError =<< af_draw_vector_field_nd wptr ptr1 ptr2 cellPtr
-        free cellPtr
 
 -- | Draw a Vector Field onto a 'Window'
 --
@@ -486,7 +479,6 @@ drawVectorField3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3)
                 alloca $ \cellPtr -> do
                   poke cellPtr =<< cellToAFCell cell
                   throwAFError =<< af_draw_vector_field_3d wptr ptr1 ptr2 ptr3 ptr4 ptr5 ptr6 cellPtr
-                  free cellPtr
 
 -- | Draw a Vector Field onto a 'Window'
 --
@@ -518,7 +510,6 @@ drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fp
             alloca $ \cellPtr -> do
               poke cellPtr =<< cellToAFCell cell
               throwAFError =<< af_draw_vector_field_2d wptr ptr1 ptr2 ptr3 ptr4 cellPtr
-              free cellPtr
 
 -- | Draw a grid onto a 'Window'
 --
@@ -567,7 +558,6 @@ setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromI
           alloca $ \cellPtr -> do
             poke cellPtr =<< cellToAFCell cell
             throwAFError =<< af_set_axes_limits_compute wptr ptr1 ptr2 ptr3 exact cellPtr
-            free cellPtr
 
 -- | Setting axes limits for a 2D histogram/plot/surface/vector field.
 --
@@ -595,7 +585,6 @@ setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_set_axes_limits_2d wptr xmin xmax ymin ymax exact cellPtr
-      free cellPtr
 
 -- | Setting axes limits for a 3D histogram/plot/surface/vector field.
 --
@@ -627,7 +616,6 @@ setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnu
     alloca $ \cellPtr -> do
       poke cellPtr =<< cellToAFCell cell
       throwAFError =<< af_set_axes_limits_3d wptr xmin xmax ymin ymax zmin zmax exact cellPtr
-      free cellPtr
 
 
 -- | Setting axes titles
@@ -655,7 +643,6 @@ setAxesTitles (Window w) x y z cell =
           withCString z $ \zstr -> do
             poke cellPtr =<< cellToAFCell cell
             throwAFError =<< af_set_axes_titles wptr xstr ystr zstr cellPtr
-            free cellPtr
 
 -- | Displays 'Window'
 --

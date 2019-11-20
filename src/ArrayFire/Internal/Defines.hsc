@@ -43,8 +43,10 @@ newtype AFErr = AFErr { afError :: CInt }
  }
 
 -- | Low-level for representation of ArrayFire types
-newtype AFDtype
-  = AFDtype
+
+-- | AFDType
+-- Newtype over ArrayFire's internal type tag
+newtype AFDtype = AFDtype
   { afDType :: CInt
   -- ^ Value corresponding to ArrayFire type
   } deriving (Show, Eq, Storable)

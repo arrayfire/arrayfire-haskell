@@ -20,6 +20,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Various Types related to the ArrayFire API
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Types
   ( AFException         (..)

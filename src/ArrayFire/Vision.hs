@@ -10,6 +10,8 @@
 -- Stability   : Experimental
 -- Portability : GHC
 --
+-- Functions pertaining to Computer Vision.
+--
 --------------------------------------------------------------------------------
 module ArrayFire.Vision where
 

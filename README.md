@@ -12,7 +12,7 @@
 
 
 ## Installation
-Install `ArraryFire` via the download page.
+Install `ArrayFire` via the download page.
   - https://arrayfire.com/download/
 
 `ArrayFire` can also be fetched from [nixpkgs](https://github.com/nixos/nixpkgs) `master`.
@@ -73,9 +73,11 @@ nix-shell --run docs
 
 ## Example
 ```haskell
+{-# LANGUAGE TypeApplications, ScopedTypeVariables #-}
 module Main where
 
 import qualified ArrayFire as A
+import           Control.Exception (catch)
 
 main :: IO ()
 main = print newArray `catch` (\(e :: A.AFException) -> print e)

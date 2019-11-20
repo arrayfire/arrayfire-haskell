@@ -19,40 +19,54 @@
 --
 -- main :: IO ()
 -- main = print $ A.sum (A.vector @Double 10 [1..]) 0
--- -- 55
+-- -- ArrayFire Array
+-- -- [1 1 1 1]
+-- --   55.0000
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
 
-import ArrayFire.Array
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Types
 
-import Foreign.C.Types
-import Data.Word
-
 -- | Sum all of the elements in 'Array' along the specified dimension
 --
 -- >>> A.sum (A.vector @Double 10 [1..]) 0
--- 55.0
+-- ArrayFire Array
+-- [1 1 1 1]
+--    55.0000
 --
--- >>> A.sum (A.matrix @Double (10,10) [[2..],[2..]]) 0
--- 65.0
+-- >>> A.sum (A.matrix @Double (10,10) $ replicate 10 [1..]) 1
+-- ArrayFire Array
+-- [10 1 1 1]
+--    10.0000
+--    20.0000
+--    30.0000
+--    40.0000
+--    50.0000
+--    60.0000
+--    70.0000
+--    80.0000
+--    90.0000
+--   100.0000
+--
 sum
   :: AFType a
   => Array a
   -- ^ Array to sum
   -> Int
-  -- ^ Dimension along which to perform sum
-  -> a
+  -- ^ 0-based Dimension along which to perform sum
+  -> Array a
   -- ^ Will return the sum of all values in the input array along the specified dimension
-sum x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_sum p a n))
+sum x (fromIntegral -> n) = (x `op1` (\p a -> af_sum p a n))
 
 -- | Sum all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
 -- >>> A.sumNaN (A.vector @Double 10 [1..]) 0 0.0
--- 55
+-- ArrayFire Array
+-- [1 1 1 1]
+--   55.0000
 sumNaN
   :: (Fractional a, AFType a)
   => Array a
@@ -61,28 +75,32 @@ sumNaN
   -- ^ Dimension along which to perform sum
   -> Double
   -- ^ Default value to use in the case of NaN
-  -> a
+  -> Array a
   -- ^ Will return the sum of all values in the input array along the specified dimension, substituted with the default value
-sumNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_sum_nan p a i d))
+sumNaN n (fromIntegral -> i) d = (n `op1` (\p a -> af_sum_nan p a i d))
 
 -- | Product all of the elements in 'Array' along the specified dimension
 --
 -- >>> A.product (A.vector @Double 10 [1..]) 0
--- 3628800.0
+-- ArrayFire Array
+-- [1 1 1 1]
+-- 3628800.0000
 product
   :: AFType a
   => Array a
   -- ^ Array to product
   -> Int
   -- ^ Dimension along which to perform product
-  -> a
+  -> Array a
   -- ^ Will return the product of all values in the input array along the specified dimension
-product x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_product p a n))
+product x (fromIntegral -> n) = (x `op1` (\p a -> af_product p a n))
 
 -- | Product all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
 -- >>> A.productNaN (A.vector @Double 10 [1..]) 0 0.0
--- 3628800.0
+-- ArrayFire Array
+-- [1 1 1 1]
+-- 3628800.0000
 productNaN
   :: (AFType a, Fractional a)
   => Array a
@@ -91,81 +109,91 @@ productNaN
   -- ^ Dimension along which to perform product
   -> Double
   -- ^ Default value to use in the case of NaN
-  -> a
+  -> Array a
   -- ^ Will return the product of all values in the input array along the specified dimension, substituted with the default value
-productNaN n (fromIntegral -> i) d = getScalar (n `op1` (\p a -> af_product_nan p a i d))
+productNaN n (fromIntegral -> i) d = n `op1` (\p a -> af_product_nan p a i d)
 
 -- | Take the minimum of an 'Array' along a specific dimension
 --
 -- >>> A.min (A.vector @Double 10 [1..]) 0
--- 1.0
+-- ArrayFire Array
+-- [1 1 1 1]
+--    1.0000
 min
   :: AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to retrieve the min element
-  -> a
+  -> Array a
   -- ^ Will contain the minimum of all values in the input array along dim
-min x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_min p a n))
+min x (fromIntegral -> n) = x `op1` (\p a -> af_min p a n)
 
 -- | Take the maximum of an 'Array' along a specific dimension
 --
 -- >>> A.max (A.vector @Double 10 [1..]) 0
--- 10
+-- ArrayFire Array
+-- [1 1 1 1]
+--   10.0000
 max
   :: AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to retrieve the max element
-  -> a
+  -> Array a
   -- ^ Will contain the maximum of all values in the input array along dim
-max x (fromIntegral -> n) = getScalar (x `op1` (\p a -> af_max p a n))
+max x (fromIntegral -> n) = x `op1` (\p a -> af_max p a n)
 
 -- | Find if all elements in an 'Array' are 'True' along a dimension
 --
 -- >>> A.allTrue (A.vector @CBool 10 (repeat 0)) 0
--- False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 allTrue
   :: forall a. AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to see if all elements are True
-  -> Bool
+  -> Array a
   -- ^ Will contain the maximum of all values in the input array along dim
 allTrue x (fromIntegral -> n) =
-  toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_all_true p a n))
+  x `op1` (\p a -> af_all_true p a n)
 
 -- | Find if any elements in an 'Array' are 'True' along a dimension
 --
 -- >>> A.anyTrue (A.vector @CBool 10 (repeat 0)) 0
--- False
+-- ArrayFire Array
+-- [1 1 1 1]
+--         0
 anyTrue
   :: forall a . AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to see if all elements are True
-  -> Bool
+  -> Array a
   -- ^ Returns if all elements are true
 anyTrue x (fromIntegral -> n) =
-  toEnum . fromIntegral $ getScalar @CBool @a (x `op1` (\p a -> af_any_true p a n))
+  (x `op1` (\p a -> af_any_true p a n))
 
 -- | Count elements in an 'Array' along a dimension
 --
 -- >>> A.count (A.vector @Double 10 [1..]) 0
--- 10
+-- ArrayFire Array
+-- [1 1 1 1]
+--        10
 count
   :: forall a . AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to count
-  -> Int
+  -> Array Int
   -- ^ Count of all elements along dimension
-count x (fromIntegral -> n) = fromIntegral $ getScalar @Word32 @a (x `op1` (\p a -> af_count p a n))
+count x (fromIntegral -> n) = x `op1d` (\p a -> af_count p a n)
 
 -- | Sum all elements in an 'Array' along all dimensions
 --
@@ -352,7 +380,16 @@ imaxAll a = do
 -- >>> A.accum (A.vector @Double 10 [1..]) 0
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     3.0000     6.0000    10.0000    15.0000    21.0000    28.0000    36.0000    45.0000    55.0000
+--     1.0000
+--     3.0000
+--     6.0000
+--    10.0000
+--    15.0000
+--    21.0000
+--    28.0000
+--    36.0000
+--    45.0000
+--    55.0000
 accum
   :: AFType a
   => Array a
@@ -368,7 +405,16 @@ accum a (fromIntegral -> n) = a `op1` (\x y -> af_accum x y n)
 -- >>> A.scan (A.vector @Double 10 [1..]) 0 Add True
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     3.0000     6.0000    10.0000    15.0000    21.0000    28.0000    36.0000    45.0000    55.0000
+--     1.0000
+--     3.0000
+--     6.0000
+--    10.0000
+--    15.0000
+--    21.0000
+--    28.0000
+--    36.0000
+--    45.0000
+--    55.0000
 scan
   :: AFType a
   => Array a
@@ -388,8 +434,17 @@ scan a (fromIntegral -> d) op (fromIntegral . fromEnum -> inclusive) =
 --
 -- >>> A.scanByKey (A.vector @Int 7 [2..]) (A.vector @Int 10 [1..]) 1 Add True
 -- ArrayFire Array
--- [7 1 1 1]
---         2          3          4          5          6          7          8
+-- [10 1 1 1]
+--          1
+--          2
+--          3
+--          4
+--          5
+--          6
+--          7
+--          8
+--          9
+--         10
 scanByKey
   :: (AFType a, AFType k)
   => Array k
@@ -425,7 +480,9 @@ where' = (`op1` af_where)
 -- >>> A.diff1 (A.vector @Double 4 [10,35,65,95]) 0
 -- ArrayFire Array
 -- [3 1 1 1]
---   25.0000    30.0000    30.0000
+--    25.0000
+--    30.0000
+--    30.0000
 diff1
   :: AFType a
   => Array a
@@ -441,7 +498,9 @@ diff1 a (fromIntegral -> n) = a `op1` (\p x -> af_diff1 p x n)
 -- >>> A.diff2 (A.vector @Double 5 [1.0,20,55,89,44]) 0
 -- ArrayFire Array
 -- [3 1 1 1]
---   16.0000    -1.0000   -79.0000
+--    16.0000
+--    -1.0000
+--   -79.0000
 diff2
   :: AFType a
   => Array a
@@ -457,12 +516,18 @@ diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 -- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 True
 -- ArrayFire Array
 -- [4 1 1 1]
---    1.0000     2.0000     3.0000     4.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
 --
 -- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 False
 -- ArrayFire Array
 -- [4 1 1 1]
---    4.0000     3.0000     2.0000     1.0000
+--     4.0000
+--     3.0000
+--     2.0000
+--     1.0000
 sort
   :: AFType a
   => Array a
@@ -478,14 +543,19 @@ sort a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
 
 -- | Sort an 'Array' along a specified dimension, specifying ordering of results (ascending / descending), returns indices of sorted results
 --
---
 -- >>> A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 True
 -- (ArrayFire Array
 -- [4 1 1 1]
---     1.0000     2.0000     3.0000     4.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
 -- ,ArrayFire Array
 -- [4 1 1 1]
---          2          1          0          3
+--          2
+--          1
+--          0
+--          3
 -- )
 sortIndex
   :: AFType a
@@ -505,10 +575,16 @@ sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
 -- >>> A.sortByKey (A.vector @Double 4 [2,1,4,3]) (A.vector @Double 4 [10,9,8,7]) 0 True
 -- (ArrayFire Array
 -- [4 1 1 1]
---     1.0000     2.0000     3.0000     4.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
 -- ,ArrayFire Array
 -- [4 1 1 1]
---     9.0000    10.0000     7.0000     8.0000
+--     9.0000
+--    10.0000
+--     7.0000
+--     8.0000
 -- )
 sortByKey
   :: AFType a
@@ -546,7 +622,11 @@ setUnique a (fromIntegral . fromEnum -> b) =
 -- >>> A.setUnion (A.vector @Double 3 [3,4,5]) (A.vector @Double 3 [1,2,3]) True
 -- ArrayFire Array
 -- [5 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
+--     5.0000
 setUnion
   :: AFType a
   => Array a
@@ -564,7 +644,7 @@ setUnion a1 a2 (fromIntegral . fromEnum -> b) =
 -- >>> A.setIntersect (A.vector @Double 3 [3,4,5]) (A.vector @Double 3 [1,2,3]) True
 -- ArrayFire Array
 -- [1 1 1 1]
---    3.0000
+--     3.0000
 setIntersect
   :: AFType a
   => Array a

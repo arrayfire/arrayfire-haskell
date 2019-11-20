@@ -30,8 +30,8 @@
 -- @
 -- ArrayFire Array
 -- [2 2 1 1]
---    1.0000     2.0000
---    1.0000     2.0000
+--     1.0000     1.0000
+--     2.0000     2.0000
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Array where
@@ -69,24 +69,34 @@ scalar x = mkArray [1] [x]
 -- >>> vector @Double 10 [1..]
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 vector :: AFType a => Int -> [a] -> Array a
 vector n = mkArray [n] . take n
 
 -- | Smart constructor for creating a matrix 'Array'
 --
--- >>> matrix @Double (2,2) [[1,2],[3,4]]
+-- >>> A.matrix @Double (3,2) [[1,2,3],[4,5,6]]
 -- ArrayFire Array
--- [2 2 1 1]
---    1.0000     2.0000
---    3.0000     4.0000
+-- [3 2 1 1]
+--    1.0000     4.0000
+--    2.0000     5.0000
+--    3.0000     6.0000
 --
 matrix :: AFType a => (Int,Int) -> [[a]] -> Array a
 matrix (x,y)
   = mkArray [x,y]
   . concat
-  . take x
-  . fmap (take y)
+  . take y
+  . fmap (take x)
 
 -- | Smart constructor for creating a cubic 'Array'
 --
@@ -106,9 +116,9 @@ cube (x,y,z)
   = mkArray [x,y,z]
   . concat
   . fmap concat
-  . take x
+  . take z
   . fmap (take y)
-  . (fmap . fmap . take) z
+  . (fmap . fmap . take) x
 
 -- | Smart constructor for creating a tensor 'Array'
 --
@@ -136,18 +146,26 @@ tensor (w,x,y,z)
   . concat
   . fmap concat
   . (fmap . fmap) concat
-  . take w
-  . (fmap . take) x
-  . (fmap . fmap . take) y
-  . (fmap . fmap . fmap . take) z
+  . take z
+  . (fmap . take) y
+  . (fmap . fmap . take) x
+  . (fmap . fmap . fmap . take) w
 
 -- | Internal function for 'Array' construction
 --
 -- >>> mkArray @Double [10] [1.0 .. 10.0]
 -- ArrayFire Array
 -- [10 1 1 1]
---    1.0000     2.0000     3.0000     4.0000     5.0000     6.0000     7.0000     8.0000     9.0000    10.0000
---
+--     1.0000
+--     2.0000
+--     3.0000
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 mkArray
   :: forall array
    . AFType array

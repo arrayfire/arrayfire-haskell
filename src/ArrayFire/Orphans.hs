@@ -39,12 +39,6 @@ instance (Num a, AFType a) => Num (Array a) where
   x - y       = A.sub x y
   fromInteger = A.scalar . fromIntegral
 
-instance (Ord a, AFType a) => Ord (Array a) where
-  x < y  = A.allTrueAll (A.ltBatched x y False) == (1.0,0.0)
-  x > y  = A.allTrueAll (A.gtBatched x y False) == (1.0,0.0)
-  x <= y = A.allTrueAll (A.leBatched x y False) == (1.0,0.0)
-  x >= y = A.allTrueAll (A.geBatched x y False) == (1.0,0.0)
-
 instance Show (Array a) where
   show = arrayString
 

@@ -4,6 +4,7 @@ pkgs.lib.overrideDerivation hsPkgs.arrayfire.env (drv: {
   shellHook = ''
     export AF_PRINT_ERRORS=1
     export PATH=$PATH:${hsPkgs.doctest}/bin
+    export PATH=$PATH:${pkgs.cabal-install}/bin
 
     export AF_LIB=${pkgs.arrayfire}/lib
     export AF_INCLUDE=${pkgs.arrayfire}/include
