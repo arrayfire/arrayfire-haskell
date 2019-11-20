@@ -105,7 +105,7 @@ install:
   - "for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/-[^-]*$//' | (grep -vE -- '^(arrayfire)$' || true) | sed 's/^/constraints: /' | sed 's/$/ installed/' >> cabal.project.local; done"
   - cat cabal.project || true
   - cat cabal.project.local || true
-  - ${CABAL} install $WITHCOMPILER hspec-discover | color_cabal_output # needed on $PATH for tests
+  - ${CABAL} v2-install $WITHCOMPILER hspec-discover | color_cabal_output # needed on $PATH for tests
   - if [ -f "./configure.ac" ]; then (cd "." && autoreconf -i); fi
   - ${CABAL} v2-freeze $WITHCOMPILER ${TEST} ${BENCH} | color_cabal_output
   - "cat cabal.project.freeze | sed -E 's/^(constraints: *| *)//' | sed 's/any.//'"
