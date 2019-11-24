@@ -220,21 +220,6 @@ inverse
 inverse a m =
   a `op1` (\x y  -> af_inverse x y (toMatProp m))
 
--- | Pseudo-inverse
---
--- Not implemented in /3.6.4/
---
--- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__factor__func__p_inv.htm)
---
--- pinverse
---   :: AFType a
---   => Array a
---   -> Double
---   -> MatProp
---   -> Array a
--- pinverse a d m =
---   op1 a (\x y  -> af_pinverse x y d (toMatProp m))
-
 -- | Find the rank of the input matrix
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__factor__func__rank.htm)
