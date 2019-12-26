@@ -8,24 +8,19 @@ author:              David Johnson
 maintainer:          djohnson.m@gmail.com
 copyright:           David Johnson (c) 2018-2020
 category:            Math
-build-type:          Custom
+build-type:          Simple
 extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
 description:         High-level Haskell bindings to the ArrayFire General-purpose GPU library
     .
     <<https://user-images.githubusercontent.com/875324/59819388-9ff83f00-92f5-11e9-9ac0-51eef200c716.png>>
     .
+tested-with: GHC == 8.4.4, GHC == 8.6.5, GHC == 8.8.1
 
 flag disable-default-paths
     description:    When enabled, don't add default hardcoded include/link dirs by default. Needed for hermetic builds like in nix.
     default:        False
     manual:         True
-
-custom-setup
- setup-depends:
-   base <5,
-   Cabal,
-   cabal-doctest >=1 && <1.1
 
 library
   exposed-modules:
@@ -102,9 +97,8 @@ library
     include-dirs:
       /opt/arrayfire/include
     extra-lib-dirs:
+      /opt/arrayfire/lib64
       /opt/arrayfire/lib
-    ld-options:
-      -Wl,-rpath /opt/arrayfire/lib
 
 executable main
   hs-source-dirs:

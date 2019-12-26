@@ -1,40 +1,55 @@
-{ pkgs ? import <nixpkgs> {} }:
-let
-  pkg = (import ./default.nix {}).env;
-in
-  pkgs.lib.overrideDerivation pkg (drv: {
-    shellHook = ''
-      export AF_PRINT_ERRORS=1
-      export PATH=$PATH:${pkgs.haskellPackages.doctest}/bin
-      export PATH=$PATH:${pkgs.haskellPackages.cabal-install}/bin
-      function ghcid () {
-        ${pkgs.haskellPackages.ghcid.bin}/bin/ghcid -c 'cabal v1-repl lib:arrayfire'
-      };
-      function test-runner () {
-         ${pkgs.ag}/bin/ag -l | \
-           ${pkgs.entr}/bin/entr sh -c \
-             'cabal v1-configure --enable-tests && \
-                cabal v1-build test && dist/build/test/test'
-      }
-      function doctest-runner () {
-         ${pkgs.ag}/bin/ag -l | \
-           ${pkgs.entr}/bin/entr sh -c \
-             'cabal v1-configure --enable-tests && \
-                cabal v1-build doctests && dist/build/doctests/doctests src/ArrayFire/Algorithm.hs'
-      }
-      function exe () {
-         cabal run main
-      }
-      function repl () {
-        cabal v1-repl lib:arrayfire
-      }
-      function docs () {
-        cabal haddock
-        open ./dist-newstyle/*/*/*/*/doc/html/arrayfire/index.html
-      }
-      function upload-docs () {
-        cabal haddock --haddock-for-hackage
-        cabal upload -d dist-newstyle/arrayfire-*.*.*.*-docs.tar.gz --publish
-      }
-    '';
-  })
+with (import ./default.nix {});
+
+pkgs.lib.overrideDerivation hsPkgs.arrayfire.env (drv: {
+  shellHook = ''
+    export AF_PRINT_ERRORS=1
+    export PATH=$PATH:${hsPkgs.doctest}/bin
+    export PATH=$PATH:${pkgs.cabal-install}/bin
+
+    export AF_LIB=${pkgs.arrayfire}/lib
+    export AF_INCLUDE=${pkgs.arrayfire}/include
+    export LD_LIBRARY_PATH="$AF_LIB:$LD_LIBRARY_PATH"
+
+    echo $LD_LIBRARY_PATH
+
+    export RUN_HS="runhaskell Setup.hs"
+    export CFLAGS="-f+disable-default-paths --extra-include-dirs=$AF_INCLUDE --extra-lib-dirs=$AF_LIB"
+    export CONFIGURE="$RUN_HS configure $CFLAGS"
+
+    function ghcid () {
+      $CONFIGURE && \
+        ${pkgs.ghcid}/bin/ghcid \
+          -c '$RUN_HS repl --repl-options=-fno-code lib:arrayfire'
+    }
+
+    function test-runner () {
+      $CONFIGURE --enable-tests && \
+        ${pkgs.ag}/bin/ag -l | \
+          ${pkgs.entr}/bin/entr sh -c \
+            '$RUN_HS build test && dist/build/test/test'
+    }
+
+    function test() {
+      $CONFIGURE --enable-tests && \
+        $RUN_HS build test && dist/build/test/test
+    }
+
+    function doctest-runner () {
+      ${pkgs.ag}/bin/ag -l | \
+        ${pkgs.entr}/bin/entr sh -c \
+          '$CONFIGURE --enable-tests && \
+            $RUN_HS build doctests && \
+              dist/build/doctests/doctests src/ArrayFire/Algorithm.hs'
+    }
+    function exe () {
+        cabal run main
+    }
+    function repl () {
+      $CONFIGURE && $RUN_HS repl lib:arrayfire
+    }
+    function docs () {
+      cabal haddock
+      open ./dist-newstyle/*/*/*/*/doc/html/arrayfire/index.html
+    }
+  '';
+})
