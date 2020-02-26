@@ -3,6 +3,33 @@
 
 `arrayfire-haskell` is a [Haskell](https://haskell.org) binding to [ArrayFire](https://arrayfire.com).
 
+## Visualization
+[![ArrayFire Haskell Visualization](https://img.youtube.com/vi/9f9jX3sYUcs/0.jpg)](https://www.youtube.com/watch?v=9f9jX3sYUcs)
+
+```haskell
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
+module Main where
+                 
+import ArrayFire 
+                 
+import Control.Monad (unless)
+import Prelude       hiding (sum, product, mod, abs, cos, sin)
+                                                              
+main :: IO ()                                                 
+main = do                                                     
+  window <- createWindow 800 600 "hey"                        
+  let x = iota [200,1] [1,200] / 1000                         
+      y = iota [1,200] [200,1] / 1000                         
+  go window (1 :: Array Float) x y                            
+    where                                                     
+      go window t x y = do                                    
+        let z = 10*x*(-abs(y)) * cos(x*x*(y+t))+sin(y*(x+t))-1.5
+        drawSurface window x y z (Cell (-1) (-1) "there" ColorMapDefault)
+        closed <- isWindowClosed window                                  
+        unless closed $ go window (t + 0.07) x y 
+```
+
 ## Table of Contents
  - [Installation](#Installation)
    - [Haskell Installation](#haskell-installation)
