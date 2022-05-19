@@ -91,7 +91,7 @@ constant dims val =
         cast $ constant' dims (realToFrac (unsafeCoerce val :: Float))
       | otherwise -> error "constant: Invalid array fire type"
   where
-    dtyp = afType (Proxy @ a)
+    dtyp = afType (Proxy @a)
 
     constant'
       :: [Int]
@@ -112,7 +112,7 @@ constant dims val =
               ptr
           where
             n = fromIntegral (length dims')
-            typ = afType (Proxy @ Double)
+            typ = afType (Proxy @Double)
 
     -- | Creates an 'Array (Complex Double)' from a scalar val'ue
     --
@@ -139,7 +139,7 @@ constant dims val =
             ptr
           where
             n = fromIntegral (length dims')
-            typ = afType (Proxy @ (Complex arr))
+            typ = afType (Proxy @(Complex arr))
 
     -- | Creates an 'Array Int64' from a scalar val'ue
     --
@@ -221,7 +221,7 @@ range dims (fromIntegral -> k) = unsafePerformIO $ do
         ptr
       where
         n = fromIntegral (length dims)
-        typ = afType (Proxy @ a)
+        typ = afType (Proxy @a)
 
 -- | Create an sequence [0, dims.elements() - 1] and modify to specified dimensions dims and then tile it according to tile_dims.
 --
@@ -266,7 +266,7 @@ iota dims tdims = unsafePerformIO $ do
       af_release_array_finalizer
         ptr
       where
-        typ = afType (Proxy @ a)
+        typ = afType (Proxy @a)
 
 -- | Creates the identity `Array` from given dimensions
 --
@@ -293,7 +293,7 @@ identity dims = unsafePerformIO . mask_ $ do
         ptr
       where
         n = fromIntegral (length dims)
-        typ = afType (Proxy @ a)
+        typ = afType (Proxy @a)
 
 -- | Create a diagonal matrix from input array when extract is set to false
 --

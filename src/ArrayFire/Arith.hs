@@ -719,7 +719,7 @@ cast
 cast afArr =
   coerce $ afArr `op1` (\x y -> af_cast x y dtyp)
     where
-      dtyp = afType (Proxy @ b)
+      dtyp = afType (Proxy @b)
 
 -- | Find the minimum of two 'Array's
 --
