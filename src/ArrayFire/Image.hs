@@ -423,7 +423,7 @@ regions
 regions in' (fromConnectivity -> conn) =
   in' `op1` (\ptr k -> af_regions ptr k conn dtype)
     where
-      dtype = afType (Proxy @ a)
+      dtype = afType (Proxy @a)
 
 -- | Sobel Operators.
 --

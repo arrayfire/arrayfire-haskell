@@ -145,10 +145,11 @@ test-suite test
     base < 5,
     directory,
     hspec,
-    hspec-discover,
     QuickCheck,
     quickcheck-classes,
     vector
+  build-tool-depends:
+    hspec-discover:hspec-discover
   default-language:
     Haskell2010
   other-modules:

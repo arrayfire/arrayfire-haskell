@@ -360,4 +360,4 @@ homography
                   (,) <$> do fromIntegral <$> peek outPtrI
                       <*> do Array <$> newForeignPtr af_release_array_finalizer arrayPtr
     where
-      dtype = afType (Proxy @ a)
+      dtype = afType (Proxy @a)

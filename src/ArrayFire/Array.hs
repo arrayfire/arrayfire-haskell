@@ -196,7 +196,7 @@ mkArray dims xs =
       Array <$> newForeignPtr af_release_array_finalizer arr
     where
       size  = Prelude.product dims
-      dType = afType (Proxy @ array)
+      dType = afType (Proxy @array)
 
 -- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
 
@@ -482,7 +482,7 @@ toVector :: forall a . AFType a => Array a -> Vector a
 toVector arr@(Array fptr) = do
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     let len = getElements arr
-        size = len * getSizeOf (Proxy @ a)
+        size = len * getSizeOf (Proxy @a)
     ptr <- mallocBytes (len * size)
     throwAFError =<< af_get_data_ptr (castPtr ptr) arrPtr
     newFptr <- newForeignPtr finalizerFree ptr

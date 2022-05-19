@@ -240,7 +240,7 @@ randEng dims f (RandomEngine fptr) = mask_ $
           ptr
   where
     n = fromIntegral (length dims)
-    typ = afType (Proxy @ a)
+    typ = afType (Proxy @a)
 
 rand
   :: forall a . AFType a
@@ -260,7 +260,7 @@ rand dims f = mask_ $ do
         ptr
       where
         n = fromIntegral (length dims)
-        typ = afType (Proxy @ a)
+        typ = afType (Proxy @a)
 
 -- | Generate random 'Array'
 --
