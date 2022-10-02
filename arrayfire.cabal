@@ -1,16 +1,16 @@
+cabal-version:       3.0
 name:                arrayfire
-version:             0.6.0.0
+version:             0.7.0.0
 synopsis:            Haskell bindings to the ArrayFire general-purpose GPU library
 homepage:            https://github.com/arrayfire/arrayfire-haskell
-license:             BSD3
+license:             BSD-3-Clause
 license-file:        LICENSE
 author:              David Johnson
 maintainer:          djohnson.m@gmail.com
-copyright:           David Johnson (c) 2018-2020
+copyright:           David Johnson (c) 2018-2023
 category:            Math
 build-type:          Custom
 extra-source-files:  CHANGELOG.md
-cabal-version:       >=1.10
 description:         High-level Haskell bindings to the ArrayFire General-purpose GPU library
     .
     <<https://user-images.githubusercontent.com/875324/59819388-9ff83f00-92f5-11e9-9ac0-51eef200c716.png>>
@@ -75,8 +75,8 @@ library
     ArrayFire.Internal.Types
     ArrayFire.Internal.Util
     ArrayFire.Internal.Vision
-  build-tools:
-    hsc2hs
+  build-tool-depends:
+    hsc2hs:hsc2hs
   extra-libraries:
     af
   c-sources:

@@ -3,7 +3,6 @@
 let
   pkg = pkgs.haskellPackages.callCabal2nix "arrayfire" ./. {
     af = null;
-    quickcheck-classes = pkgs.haskellPackages.quickcheck-classes_0_6_4_0;
   };
 in
   pkg

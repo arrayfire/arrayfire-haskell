@@ -4,3 +4,4 @@
 :m - ArrayFire
 import qualified ArrayFire as A
 :set -laf
+:set -isrc:test

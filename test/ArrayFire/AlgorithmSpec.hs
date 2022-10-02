@@ -63,7 +63,7 @@ spec =
       A.product (A.vector @Double 10 [1..]) 0 `shouldBe` 3628800.0
       A.product (A.vector @(A.Complex Double) 10 (repeat (1 A.:+ 1))) 0 `shouldBe` A.scalar (0.0 A.:+ 32.0)
       A.product (A.vector @(A.Complex Float) 10 (repeat (1 A.:+ 1))) 0 `shouldBe` A.scalar (0.0 A.:+ 32.0)
-      A.product (A.vector @A.CBool 10 (repeat 1)) 0 `shouldBe` 10  -- FIXME: This is a bug, should be 0
+      A.product (A.vector @A.CBool 10 (repeat 1)) 0 `shouldBe` 1 -- FIXED in 3.8.2, vector product along 0-axis is 1 for vector size 10 of all 1's.
       A.product (A.vector @A.CBool 10 (repeat 0)) 0 `shouldBe` 0
     it "Should product a default value to replace NaN" $ do
       A.productNaN (A.vector @Float 10 [1..]) 0 1.0 `shouldBe` 3628800.0
@@ -100,7 +100,7 @@ spec =
     it "Should get sum all elements" $ do
       A.sumAll (A.vector @Int 5 (repeat 2)) `shouldBe` (10,0)
       A.sumAll (A.vector @Double 5 (repeat 2)) `shouldBe` (10.0,0)
-      -- A.sumAll (A.vector @A.CBool 3800 (repeat 1)) `shouldBe` (3800,0) -- causes strange behavior
+      A.sumAll (A.vector @A.CBool 3800 (repeat 1)) `shouldBe` (3800,0)
       A.sumAll (A.vector @(A.Complex Double) 5 (repeat (2 A.:+ 0))) `shouldBe` (10.0,0)
     it "Should get sum all elements" $ do
       A.sumNaNAll (A.vector @Double 2 [10, acos 2]) 1 `shouldBe` (11.0,0)

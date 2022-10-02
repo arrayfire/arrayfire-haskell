@@ -6,3 +6,4 @@ result/
 /ctags
 cabal.project.local
 tags
+/.stack-work/

@@ -20,7 +20,7 @@ spec =
     it "Should find the variance" $ do
       var (vector @Double 8 [1..8]) False 0
         `shouldBe`
-           6.0
+           5.25
     it "Should find the weighted variance" $ do
       varWeighted (vector @Double 8 [1..]) (vector @Double 8 (repeat 1)) 0
         `shouldBe`

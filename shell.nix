@@ -11,13 +11,13 @@ in
         ${pkgs.haskellPackages.ghcid.bin}/bin/ghcid -c 'cabal v1-repl lib:arrayfire'
       };
       function test-runner () {
-         ${pkgs.ag}/bin/ag -l | \
+         ${pkgs.silver-searcher}/bin/ag -l | \
            ${pkgs.entr}/bin/entr sh -c \
              'cabal v1-configure --enable-tests && \
                 cabal v1-build test && dist/build/test/test'
       }
       function doctest-runner () {
-         ${pkgs.ag}/bin/ag -l | \
+         ${pkgs.silver-searcher}/bin/ag -l | \
            ${pkgs.entr}/bin/entr sh -c \
              'cabal v1-configure --enable-tests && \
                 cabal v1-build doctests && dist/build/doctests/doctests src/ArrayFire/Algorithm.hs'

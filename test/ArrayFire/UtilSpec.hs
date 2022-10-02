@@ -31,7 +31,7 @@ spec =
       A.getSizeOf (Proxy @(Complex Double)) `shouldBe` 16
     it "Should get version" $ do
       x <- A.getVersion
-      x `shouldBe` (3,6,4)
+      x `shouldBe` (3,8,2)
     it "Should get revision" $ do
       x <- A.getRevision
       x `shouldSatisfy` (not . null)
