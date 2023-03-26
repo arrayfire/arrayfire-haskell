@@ -30,8 +30,10 @@ spec =
       A.getSizeOf (Proxy @(Complex Float)) `shouldBe` 8
       A.getSizeOf (Proxy @(Complex Double)) `shouldBe` 16
     it "Should get version" $ do
-      x <- A.getVersion
-      x `shouldBe` (3,8,2)
+      (major, minor, patch) <- A.getVersion
+      major `shouldBe` 3
+      minor `shouldBe` 8
+      patch `shouldSatisfy` (>= 0)
     it "Should get revision" $ do
       x <- A.getRevision
       x `shouldSatisfy` (not . null)

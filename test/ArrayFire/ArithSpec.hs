@@ -2,7 +2,7 @@
 module ArrayFire.ArithSpec where
 
 import ArrayFire  hiding (acos)
-import Prelude    hiding (sqrt, div, and, or, not, isNaN)
+import Prelude    hiding (abs, sqrt, div, and, or, not, isNaN)
 import Test.Hspec
 import Foreign.C
 
@@ -27,10 +27,12 @@ spec =
       matrix @Int (2,2) [[1,1],[1,1]] + matrix @Int (2,2) [[1,1],[1,1]]
         `shouldBe`
            matrix @Int (2,2) [[2,2],[2,2]]
+    -- Exact comparisons of Double don't make sense here, so we just check that the result is
+    -- accurate up to some epsilon.
     it "Should take cubed root" $ do
-      3 `shouldBe` cbrt @Double 27
+      allTrueAll ((abs (3 - cbrt @Double 27)) `lt` 1.0e-14) `shouldBe` (1, 0)
     it "Should take square root" $ do
-      2 `shouldBe` sqrt @Double 4
+      allTrueAll ((abs (2 - sqrt @Double 4)) `lt` 1.0e-14) `shouldBe` (1, 0)
 
     it "Should lte Array" $ do
       2 `le` (3 :: Array Double) `shouldBe` 1
