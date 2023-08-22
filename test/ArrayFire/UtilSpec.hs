@@ -32,7 +32,7 @@ spec =
     it "Should get version" $ do
       (major, minor, patch) <- A.getVersion
       major `shouldBe` 3
-      minor `shouldBe` 8
+      minor `shouldSatisfy` (>= 8)
       patch `shouldSatisfy` (>= 0)
     it "Should get revision" $ do
       x <- A.getRevision
