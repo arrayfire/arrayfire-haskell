@@ -30,7 +30,6 @@
 module ArrayFire.Data where
 
 import Control.Exception
-import Control.Monad
 import Data.Complex
 import Data.Int
 import Data.Proxy
@@ -38,6 +37,7 @@ import Data.Word
 import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.Marshal          hiding (void)
+import Foreign.Ptr (Ptr)
 import Foreign.Storable
 import System.IO.Unsafe
 import Unsafe.Coerce
@@ -357,20 +357,21 @@ joinMany
   :: Int
   -> [Array a]
   -> Array a
-joinMany (fromIntegral -> n) arrays = unsafePerformIO . mask_ $ do
-  fptrs <- forM arrays $ \(Array fptr) -> pure fptr
-  newPtr <-
-    alloca $ \fPtrsPtr -> do
-      forM_ fptrs $ \fptr ->
-        withForeignPtr fptr (poke fPtrsPtr)
-      alloca $ \aPtr -> do
-        zeroOutArray aPtr
-        throwAFError =<< af_join_many aPtr n nArrays fPtrsPtr
-        peek aPtr
+joinMany (fromIntegral -> n) (fmap (\(Array fp) -> fp) -> arrays) = unsafePerformIO . mask_ $ do
+  newPtr <- alloca $ \aPtr -> do
+    zeroOutArray aPtr
+    (throwAFError =<<) $
+      withManyForeignPtr arrays $ \(fromIntegral -> nArrays) fPtrsPtr ->
+        af_join_many aPtr n nArrays fPtrsPtr
+    peek aPtr
   Array <$>
     newForeignPtr af_release_array_finalizer newPtr
+
+withManyForeignPtr :: [ForeignPtr a] -> (Int -> Ptr (Ptr a) -> IO b) -> IO b
+withManyForeignPtr fptrs action = go [] fptrs
   where
-    nArrays = fromIntegral (length arrays)
+    go ptrs [] = withArrayLen (reverse ptrs) action
+    go ptrs (fptr:others) = withForeignPtr fptr $ \ptr -> go (ptr : ptrs) others
 
 -- | Tiles an Array according to specified dimensions
 --

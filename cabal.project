@@ -1,3 +1,4 @@
+packages: .
 ignore-project: False
 write-ghc-environment-files: always
 tests: True
