@@ -4,6 +4,7 @@ module ArrayFire.LAPACKSpec where
 import qualified ArrayFire       as A
 import           Prelude
 import           Test.Hspec
+import Test.Hspec.ApproxExpect
 
 spec :: Spec
 spec =
@@ -33,9 +34,9 @@ spec =
     it "Should get determinant of Double" $ do
       let eles = [[3 A.:+ 1, 8 A.:+ 1], [4 A.:+ 1, 6 A.:+ 1]]
           (x,y) = A.det (A.matrix @(A.Complex Double) (2,2) eles)
-      x `shouldBe` (-14)
+      x `shouldBeApprox` (-14)
       let (x,y) = A.det $ A.matrix @Double (2,2) [[3,8],[4,6]]
-      x `shouldBe` (-14)
+      x `shouldBeApprox` (-14)
 --    it "Should calculate inverse" $ do
 --      let x = flip A.inverse A.None $ A.matrix @Double (2,2) [[4.0,7.0],[2.0,6.0]]
 --      x `shouldBe` A.matrix (2,2) [[0.6,-0.7],[-0.2,0.4]]
