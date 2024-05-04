@@ -144,6 +144,8 @@ test-suite test
     exitcode-stdio-1.0
   main-is:
     Main.hs
+  other-modules:
+    Test.Hspec.ApproxExpect
   hs-source-dirs:
     test
   build-depends:
@@ -154,7 +156,8 @@ test-suite test
     HUnit,
     QuickCheck,
     quickcheck-classes,
-    vector
+    vector,
+    call-stack >=0.4 && <0.5
   if !flag(disable-build-tool-depends)
     build-tool-depends:
       hspec-discover:hspec-discover

@@ -5,6 +5,7 @@ import ArrayFire    hiding (not)
 
 import Data.Complex
 import Test.Hspec
+import Test.Hspec.ApproxExpect
 
 spec :: Spec
 spec =
@@ -15,7 +16,7 @@ spec =
            5.5
     it "Should find the weighted-mean" $ do
       meanWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0
-        `shouldBe`
+        `shouldBeApprox`
            7.0
     it "Should find the variance" $ do
       var (vector @Double 8 [1..8]) False 0
