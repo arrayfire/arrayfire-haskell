@@ -1,0 +1,24 @@
+name: test matrix
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master'
+    steps:
+     - uses: cachix/install-nix-action@v22
+       with:
+         nix_path: nixpkgs=channel:nixos-unstable
+     - name: Cancel Previous Runs
+       uses: styfle/cancel-workflow-action@0.9.1
+       with:
+         access_token: ${{ github.token }}
+     - name: Build and Test
+       run: nix build .#haskell.ghc96.arrayfire
