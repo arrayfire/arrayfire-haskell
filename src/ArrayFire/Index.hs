@@ -44,6 +44,11 @@ index (Array fptr) seqs =
 lookup :: Array a -> Array a -> Int -> Array a
 lookup a b n = op2 a b $ \p x y -> af_lookup p x y (fromIntegral n)
 
+-- | A special value representing the entire axis of an 'Array'.
+span :: Seq
+span = Seq 1 1 0  -- From include/af/seq.h
+                  -- Hard-coded here because FFI cannot import static const values.
+
 -- af_err af_assign_seq( af_array *out, const af_array lhs, const unsigned ndims, const af_seq* const indices, const af_array rhs);
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
