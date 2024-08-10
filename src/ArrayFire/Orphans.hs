@@ -32,7 +32,7 @@ instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
   x * y       = A.mul x y
   abs         = A.abs
-  signum      = A.sign
+  signum x    = A.sign (-x) - A.sign x
   negate arr  = do
     let (w,x,y,z) = A.getDims arr
     A.cast (A.constant @a [w,x,y,z] 0) `A.sub` arr
