@@ -6,8 +6,8 @@ homepage:            https://github.com/arrayfire/arrayfire-haskell
 license:             BSD-3-Clause
 license-file:        LICENSE
 author:              David Johnson
-maintainer:          djohnson.m@gmail.com
-copyright:           David Johnson (c) 2018-2023
+maintainer:          code@dmj.io
+copyright:           David Johnson (c) 2018-2025
 category:            Math
 build-type:          Custom
 extra-source-files:  CHANGELOG.md

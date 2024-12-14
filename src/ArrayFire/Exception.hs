@@ -5,7 +5,7 @@
 -- Module      : ArrayFire.Exception
 -- Copyright   : David Johnson (c) 2019-2020
 -- License     : BSD 3
--- Maintainer  : David Johnson <djohnson.m@gmail.com>
+-- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
 -- Portability : GHC
 --
