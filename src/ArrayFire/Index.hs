@@ -41,7 +41,14 @@ index (Array fptr) seqs =
      n = fromIntegral (length seqs)
 
 -- | Lookup an Array by keys along a specified dimension
-lookup :: Array a -> Array a -> Int -> Array a
+lookup 
+  :: Array a 
+  -- ^ Input Array
+  -> Array Int 
+  -- ^ Indices
+  -> Int 
+  -- ^ Dimension
+  -> Array a
 lookup a b n = op2 a b $ \p x y -> af_lookup p x y (fromIntegral n)
 
 -- | A special value representing the entire axis of an 'Array'.
