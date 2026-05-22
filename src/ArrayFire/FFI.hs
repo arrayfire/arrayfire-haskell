@@ -72,7 +72,7 @@ op2
   :: Array b
   -> Array a
   -> (Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
-  -> Array a
+  -> Array c
 {-# NOINLINE op2 #-}
 op2 (Array fptr1) (Array fptr2) op =
   unsafePerformIO $ do
