@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      AF_VERSION: "3.10.0"
+      AF_INSTALLER: "ArrayFire-v3.10.0_Linux_x86_64.sh"
+      AF_URL: "https://arrayfire.s3.amazonaws.com/3.10.0/ArrayFire-v3.10.0_Linux_x86_64.sh"
+      AF_PREFIX: "/usr/local"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ArrayFire prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc libfreeimage-dev libatlas3-base libfftw3-dev cmake ocl-icd-libopencl1
+
+      - name: Download and install ArrayFire
+        run: |
+          wget -q "$AF_URL" -O "$AF_INSTALLER"
+          chmod +x "$AF_INSTALLER"
+          sudo "./$AF_INSTALLER" --exclude-subdir --prefix="$AF_PREFIX"
+
+      - name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.12"
+          cabal-version: "latest"
+
+      - name: Cache cabal store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+            dist-newstyle
+          key: ${{ runner.os }}-cabal-${{ hashFiles('**/*.cabal', '**/cabal.project') }}
+          restore-keys: |
+            ${{ runner.os }}-cabal-
+
+      - name: Update cabal package list
+        run: cabal update
+
+      - name: Build
+        run: cabal build all
+        env:
+          PATH: "/usr/local/bin:${{ env.PATH }}"
+          LD_LIBRARY_PATH: "/usr/local/lib"
