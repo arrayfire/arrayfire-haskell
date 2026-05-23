@@ -14,7 +14,7 @@ jobs:
       AF_VERSION: "3.10.0"
       AF_INSTALLER: "ArrayFire-v3.10.0_Linux_x86_64.sh"
       AF_URL: "https://arrayfire.s3.amazonaws.com/3.10.0/ArrayFire-v3.10.0_Linux_x86_64.sh"
-      AF_PREFIX: "/usr/local"
+      AF_PREFIX: "/opt/arrayfire"
 
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +22,6 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixpkgs-unstable
       - run: nix-channel --update
-
-      - uses: actions/checkout@v4
 
       - name: Nix channel update
         run: nix-channel --update
@@ -38,12 +36,13 @@ jobs:
           wget -q "$AF_URL" -O "$AF_INSTALLER"
           chmod +x "$AF_INSTALLER"
           sudo "./$AF_INSTALLER" --exclude-subdir --prefix="$AF_PREFIX"
+          echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf
+          sudo ldconfig
 
       - name: Update cabal package list
         run: cabal update
 
       - name: Build
-        run: nix-shell -p ghc -p cabal-install --run 'cabal build'
+        run: nix-shell -p ghc -p cabal-install --keep LD_LIBRARY_PATH --run 'cabal build'
         env:
-          PATH: "/usr/local/bin:${{ env.PATH }}"
-          LD_LIBRARY_PATH: "/usr/local/lib"
+          LD_LIBRARY_PATH: "/opt/arrayfire/lib:/opt/arrayfire/lib64"
