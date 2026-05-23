@@ -19,7 +19,7 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
   arbitrary = pure $ unsafePerformIO (A.randu [2,2])
 
 main :: IO ()
-main = pure () -- hspec spec
+main = hspec spec
 
 checks proxy = do
   lawsCheck (numLaws proxy)

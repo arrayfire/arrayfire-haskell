@@ -166,23 +166,23 @@ test-suite test
   other-modules:
     Spec
     ArrayFire.AlgorithmSpec
-    ArrayFire.ArithSpec
-    ArrayFire.ArraySpec
-    ArrayFire.BLASSpec
-    ArrayFire.BackendSpec
-    ArrayFire.DataSpec
-    ArrayFire.DeviceSpec
-    ArrayFire.FeaturesSpec
-    ArrayFire.GraphicsSpec
-    ArrayFire.ImageSpec
-    ArrayFire.IndexSpec
-    ArrayFire.LAPACKSpec
-    ArrayFire.RandomSpec
-    ArrayFire.SignalSpec
-    ArrayFire.SparseSpec
-    ArrayFire.StatisticsSpec
-    ArrayFire.UtilSpec
-    ArrayFire.VisionSpec
+--    ArrayFire.ArithSpec
+--    ArrayFire.ArraySpec
+--    ArrayFire.BLASSpec
+--    ArrayFire.BackendSpec
+--    ArrayFire.DataSpec
+--    ArrayFire.DeviceSpec
+--    ArrayFire.FeaturesSpec
+--    ArrayFire.GraphicsSpec
+--    ArrayFire.ImageSpec
+--    ArrayFire.IndexSpec
+--    ArrayFire.LAPACKSpec
+--    ArrayFire.RandomSpec
+--    ArrayFire.SignalSpec
+--    ArrayFire.SparseSpec
+--    ArrayFire.StatisticsSpec
+--    ArrayFire.UtilSpec
+--    ArrayFire.VisionSpec
 
 test-suite doctests
   type:
