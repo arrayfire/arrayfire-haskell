@@ -16,6 +16,14 @@ jobs:
       - name: Install ArrayFire
         run: brew install arrayfire
 
+      - name: Cache ghcup
+        uses: actions/cache@v4
+        with:
+          path: ~/.ghcup
+          key: ${{ runner.os }}-ghcup-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ghcup-
+
       - name: Set up GHC
         uses: haskell-actions/setup@v2
         with:
