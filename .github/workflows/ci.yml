@@ -37,4 +37,5 @@ jobs:
         run: cabal build all
 
       - name: Test
+        run: cabal install hspec-discover
         run: cabal test all
