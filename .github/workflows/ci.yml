@@ -35,7 +35,6 @@ jobs:
           wget -q "$AF_URL" -O "$AF_INSTALLER"
           chmod +x "$AF_INSTALLER"
           sudo "./$AF_INSTALLER" --exclude-subdir --prefix=/opt
-          sudo echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf
           sudo ldconfig
 
       - name: Update cabal package list
