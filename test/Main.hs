@@ -20,6 +20,7 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
 
 main :: IO ()
 main = do
+  A.setBackend A.CPU
 --  checks (Proxy :: Proxy (A.Array (A.Complex Float)))
 --  checks (Proxy :: Proxy (A.Array (A.Complex Double)))
 --  checks (Proxy :: Proxy (A.Array Double))
