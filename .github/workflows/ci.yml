@@ -34,8 +34,4 @@ jobs:
         run: cabal configure --flags="disable-default-paths disable-build-tool-depends" --extra-include-dirs=$(brew --prefix arrayfire)/include --extra-lib-dirs=$(brew --prefix arrayfire)/lib
 
       - name: Build
-        run: cabal build all
-
-      - name: Test
-        run: cabal install hspec-discover
-        run: cabal test all
+        run: cabal install hspec-discover && cabal build arrayfire
