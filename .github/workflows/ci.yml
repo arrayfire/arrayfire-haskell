@@ -36,3 +36,6 @@ jobs:
       - name: Build
         run: cabal build arrayfire
 
+      - name: Test
+        run: cabal install hspec-discover && cabal test
+
