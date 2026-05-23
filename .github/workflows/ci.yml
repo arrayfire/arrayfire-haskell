@@ -14,7 +14,6 @@ jobs:
       AF_VERSION: "3.10.0"
       AF_INSTALLER: "ArrayFire-v3.10.0_Linux_x86_64.sh"
       AF_URL: "https://arrayfire.s3.amazonaws.com/3.10.0/ArrayFire-v3.10.0_Linux_x86_64.sh"
-      AF_PREFIX: "/opt/arrayfire"
 
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +34,7 @@ jobs:
         run: |
           wget -q "$AF_URL" -O "$AF_INSTALLER"
           chmod +x "$AF_INSTALLER"
-          sudo "./$AF_INSTALLER" --exclude-subdir --prefix="$AF_PREFIX"
+          sudo "./$AF_INSTALLER" --exclude-subdir --prefix=/opt
           echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf
           sudo ldconfig
 
