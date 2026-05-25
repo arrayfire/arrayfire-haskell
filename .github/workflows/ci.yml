@@ -37,6 +37,9 @@ jobs:
       - name: Configure
         run: cabal configure --flags="disable-default-paths disable-build-tool-depends" --extra-include-dirs=$(brew --prefix arrayfire)/include --extra-lib-dirs=$(brew --prefix arrayfire)/lib
 
+      - name: hspec-discover
+        run: nix-shell -p ghc -p cabal-install --keep LD_LIBRARY_PATH --run 'cabal install hspec-discover'
+
       - name: Build
         run: nix-shell -p ghc -p cabal-install --keep LD_LIBRARY_PATH --run 'cabal build'
         env:
