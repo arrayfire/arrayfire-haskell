@@ -103,8 +103,17 @@ setSize w (fromIntegral -> x) (fromIntegral -> y) =
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__gfx__func__draw.htm)
 --
--- >>> drawImage window ('constant' \@'Int' 1) ('Cell' 10 10 "test" 'ColorMapSpectrum')
---
+-- @
+-- main :: IO ()
+-- main = render =<< createWindow 800 600 "hey"
+--     where
+--       render window = do
+--         let x = iota [1,60] [60,1] / (30 :: Array Float)
+--             cell = Cell (-1) (-1) "" ColorMapDefault
+--         drawImage window x cell
+--         closed <- isWindowClosed window
+--         unless closed (render window )
+-- @
 drawImage
   :: Window
   -- ^ 'Window' handle
