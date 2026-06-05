@@ -18,7 +18,6 @@ import ArrayFire.FFI
 import ArrayFire.Exception
 
 import Foreign
-import Foreign.ForeignPtr (touchForeignPtr)
 
 import System.IO.Unsafe
 import Control.Exception

@@ -25,4 +25,4 @@ jobs:
         run: nix develop --command bash -c 'cabal update'
 
       - name: Build and run tests
-        run: nix develop --command bash -c 'cabal install hspec-discover && cabal test'
+        run: nix develop --command bash -c 'cabal install && cabal test'

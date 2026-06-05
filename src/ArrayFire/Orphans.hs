@@ -23,7 +23,6 @@ import           Control.DeepSeq (NFData(..))
 import qualified ArrayFire.Arith     as A
 import qualified ArrayFire.Array     as A
 import qualified ArrayFire.Algorithm as A
-import qualified ArrayFire.Data      as A
 import           ArrayFire.Types
 import           ArrayFire.Util
 
