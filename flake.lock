@@ -1,28 +1,5 @@
 {
   "nodes": {
-    "arrayfire-nix": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1692793973,
-        "narHash": "sha256-6dG41ile3T+6dfRazlcPBdKBarGesswsBpb40Lcf35U=",
-        "owner": "twesterhout",
-        "repo": "arrayfire-nix",
-        "rev": "4236770612b80a3f29adbd8d670f6cea2bc098ba",
-        "type": "github"
-      },
-      "original": {
-        "owner": "twesterhout",
-        "repo": "arrayfire-nix",
-        "type": "github"
-      }
-    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -74,7 +51,6 @@
     },
     "root": {
       "inputs": {
-        "arrayfire-nix": "arrayfire-nix",
         "flake-utils": "flake-utils",
         "nix-filter": "nix-filter",
         "nixpkgs": "nixpkgs"

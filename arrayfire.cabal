@@ -7,7 +7,7 @@ license:             BSD-3-Clause
 license-file:        LICENSE
 author:              David Johnson
 maintainer:          code@dmj.io
-copyright:           David Johnson (c) 2018-2025
+copyright:           David Johnson (c) 2018-2026
 category:            Math
 build-type:          Custom
 extra-source-files:  CHANGELOG.md
@@ -88,7 +88,7 @@ library
   c-sources:
     cbits/wrapper.c
   build-depends:
-    base < 5, filepath, vector
+    base < 5, deepseq, filepath, vector
   hs-source-dirs:
     src
   ghc-options:

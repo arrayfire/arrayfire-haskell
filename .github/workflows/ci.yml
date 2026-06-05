@@ -1,38 +1,28 @@
-name: CI
-
+name: ArrayFire CI
 on:
   push:
-    branches: [master]
+    branches:
+      - master
   pull_request:
-    branches: [master]
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
   build:
-    runs-on: macos-latest
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install ArrayFire
-        run: brew install arrayfire
-
-      - name: Set up GHC
-        uses: haskell-actions/setup@v2
+      - uses: cachix/install-nix-action@v31
         with:
-          ghc-version: '9.8.4'
-          cabal-version: 'latest'
+          nix_path: nixpkgs=channel:nixpkgs-unstable
 
-      - name: Cache cabal store
-        uses: actions/cache@v4
-        with:
-          path: ~/.cabal/store
-          key: ${{ runner.os }}-cabal-${{ hashFiles('cabal.project', '*.cabal') }}
-          restore-keys: |
-            ${{ runner.os }}-cabal-
+      - name: Nix channel --update
+        run: nix-channel --update
 
-      - name: Configure
-        run: cabal configure --flags="disable-default-paths disable-build-tool-depends" --extra-include-dirs=$(brew --prefix arrayfire)/include --extra-lib-dirs=$(brew --prefix arrayfire)/lib
+      - name: Cabal update
+        run: nix develop --command bash -c 'cabal update'
 
-      - name: Build
-        run: cabal build arrayfire
-
+      - name: Build and run tests
+        run: nix develop --command bash -c 'cabal install hspec-discover && cabal test'
