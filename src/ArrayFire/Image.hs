@@ -260,7 +260,7 @@ histogram
   -> Array Word32
   -- ^ (type u32) is the histogram for input array in
 histogram a (fromIntegral -> b) c d =
-  cast (a `op1` (\ptr x -> af_histogram ptr x b c d))
+  a `op1` (\ptr x -> af_histogram ptr x b c d)
 
 -- | Dilation(morphological operator) for images.
 --

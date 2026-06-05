@@ -31,8 +31,15 @@
 --------------------------------------------------------------------------------
 module ArrayFire.BLAS where
 
+import Control.Exception (mask_)
 import Data.Complex
+import Foreign.ForeignPtr (newForeignPtr, withForeignPtr)
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Ptr (castPtr)
+import Foreign.Storable (peek, poke)
+import System.IO.Unsafe (unsafePerformIO)
 
+import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Internal.BLAS
 import ArrayFire.Internal.Types
@@ -167,3 +174,43 @@ transposeInPlace
   -> IO ()
 transposeInPlace arr (fromIntegral . fromEnum -> b) =
   arr `inPlace` (`af_transpose_inplace` b)
+
+-- | General Matrix Multiply: C = alpha * op(A) * op(B) + beta * C_prev
+--
+-- More general than 'matmul': supports scaling and accumulation.
+-- When @beta = 0@, equivalent to @alpha * op(A) * op(B)@.
+--
+-- >>> gemm None None 1.0 (matrix @Double (2,2) [[1,0],[0,1]]) (matrix @Double (2,2) [[3,4],[5,6]]) 0.0
+-- ArrayFire Array
+-- [2 2 1 1]
+--     3.0000     5.0000
+--     4.0000     6.0000
+gemm
+  :: AFType a
+  => MatProp
+  -- ^ Transformation applied to A ('None', 'Trans', or 'CTrans')
+  -> MatProp
+  -- ^ Transformation applied to B ('None', 'Trans', or 'CTrans')
+  -> a
+  -- ^ Scalar alpha
+  -> Array a
+  -- ^ Matrix A
+  -> Array a
+  -- ^ Matrix B
+  -> a
+  -- ^ Scalar beta (use 0 for pure multiply)
+  -> Array a
+  -- ^ Result C = alpha * op(A) * op(B) + beta * C_prev
+gemm opA opB alpha (Array fptrA) (Array fptrB) beta =
+  unsafePerformIO . mask_ $
+    withForeignPtr fptrA $ \ptrA ->
+    withForeignPtr fptrB $ \ptrB ->
+    alloca $ \pOut ->
+    alloca $ \pAlpha ->
+    alloca $ \pBeta -> do
+      zeroOutArray pOut
+      poke pAlpha alpha
+      poke pBeta beta
+      throwAFError =<< af_gemm pOut (toMatProp opA) (toMatProp opB) (castPtr pAlpha) ptrA ptrB (castPtr pBeta)
+      Array <$> (newForeignPtr af_release_array_finalizer =<< peek pOut)
+{-# NOINLINE gemm #-}

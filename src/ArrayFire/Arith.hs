@@ -512,7 +512,7 @@ not
   -- ^ Input 'Array'
   -> Array CBool
   -- ^ Result of 'not' on an 'Array'
-not = flip op1d af_not
+not = flip op1 af_not
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
 --
@@ -717,7 +717,7 @@ cast
   -> Array b
     -- ^ Result of cast
 cast afArr =
-  coerce $ afArr `op1` (\x y -> af_cast x y dtyp)
+  coerce $ afArr `op1` (\x y -> ArrayFire.Internal.Arith.af_cast x y dtyp)
     where
       dtyp = afType (Proxy @b)
 
@@ -1390,7 +1390,7 @@ real
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'real'
-real = flip op1d af_real
+real = flip op1 af_real
 
 -- | Execute imag
 --
@@ -1404,7 +1404,7 @@ imag
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'imag'
-imag = flip op1d af_imag
+imag = flip op1 af_imag
 
 -- | Execute conjg
 --

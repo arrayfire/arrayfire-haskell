@@ -26,6 +26,8 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
 
+import Data.Word (Word32)
+
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Types
@@ -193,7 +195,7 @@ count
   -- ^ Dimension along which to count
   -> Array Int
   -- ^ Count of all elements along dimension
-count x (fromIntegral -> n) = x `op1d` (\p a -> af_count p a n)
+count x (fromIntegral -> n) = x `op1` (\p a -> af_count p a n)
 
 -- | Sum all elements in an 'Array' along all dimensions
 --
@@ -323,7 +325,7 @@ imin
   -- ^ Input array
   -> Int
   -- ^ The dimension along which the minimum value is extracted
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ will contain the minimum of all values along dim, will also contain the location of minimum of all values in in along dim
 imin a (fromIntegral -> n) = op2p a (\x y z -> af_imin x y z n)
 
@@ -343,7 +345,7 @@ imax
   -- ^ Input array
   -> Int
   -- ^ The dimension along which the minimum value is extracted
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ will contain the maximum of all values in in along dim, will also contain the location of maximum of all values in in along dim
 imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 
@@ -565,7 +567,7 @@ sortIndex
   -- ^ Dimension along `sortIndex` is performed
   -> Bool
   -- ^ Return results in ascending order
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ Contains the sorted, contains indices for original input
 sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
@@ -657,3 +659,137 @@ setIntersect
   -- ^ Intersection of first and second array
 setIntersect a1 a2 (fromIntegral . fromEnum -> b) =
   op2 a1 a2 (\x y z -> af_set_intersect x y z b)
+
+-- | Sum values in 'Array' grouped by keys along a dimension.
+--
+-- Each contiguous run of equal keys in @keys@ produces one output element.
+-- Returns @(keys_out, vals_out)@.
+--
+-- >>> sumByKey (vector @Int 5 [1,1,2,2,2]) (vector @Double 5 [10,20,1,2,3]) 0
+-- (ArrayFire Array
+-- [3 1 1 1]
+--    1   2   3,
+-- ArrayFire Array
+-- [3 1 1 1]
+--    30.0000   6.0000   ...)
+sumByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array (contiguous equal keys form a group)
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension along which to reduce
+  -> (Array Int, Array a)
+  -- ^ (reduced keys, reduced values)
+sumByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_sum_by_key ko vo k v dim)
+
+-- | 'sumByKey' replacing NaN values with a substitute before summing.
+sumByKeyNaN
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> Double
+  -- ^ Substitute for NaN values
+  -> (Array Int, Array a)
+  -- ^ (reduced keys, reduced values)
+sumByKeyNaN keys vals (fromIntegral -> dim) nanval =
+  op2p2kv keys vals (\ko vo k v -> af_sum_by_key_nan ko vo k v dim nanval)
+
+-- | Product of values in 'Array' grouped by keys along a dimension.
+productByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+productByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_product_by_key ko vo k v dim)
+
+-- | 'productByKey' replacing NaN values with a substitute before multiplying.
+productByKeyNaN
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> Double
+  -- ^ Substitute for NaN values
+  -> (Array Int, Array a)
+productByKeyNaN keys vals (fromIntegral -> dim) nanval =
+  op2p2kv keys vals (\ko vo k v -> af_product_by_key_nan ko vo k v dim nanval)
+
+-- | Minimum of values in 'Array' grouped by keys along a dimension.
+minByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+minByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_min_by_key ko vo k v dim)
+
+-- | Maximum of values in 'Array' grouped by keys along a dimension.
+maxByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+maxByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_max_by_key ko vo k v dim)
+
+-- | True if all values are true within each key group.
+allTrueByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array (treated as boolean)
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+allTrueByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_all_true_by_key ko vo k v dim)
+
+-- | True if any value is true within each key group.
+anyTrueByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array (treated as boolean)
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+anyTrueByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_any_true_by_key ko vo k v dim)
+
+-- | Count non-zero values within each key group.
+countByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+countByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_count_by_key ko vo k v dim)
