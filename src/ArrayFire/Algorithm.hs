@@ -667,11 +667,11 @@ setIntersect a1 a2 (fromIntegral . fromEnum -> b) =
 --
 -- >>> sumByKey (vector @Int 5 [1,1,2,2,2]) (vector @Double 5 [10,20,1,2,3]) 0
 -- (ArrayFire Array
--- [3 1 1 1]
---    1   2   3,
+-- [2 1 1 1]
+--    1   2,
 -- ArrayFire Array
--- [3 1 1 1]
---    30.0000   6.0000   ...)
+-- [2 1 1 1]
+--    30.0000   6.0000)
 sumByKey
   :: AFType a
   => Array Int

@@ -479,7 +479,8 @@ isSparse a = toEnum . fromIntegral $ (a `infoFromArray` af_is_sparse)
 -- >>> toVector (vector @Double 10 [1..])
 -- [1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0]
 toVector :: forall a . AFType a => Array a -> Vector a
-toVector arr@(Array fptr) = do
+{-# NOINLINE toVector #-}
+toVector arr@(Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     let len = getElements arr
         size = len * getSizeOf (Proxy @a)
@@ -500,6 +501,7 @@ toList = V.toList . toVector
 -- >>> getScalar (scalar @Double 22.0) :: Double
 -- 22.0
 getScalar :: forall a b . (Storable a, AFType b) => Array b -> a
+{-# NOINLINE getScalar #-}
 getScalar (Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     alloca $ \ptr -> do

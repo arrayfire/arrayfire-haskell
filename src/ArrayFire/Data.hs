@@ -63,6 +63,7 @@ constant
   -> a
   -- ^ Scalar value
   -> Array a
+{-# NOINLINE constant #-}
 constant dims val =
   case dtyp of
     x | x == c64 ->
@@ -210,8 +211,9 @@ range
   => [Int]
   -> Int
   -> Array a
-range dims (fromIntegral -> k) = unsafePerformIO $ do
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
+{-# NOINLINE range #-}
+range dims (fromIntegral -> k) = unsafePerformIO . mask_ $ do
+  ptr <- alloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< af_range ptrPtr n dimArray k typ
       peek ptrPtr
@@ -252,10 +254,11 @@ iota
   -- ^ is array containing the number of repetitions of the unit dimensions
   -> Array a
   -- ^ is the generated array
-iota dims tdims = unsafePerformIO $ do
+{-# NOINLINE iota #-}
+iota dims tdims = unsafePerformIO . mask_ $ do
   let dims' = take 4 (dims ++ repeat 1)
       tdims' =  take 4 (tdims ++ repeat 1)
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
+  ptr <- alloca $ \ptrPtr -> do
     zeroOutArray ptrPtr
     withArray (fromIntegral <$> dims') $ \dimArray ->
       withArray (fromIntegral <$> tdims') $ \tdimArray -> do
@@ -280,6 +283,7 @@ identity
   => [Int]
   -- ^ Dimensions
   -> Array a
+{-# NOINLINE identity #-}
 identity dims = unsafePerformIO . mask_ $ do
   let dims' = take 4 (dims ++ repeat 1)
   ptr <- alloca $ \ptrPtr -> mask_ $ do
@@ -357,6 +361,7 @@ joinMany
   :: Int
   -> [Array a]
   -> Array a
+{-# NOINLINE joinMany #-}
 joinMany (fromIntegral -> n) (fmap (\(Array fp) -> fp) -> arrays) = unsafePerformIO . mask_ $ do
   newPtr <- alloca $ \aPtr -> do
     zeroOutArray aPtr
@@ -444,6 +449,7 @@ moddims
   :: Array a
   -> [Int]
   -> Array a
+{-# NOINLINE moddims #-}
 moddims (Array fptr) dims =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
     newPtr <- alloca $ \aPtr -> do

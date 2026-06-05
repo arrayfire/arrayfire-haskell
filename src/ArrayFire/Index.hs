@@ -29,6 +29,7 @@ index
   -> [Seq]
   -- ^ 'Seq' to use for indexing
   -> Array a
+{-# NOINLINE index #-}
 index (Array fptr) seqs =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
     alloca $ \aptr ->
@@ -66,6 +67,7 @@ assignSeq
   -- ^ Source array
   -> Array a
   -- ^ Result with values written at the specified indices
+{-# NOINLINE assignSeq #-}
 assignSeq (Array fptr) seqs (Array rhsFptr) =
   unsafePerformIO . mask_ $
     withForeignPtr fptr $ \ptr ->
@@ -90,6 +92,7 @@ indexGen
   -- ^ List of 'Index' values (one per dimension)
   -> Array a
   -- ^ Indexed result
+{-# NOINLINE indexGen #-}
 indexGen (Array fptr) indices =
   unsafePerformIO . mask_ $
     withForeignPtr fptr $ \ptr -> do
@@ -120,6 +123,7 @@ assignGen
   -- ^ Source array
   -> Array a
   -- ^ Result with values written at the specified indices
+{-# NOINLINE assignGen #-}
 assignGen (Array fptr) indices (Array rhsFptr) =
   unsafePerformIO . mask_ $
     withForeignPtr fptr $ \ptr ->
