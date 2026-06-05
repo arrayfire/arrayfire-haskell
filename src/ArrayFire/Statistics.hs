@@ -33,6 +33,9 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Statistics where
 
+import Data.Word (Word32)
+import Foreign.Ptr (nullPtr)
+
 import ArrayFire.Array
 import ArrayFire.FFI
 import ArrayFire.Internal.Statistics
@@ -303,8 +306,58 @@ topk
   -- ^ The number of elements to be retrieved along the dim dimension
   -> TopK
   -- ^  If descending, the highest values are returned. Otherwise, the lowest values are returned
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ Returns The values of the top k elements along the dim dimension
   -- along with the indices of the top k elements along the dim dimension
 topk a (fromIntegral -> x) (fromTopK -> f)
   = a `op2p` (\b c d -> af_topk b c d x 0 f)
+
+-- | Simultaneously compute the mean and variance of an 'Array' along a dimension.
+--
+-- More efficient than calling 'mean' and 'var' separately.
+--
+-- >>> let (m, v) = meanVar (vector @Double 4 [1,2,3,4]) VariancePopulation 0
+-- >>> m
+-- ArrayFire Array
+-- [1 1 1 1]
+--    2.5000
+-- >>> v
+-- ArrayFire Array
+-- [1 1 1 1]
+--    1.2500
+meanVar
+  :: AFType a
+  => Array a
+  -- ^ Input 'Array'
+  -> VarBias
+  -- ^ Variance bias correction: 'VariancePopulation' (÷N) or 'VarianceSample' (÷N-1)
+  -> Int
+  -- ^ Dimension along which to compute
+  -> (Array a, Array a)
+  -- ^ (mean, variance)
+meanVar arr bias (fromIntegral -> dim) =
+  arr `op2p` (\pMean pVar aPtr ->
+    af_meanvar pMean pVar aPtr nullPtr (fromVarBias bias) dim)
+
+-- | Simultaneously compute the weighted mean and variance of an 'Array' along a dimension.
+--
+-- >>> let (m, v) = meanVarWeighted (vector @Double 4 [1,2,3,4]) (vector @Double 4 [1,1,1,1]) VariancePopulation 0
+-- >>> m
+-- ArrayFire Array
+-- [1 1 1 1]
+--    2.5000
+meanVarWeighted
+  :: AFType a
+  => Array a
+  -- ^ Input 'Array'
+  -> Array a
+  -- ^ Weights 'Array'
+  -> VarBias
+  -- ^ Variance bias correction
+  -> Int
+  -- ^ Dimension along which to compute
+  -> (Array a, Array a)
+  -- ^ (mean, variance)
+meanVarWeighted arr weights bias (fromIntegral -> dim) =
+  op2p2 arr weights $ \pMean pVar aPtr wPtr ->
+    af_meanvar pMean pVar aPtr wPtr (fromVarBias bias) dim

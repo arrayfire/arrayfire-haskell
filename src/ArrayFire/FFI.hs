@@ -30,6 +30,12 @@ import Foreign.C
 import Foreign.Marshal.Alloc
 import System.IO.Unsafe
 
+foreign import ccall unsafe "af_cast"
+    af_cast :: Ptr AFArray -> AFArray -> AFDtype -> IO AFErr
+
+foreign import ccall unsafe "af_release_array"
+    af_release_array_ffi :: AFArray -> IO AFErr
+
 op3
   :: Array b
   -> Array a
@@ -38,7 +44,7 @@ op3
   -> Array a
 {-# NOINLINE op3 #-}
 op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
          withForeignPtr fptr3 $ \ptr3 -> do
@@ -57,7 +63,7 @@ op3Int
   -> Array a
 {-# NOINLINE op3Int #-}
 op3Int (Array fptr1) (Array fptr2) (Array fptr3) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
          withForeignPtr fptr3 $ \ptr3 -> do
@@ -75,7 +81,7 @@ op2
   -> Array c
 {-# NOINLINE op2 #-}
 op2 (Array fptr1) (Array fptr2) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
         ptr <-
@@ -92,7 +98,7 @@ op2bool
   -> Array CBool
 {-# NOINLINE op2bool #-}
 op2bool (Array fptr1) (Array fptr2) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
         ptr <-
@@ -106,10 +112,10 @@ op2bool (Array fptr1) (Array fptr2) op =
 op2p
   :: Array a
   -> (Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr)
-  -> (Array a, Array a)
+  -> (Array a, Array b)
 {-# NOINLINE op2p #-}
 op2p (Array fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     (x,y) <- withForeignPtr fptr1 $ \ptr1 -> do
         alloca $ \ptrInput1 -> do
           alloca $ \ptrInput2 -> do
@@ -125,7 +131,7 @@ op3p
   -> (Array a, Array a, Array a)
 {-# NOINLINE op3p #-}
 op3p (Array fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     (x,y,z) <- withForeignPtr fptr1 $ \ptr1 -> do
         alloca $ \ptrInput1 -> do
           alloca $ \ptrInput2 -> do
@@ -144,7 +150,7 @@ op3p1
   -> (Array a, Array a, Array a, b)
 {-# NOINLINE op3p1 #-}
 op3p1 (Array fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     (x,y,z,g) <- withForeignPtr fptr1 $ \ptr1 -> do
         alloca $ \ptrInput1 -> do
           alloca $ \ptrInput2 -> do
@@ -167,7 +173,7 @@ op2p2
   -> (Array a, Array a)
 {-# NOINLINE op2p2 #-}
 op2p2 (Array fptr1) (Array fptr2) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     (x,y) <-
       withForeignPtr fptr1 $ \ptr1 -> do
         withForeignPtr fptr2 $ \ptr2 -> do
@@ -175,6 +181,35 @@ op2p2 (Array fptr1) (Array fptr2) op =
             alloca $ \ptrInput2 -> do
               throwAFError =<< op ptrInput1 ptrInput2 ptr1 ptr2
               (,) <$> peek ptrInput1 <*> peek ptrInput2
+    fptrA <- newForeignPtr af_release_array_finalizer x
+    fptrB <- newForeignPtr af_release_array_finalizer y
+    pure (Array fptrA, Array fptrB)
+
+op2p2kv
+  :: Array Int
+  -> Array a
+  -> (Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
+  -> (Array Int, Array a)
+{-# NOINLINE op2p2kv #-}
+op2p2kv (Array fptr1) (Array fptr2) op =
+  unsafePerformIO . mask_ $ do
+    (x, y) <-
+      withForeignPtr fptr1 $ \ptr1 ->
+        withForeignPtr fptr2 $ \ptr2 -> do
+          castedKey <- alloca $ \p -> do
+            throwAFError =<< af_cast p ptr1 s32
+            peek p
+          alloca $ \ptrOutput1 ->
+            alloca $ \ptrOutput2 -> do
+              throwAFError =<< op ptrOutput1 ptrOutput2 castedKey ptr2
+              _ <- af_release_array_ffi castedKey
+              outKey <- peek ptrOutput1
+              outVal <- peek ptrOutput2
+              finalKey <- alloca $ \p -> do
+                throwAFError =<< af_cast p outKey s64
+                peek p
+              _ <- af_release_array_ffi outKey
+              pure (finalKey, outVal)
     fptrA <- newForeignPtr af_release_array_finalizer x
     fptrB <- newForeignPtr af_release_array_finalizer y
     pure (Array fptrA, Array fptrB)
@@ -238,29 +273,13 @@ opw1 (Window fptr) op
          throwAFError =<< op p ptr
          peek p
 
-op1d
-  :: Array a
-  -> (Ptr AFArray -> AFArray -> IO AFErr)
-  -> Array b
-{-# NOINLINE op1d #-}
-op1d (Array fptr1) op =
-  unsafePerformIO $ do
-    withForeignPtr fptr1 $ \ptr1 -> do
-      ptr <-
-        alloca $ \ptrInput -> do
-          throwAFError =<< op ptrInput ptr1
-          peek ptrInput
-      fptr <- newForeignPtr af_release_array_finalizer ptr
-      pure (Array fptr)
-
-
 op1
   :: Array a
   -> (Ptr AFArray -> AFArray -> IO AFErr)
-  -> Array a
+  -> Array b
 {-# NOINLINE op1 #-}
 op1 (Array fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       ptr <-
         alloca $ \ptrInput -> do
@@ -304,7 +323,7 @@ op1b
   -> (b, Array a)
 {-# NOINLINE op1b #-}
 op1b (Array fptr1) op =
-  unsafePerformIO $
+  unsafePerformIO . mask_ $
     withForeignPtr fptr1 $ \ptr1 -> do
       (y,x) <-
         alloca $ \ptrInput1 -> do

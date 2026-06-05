@@ -32,6 +32,7 @@ module ArrayFire.Types
   , Features
   , AFType              (..)
   , TopK                (..)
+  , VarBias             (..)
   , Backend             (..)
   , MatchType           (..)
   , BinaryOp            (..)
@@ -52,6 +53,8 @@ module ArrayFire.Types
   , InverseDeconvAlgo   (..)
   , Seq                 (..)
   , Index               (..)
+  , seqIdx
+  , arrIdx
   , NormType            (..)
   , ConvMode            (..)
   , ConvDomain          (..)

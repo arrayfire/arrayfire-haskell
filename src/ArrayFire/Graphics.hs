@@ -492,13 +492,13 @@ drawVectorField2d
   -> Array a
   -- ^ is an 'Array' with the x-axis points
   -> Array a
-  -- ^ is the window handle
+  -- ^ is an 'Array' with the y-axis points
   -> Array a
-  -- ^ is the window handle
+  -- ^ is an 'Array' with the x-axis directions
   -> Array a
-  -- ^ is the window handle
+  -- ^ is an 'Array' with the y-axis directions
   -> Cell
-  -- ^ is the window handle
+  -- ^ is structure 'Cell' that has the properties that are used for the current rendering.
   -> IO ()
 drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fptr4) cell =
   mask_ $ do

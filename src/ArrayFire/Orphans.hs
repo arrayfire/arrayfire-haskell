@@ -15,7 +15,10 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Orphans where
 
-import           Prelude
+import           Prelude hiding (pi)
+import qualified Prelude
+
+import           Control.DeepSeq (NFData(..))
 
 import qualified ArrayFire.Arith     as A
 import qualified ArrayFire.Array     as A
@@ -24,18 +27,21 @@ import qualified ArrayFire.Data      as A
 import           ArrayFire.Types
 import           ArrayFire.Util
 
+instance NFData (Array a) where
+  rnf x = x `seq` ()
+
 instance (AFType a, Eq a) => Eq (Array a) where
-  x == y = A.allTrueAll (A.eqBatched x y False) == (1.0,0.0)
-  x /= y = A.allTrueAll (A.neqBatched x y False) == (0.0,0.0)
+  x == y = A.getDims x == A.getDims y
+        && A.allTrueAll (A.eqBatched x y False) == (1.0,0.0)
+  x /= y = A.getDims x /= A.getDims y
+        || A.anyTrueAll (A.neqBatched x y False) /= (0.0,0.0)
 
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
   x * y       = A.mul x y
   abs         = A.abs
   signum x    = A.sign (-x) - A.sign x
-  negate arr  = do
-    let (w,x,y,z) = A.getDims arr
-    A.cast (A.constant @a [w,x,y,z] 0) `A.sub` arr
+  negate arr  = A.scalar @a (fromInteger (-1)) `A.mul` arr
   x - y       = A.sub x y
   fromInteger = A.scalar . fromIntegral
 
@@ -47,7 +53,7 @@ instance forall a . (Fractional a, AFType a) => Fractional (Array a) where
   fromRational n = A.scalar @a (fromRational n)
 
 instance forall a . (Ord a, AFType a, Fractional a) => Floating (Array a) where
-  pi   = A.scalar @a 3.14159
+  pi   = A.scalar @a (realToFrac (Prelude.pi :: Double))
   exp  = A.exp @a
   log  = A.log @a
   sqrt = A.sqrt @a

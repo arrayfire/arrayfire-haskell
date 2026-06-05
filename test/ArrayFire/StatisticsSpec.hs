@@ -1,8 +1,10 @@
 {-# LANGUAGE TypeApplications #-}
 module ArrayFire.StatisticsSpec where
 
+import Data.Word (Word32)
 import ArrayFire    hiding (not)
 
+import Data.Maybe
 import Data.Complex
 import Test.Hspec
 import Test.Hspec.ApproxExpect
@@ -15,9 +17,9 @@ spec =
         `shouldBe`
            5.5
     it "Should find the weighted-mean" $ do
-      meanWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0
-        `shouldBeApprox`
-           7.0
+      listToMaybe (toList (meanWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0))
+        `shouldBe`
+           (Just 7.0)
     it "Should find the variance" $ do
       var (vector @Double 8 [1..8]) False 0
         `shouldBe`
@@ -69,4 +71,18 @@ spec =
     it "Should find the top k elements" $ do
       let (vals,indexes) = topk ( vector @Double 10 [1..] ) 3 TopKDefault
       vals `shouldBe` vector @Double 3 [10,9,8]
-      indexes `shouldBe` vector @Double 3 [9,8,7]
+      indexes `shouldBe` vector @Word32 3 [9,8,7]
+    it "Should compute mean and variance together (population)" $ do
+      let (m, v) = meanVar (vector @Double 4 [1,2,3,4]) VariancePopulation 0
+      m `shouldBe` scalar @Double 2.5
+      v `shouldBe` scalar @Double 1.25
+    it "Should compute mean and variance together (sample)" $ do
+      let (m, v) = meanVar (vector @Double 4 [1,2,3,4]) VarianceSample 0
+      m `shouldBe` scalar @Double 2.5
+      -- sample variance of [1,2,3,4] = 5/3 ≈ 1.6667
+      head (toList v) `shouldBeApprox` (5.0/3.0 :: Double)
+    it "Should compute weighted mean and variance together" $ do
+      let uniform = vector @Double 4 (repeat 1.0)
+          (m, v)  = meanVarWeighted (vector @Double 4 [1,2,3,4]) uniform VariancePopulation 0
+      m `shouldBe` scalar @Double 2.5
+      v `shouldBe` scalar @Double 1.25

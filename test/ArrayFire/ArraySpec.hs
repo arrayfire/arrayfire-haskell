@@ -14,8 +14,8 @@ import ArrayFire
 spec :: Spec
 spec =
   describe "Array tests" $ do
-    it "Should perform Array tests" $ do
-      (1 + 1) `shouldBe` 2
+    it "Should add two scalar arrays" $ do
+      (scalar @Int 1 + scalar @Int 1) `shouldBe` scalar @Int 2
     it "Should fail to create 0 dimension arrays" $ do
       let arr = mkArray @Int [0,0,0,0] [1..]
       evaluate arr `shouldThrow` anyException
