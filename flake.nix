@@ -34,6 +34,9 @@
           hash = "sha256-8SibCWnRxts79S6WEHb3skF2TIDl1QnjY6EiohmoIog=";
         };
         nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+        # GPU/visualization libs (CUDA, OpenGL, GLFW, FreeImage, Intel OpenCL) are
+        # optional ArrayFire backends not available in headless CI environments.
+        autoPatchelfIgnoreMissingDeps = true;
         buildInputs = with pkgs; [
           stdenv.cc.cc.lib
           fftw
