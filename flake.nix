@@ -84,7 +84,7 @@
             cabal-install
             doctest
             hsc2hs
-            hspec-discover
+            # hspec-discover
             nil
             # Formatters
             nixpkgs-fmt
