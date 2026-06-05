@@ -93,6 +93,7 @@
             nixpkgs-fmt
           ];
           shellHook = ''
+            export LD_LIBRARY_PATH="${pkgs.arrayfire}/lib:$LD_LIBRARY_PATH"
           '';
         };
 
