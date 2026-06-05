@@ -303,7 +303,7 @@ identity dims = unsafePerformIO . mask_ $ do
 --    1.0000     0.0000
 --    0.0000     2.0000
 diagCreate
-  :: AFType (a :: *)
+  :: AFType a
   => Array a
   -- ^	is the input array which is the diagonal
   -> Int
@@ -320,7 +320,7 @@ diagCreate x (fromIntegral -> n) =
 --     1.0000
 --     4.0000
 diagExtract
-  :: AFType (a :: *)
+  :: AFType a
   => Array a
   -> Int
   -> Array a
@@ -339,7 +339,7 @@ diagExtract x (fromIntegral -> n) =
 --
 join
   :: Int
-  -> Array (a :: *)
+  -> Array a
   -> Array a
   -> Array a
 join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
@@ -385,7 +385,7 @@ withManyForeignPtr fptrs action = go [] fptrs
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 --
 tile
-  :: Array (a :: *)
+  :: Array a
   -> [Int]
   -> Array a
 tile a (take 4 . (++repeat 1) -> [x,y,z,w]) =
@@ -406,7 +406,7 @@ tile _ _ = error "impossible"
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 --
 reorder
-  :: Array (a :: *)
+  :: Array a
   -> [Int]
   -> Array a
 reorder a (take 4 . (++ repeat 0) -> [x,y,z,w]) =
@@ -424,7 +424,7 @@ reorder _ _ = error "impossible"
 --     2.0000
 --
 shift
-  :: Array (a :: *)
+  :: Array a
   -> Int
   -> Int
   -> Int
@@ -441,8 +441,7 @@ shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegra
 --     1.0000     2.0000     3.0000
 --
 moddims
-  :: forall a
-   . Array (a :: *)
+  :: Array a
   -> [Int]
   -> Array a
 moddims (Array fptr) dims =

@@ -25,7 +25,6 @@ import Data.Word
 import ArrayFire.Internal.Types
 import ArrayFire.Internal.Image
 import ArrayFire.FFI
-import ArrayFire.Arith
 
 -- | Calculates the gradient of an image
 --

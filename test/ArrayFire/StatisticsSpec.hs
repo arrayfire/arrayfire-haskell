@@ -80,7 +80,9 @@ spec =
       let (m, v) = meanVar (vector @Double 4 [1,2,3,4]) VarianceSample 0
       m `shouldBe` scalar @Double 2.5
       -- sample variance of [1,2,3,4] = 5/3 ≈ 1.6667
-      head (toList v) `shouldBeApprox` (5.0/3.0 :: Double)
+      case listToMaybe (toList v) of
+        Just k -> k `shouldBeApprox` (5.0/3.0)
+        _ -> error "failure"
     it "Should compute weighted mean and variance together" $ do
       let uniform = vector @Double 4 (repeat 1.0)
           (m, v)  = meanVarWeighted (vector @Double 4 [1,2,3,4]) uniform VariancePopulation 0

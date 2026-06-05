@@ -60,8 +60,5 @@ jobs:
           html=$(find -L result/share/doc -type d -name html | head -1)
           echo "HADDOCK_DIR=$html" >> "$GITHUB_ENV"
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.HADDOCK_DIR }}
+      - name: Build and run tests
+        run: nix develop --command bash -c 'cabal install && cabal test'
