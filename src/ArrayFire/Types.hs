@@ -55,6 +55,9 @@ module ArrayFire.Types
   , Index               (..)
   , seqIdx
   , arrIdx
+  , range
+  , rangeStep
+  , at
   , NormType            (..)
   , ConvMode            (..)
   , ConvDomain          (..)

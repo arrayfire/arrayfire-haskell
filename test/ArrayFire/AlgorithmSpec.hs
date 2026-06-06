@@ -156,4 +156,16 @@ spec =
           (ko, vo) = A.anyTrueByKey keys vals 0
       ko `shouldBe` A.vector @Int 2 [1,2]
       vo `shouldBe` A.vector @A.CBool 2 [0,1]
+    it "Should sum values grouped by key, substituting NaN with 0" $ do
+      let keys = A.vector @Int 4 [1,1,2,2]
+          vals = A.vector @Double 4 [10, (acos 2), 3, 4]
+          (ko, vo) = A.sumByKeyNaN keys vals 0 0
+      ko `shouldBe` A.vector @Int 2 [1,2]
+      vo `shouldBe` A.vector @Double 2 [10, 7]
+    it "Should take the product of values grouped by key, substituting NaN with 1" $ do
+      let keys = A.vector @Int 4 [1,1,2,2]
+          vals = A.vector @Double 4 [2, (acos 2), 4, 5]
+          (ko, vo) = A.productByKeyNaN keys vals 0 1
+      ko `shouldBe` A.vector @Int 2 [1,2]
+      vo `shouldBe` A.vector @Double 2 [2, 20]
 

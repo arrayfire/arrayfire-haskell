@@ -706,6 +706,18 @@ seqIdx s batch = SeqIndex batch s
 arrIdx :: Array Int -> Bool -> Index
 arrIdx a batch = ArrIndex batch a
 
+-- | Index a contiguous range [begin..end] with step 1.
+range :: Int -> Int -> Index
+range b e = SeqIndex False (Seq (fromIntegral b) (fromIntegral e) 1)
+
+-- | Index a range [begin..end] with an explicit step.
+rangeStep :: Int -> Int -> Int -> Index
+rangeStep b e s = SeqIndex False (Seq (fromIntegral b) (fromIntegral e) (fromIntegral s))
+
+-- | Index a single element.
+at :: Int -> Index
+at n = let d = fromIntegral n in SeqIndex False (Seq d d 1)
+
 toAFIndex :: Index -> IO AFIndex
 toAFIndex (SeqIndex batch s) =
   pure $ AFIndex (Right (toAFSeq s)) True batch

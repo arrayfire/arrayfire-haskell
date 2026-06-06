@@ -2,6 +2,7 @@
 module ArrayFire.IndexSpec where
 
 import qualified ArrayFire as A
+import           Data.Function ((&))
 import           Test.Hspec
 
 spec :: Spec
@@ -25,14 +26,14 @@ spec =
 
     describe "lookup" $ do
       it "gathers elements by an index array" $ do
-        let arr = A.vector @Double 5 [10, 20, 30, 40, 50]
-            idx = A.vector @Int 3 [0, 2, 4]
-        A.lookup arr idx 0
+        let arr   = A.vector @Double 5 [10, 20, 30, 40, 50]
+            ixArr = A.vector @Int 3 [0, 2, 4]
+        A.lookup arr ixArr 0
           `shouldBe` A.vector @Double 3 [10, 30, 50]
       it "allows repeated indices" $ do
-        let arr = A.vector @Int 5 [10, 20, 30, 40, 50]
-            idx = A.vector @Int 4 [0, 0, 4, 4]
-        A.lookup arr idx 0
+        let arr   = A.vector @Int 5 [10, 20, 30, 40, 50]
+            ixArr = A.vector @Int 4 [0, 0, 4, 4]
+        A.lookup arr ixArr 0
           `shouldBe` A.vector @Int 4 [10, 10, 50, 50]
 
     describe "assignSeq" $ do
@@ -57,8 +58,6 @@ spec =
         A.indexGen arr [A.seqIdx (A.Seq 0 2 1) False]
           `shouldBe` A.vector @Double 3 [10, 20, 30]
       it "indexes a 2D sub-matrix with two seqIdx" $ do
-        -- matrix (3,3): columns [[1,2,3],[4,5,6],[7,8,9]]
-        -- rows 0-1, cols 0-1 → columns [[1,2],[4,5]]
         let arr = A.matrix @Double (3,3) [[1,2,3],[4,5,6],[7,8,9]]
         A.indexGen arr [ A.seqIdx (A.Seq 0 1 1) False
                        , A.seqIdx (A.Seq 0 1 1) False ]
@@ -78,3 +77,35 @@ spec =
         A.indexGen result [ A.seqIdx (A.Seq 0 1 1) False
                           , A.seqIdx (A.Seq 0 1 1) False ]
           `shouldBe` src
+
+    describe "(!) operator" $ do
+      it "indexes a 1D sub-range with range" $ do
+        let arr = A.vector @Double 5 [10, 20, 30, 40, 50]
+        (arr A.! A.range 0 2)
+          `shouldBe` A.vector @Double 3 [10, 20, 30]
+      it "indexes a single element with at" $ do
+        let arr = A.vector @Double 5 [10, 20, 30, 40, 50]
+        (arr A.! A.at 2)
+          `shouldBe` A.scalar @Double 30
+      it "indexes a 2D sub-matrix with a tuple" $ do
+        let arr = A.matrix @Double (3,3) [[1,2,3],[4,5,6],[7,8,9]]
+        (arr A.! (A.range 0 1, A.range 0 1))
+          `shouldBe` A.matrix @Double (2,2) [[1,2],[4,5]]
+
+    describe "(.~) operator" $ do
+      it "assigns into a 1D slice" $ do
+        let arr    = A.vector @Double 5 [1..]
+            src    = A.vector @Double 3 [0, 0, 0]
+            result = arr & A.range 1 3 A..~ src
+        (result A.! A.range 1 3) `shouldBe` src
+      it "assigns into a 2D sub-matrix" $ do
+        let arr    = A.matrix @Double (3,3) [[1,2,3],[4,5,6],[7,8,9]]
+            src    = A.matrix @Double (2,2) [[0,0],[0,0]]
+            result = arr & (A.range 0 1, A.range 0 1) A..~ src
+        (result A.! (A.range 0 1, A.range 0 1)) `shouldBe` src
+
+    describe "rangeStep" $ do
+      it "selects every other element" $ do
+        let arr = A.vector @Double 6 [0,1,2,3,4,5]
+        (arr A.! A.rangeStep 0 4 2)
+          `shouldBe` A.vector @Double 3 [0,2,4]

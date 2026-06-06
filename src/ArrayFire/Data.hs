@@ -192,7 +192,7 @@ constant dims val =
 
 -- | Creates a range of values in an Array
 --
--- >>> range @Double [10] (-1)
+-- >>> arange @Double [10] (-1)
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -205,14 +205,14 @@ constant dims val =
 --     7.0000
 --     8.0000
 --     9.0000
-range
+arange
   :: forall a
    . AFType a
   => [Int]
   -> Int
   -> Array a
-{-# NOINLINE range #-}
-range dims (fromIntegral -> k) = unsafePerformIO . mask_ $ do
+{-# NOINLINE arange #-}
+arange dims (fromIntegral -> k) = unsafePerformIO . mask_ $ do
   ptr <- alloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< af_range ptrPtr n dimArray k typ
