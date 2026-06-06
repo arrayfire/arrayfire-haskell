@@ -26,7 +26,7 @@ main = do
   -- default backend throw (e.g. cl::Error: clGetDeviceIDs). Fall back to
   -- the CPU backend when running in CI.
   inCI <- isJust <$> lookupEnv "CI"
-  A.setBackend (if inCI then A.CPU else A.Default)
+  when (not inCI) (A.setBackend A.Default)
 --  checks (Proxy :: Proxy (A.Array (A.Complex Float)))
 --  checks (Proxy :: Proxy (A.Array (A.Complex Double)))
 --  checks (Proxy :: Proxy (A.Array Double))
