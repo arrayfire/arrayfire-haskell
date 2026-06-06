@@ -25,8 +25,8 @@ main = do
   -- In CI there's often no GPU/OpenCL device available, which makes the
   -- default backend throw (e.g. cl::Error: clGetDeviceIDs). Fall back to
   -- the CPU backend when running in CI.
-  inCI <- isJust <$> lookupEnv "CI"
-  when (not inCI) (A.setBackend A.Default)
+  -- inCI <- isJust <$> lookupEnv "CI"
+  -- when (not inCI) (A.setBackend A.Default)
 --  checks (Proxy :: Proxy (A.Array (A.Complex Float)))
 --  checks (Proxy :: Proxy (A.Array (A.Complex Double)))
 --  checks (Proxy :: Proxy (A.Array Double))
