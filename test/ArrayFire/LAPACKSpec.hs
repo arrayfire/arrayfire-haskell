@@ -1,7 +1,10 @@
 {-# LANGUAGE TypeApplications #-}
 module ArrayFire.LAPACKSpec where
 
-import qualified ArrayFire       as A
+import qualified ArrayFire            as A
+import           ArrayFire.Backend    (getActiveBackend)
+import           ArrayFire.Types      (Backend (..))
+import           Control.Exception    (try, evaluate, SomeException)
 import           Prelude
 import           Test.Hspec
 import           Test.Hspec.ApproxExpect
@@ -69,3 +72,57 @@ spec =
       A.norm (A.vector @Double 2 [3,4]) A.NormVectorOne 1 1 `shouldBeApprox` 7
       -- || [3, 4] ||_inf = 4
       A.norm (A.vector @Double 2 [3,4]) A.NormVectorInf 1 1 `shouldBeApprox` 4
+
+    -- eigSH requires CUDA backend (cuSOLVER); skip gracefully on CPU/OpenCL.
+    describe "eigSH (CUDA)" $ do
+      let requireCUDA action = do
+            backend <- getActiveBackend
+            if backend == CUDA then action
+            else pendingWith ("eigSH requires CUDA backend; active: " ++ show backend)
+
+      it "returns correct eigenvalues for 2x2 symmetric matrix" $ requireCUDA $ do
+        -- A = [[3,1],[1,3]], eigenvalues 2 and 4 (ascending)
+        let a          = A.matrix @Double (2,2) [[3,1],[1,3]]
+            (evals, _) = A.eigSH a
+            evList     = A.toList evals
+        length evList `shouldBe` 2
+        evList !! 0 `shouldBeApprox` 2.0
+        evList !! 1 `shouldBeApprox` 4.0
+
+      it "returns orthonormal eigenvectors for 2x2 matrix" $ requireCUDA $ do
+        let a          = A.matrix @Double (2,2) [[3,1],[1,3]]
+            (_, evecs) = A.eigSH a
+            vtv        = A.toList $ A.matmul (A.transpose evecs False) evecs A.None A.None
+            eye2       = A.toList (A.identity @Double [2,2])
+        mapM_ (uncurry shouldBeApprox) (zip vtv eye2)
+
+      it "reconstructs the original 2x2 matrix" $ requireCUDA $ do
+        let a              = A.matrix @Double (2,2) [[3,1],[1,3]]
+            (evals, evecs) = A.eigSH a
+            recon          = A.matmul (A.matmul evecs (A.diagCreate evals 0) A.None A.None)
+                                      (A.transpose evecs False) A.None A.None
+        mapM_ (uncurry shouldBeApprox) (zip (A.toList recon) (A.toList a))
+
+      it "returns eigenvalues in ascending order for 3x3 matrix" $ requireCUDA $ do
+        -- A = [[2,1,0],[1,2,1],[0,1,2]], eigenvalues 2-sqrt(2), 2, 2+sqrt(2)
+        let a          = A.matrix @Double (3,3) [[2,1,0],[1,2,1],[0,1,2]]
+            (evals, _) = A.eigSH a
+            evList     = A.toList evals
+        evList !! 0 `shouldBeApprox` (2 - sqrt 2)
+        evList !! 1 `shouldBeApprox` 2.0
+        evList !! 2 `shouldBeApprox` (2 + sqrt 2)
+
+      it "reconstructs the original 3x3 matrix" $ requireCUDA $ do
+        let a              = A.matrix @Double (3,3) [[2,1,0],[1,2,1],[0,1,2]]
+            (evals, evecs) = A.eigSH a
+            recon          = A.matmul (A.matmul evecs (A.diagCreate evals 0) A.None A.None)
+                                      (A.transpose evecs False) A.None A.None
+        mapM_ (uncurry shouldBeApprox) (zip (A.toList recon) (A.toList a))
+
+      it "handles indefinite matrix with negative eigenvalues" $ requireCUDA $ do
+        -- A = [[0,1],[1,0]], eigenvalues -1 and +1
+        let a          = A.matrix @Double (2,2) [[0,1],[1,0]]
+            (evals, _) = A.eigSH a
+            evList     = A.toList evals
+        evList !! 0 `shouldBeApprox` (-1.0)
+        evList !! 1 `shouldBeApprox`   1.0

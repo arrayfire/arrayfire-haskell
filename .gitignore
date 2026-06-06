@@ -7,3 +7,4 @@ result/
 cabal.project.local
 tags
 /.stack-work/
+.ghc*

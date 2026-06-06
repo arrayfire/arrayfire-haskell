@@ -272,6 +272,31 @@ norm
 norm arr (fromNormType -> a) b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
 
+-- | Eigendecomposition of a real symmetric (or complex Hermitian) matrix.
+--
+-- Equivalent to @hmatrix@'s @eigSH@. Calls @cusolverDnDsyevd@ (f64) or
+-- @cusolverDnSsyevd@ (f32) directly — the symmetric\/Hermitian cuSOLVER path
+-- that reduces to tridiagonal form before applying divide-and-conquer.
+-- This is strictly faster than going through SVD: it exploits symmetry in
+-- the reduction step and requires no sign-recovery pass.
+--
+-- Zero CPU\/GPU transfers. cuSOLVER is bound to ArrayFire's CUDA stream so
+-- the call is correctly ordered with surrounding AF operations.
+--
+-- Returns @(eigenvalues, eigenvectors)@:
+--
+--   * @eigenvalues@ — length-n vector in /ascending/ order.
+--   * @eigenvectors@ — n×n orthogonal matrix; column @i@ is the eigenvector
+--     for @eigenvalues[i]@.
+--
+-- Raises a runtime error on non-CUDA backends (CPU, OpenCL).
+eigSH
+  :: AFType a
+  => Array a   -- ^ real symmetric or complex Hermitian n×n matrix (f32 or f64)
+  -> (Array a, Array a)
+  -- ^ (eigenvalues vector, eigenvectors matrix)
+eigSH mat = mat `op2p` af_eigsh
+
 -- | Is LAPACK available
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__helper__func__available.htm)

@@ -45,6 +45,7 @@ module ArrayFire
   , module ArrayFire.Graphics
   , module ArrayFire.Image
   , module ArrayFire.Index
+  , module ArrayFire.Jacobi
   , module ArrayFire.LAPACK
   , module ArrayFire.Random
   , module ArrayFire.Signal
@@ -71,6 +72,7 @@ import ArrayFire.Features
 import ArrayFire.Graphics
 import ArrayFire.Image
 import ArrayFire.Index
+import ArrayFire.Jacobi
 import ArrayFire.LAPACK
 import ArrayFire.Random
 import ArrayFire.Signal
