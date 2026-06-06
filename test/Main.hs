@@ -4,6 +4,7 @@ module Main where
 
 import           Control.Monad
 
+import           Data.Maybe              (isJust)
 import           Data.Proxy
 import           Spec                    (spec)
 import           Test.Hspec              (hspec)
@@ -13,6 +14,7 @@ import           Test.QuickCheck.Classes
 import qualified ArrayFire               as A
 import           ArrayFire               (Array)
 
+import           System.Environment       (lookupEnv)
 import           System.IO.Unsafe
 
 instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
@@ -20,7 +22,11 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
 
 main :: IO ()
 main = do
-  A.setBackend A.Default
+  -- In CI there's often no GPU/OpenCL device available, which makes the
+  -- default backend throw (e.g. cl::Error: clGetDeviceIDs). Fall back to
+  -- the CPU backend when running in CI.
+  inCI <- isJust <$> lookupEnv "CI"
+  A.setBackend (if inCI then A.CPU else A.Default)
   A.info
 --  checks (Proxy :: Proxy (A.Array (A.Complex Float)))
 --  checks (Proxy :: Proxy (A.Array (A.Complex Double)))
