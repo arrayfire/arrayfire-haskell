@@ -77,25 +77,25 @@
       devShell-for = pkgs:
         let
           ps = pkgs.haskellPackages;
+          isLinux = pkgs.stdenv.isLinux;
+          isDarwin = pkgs.stdenv.isDarwin;
         in
-        ps.shellFor {
-          packages = ps: with ps; [ arrayfire ];
-          withHoogle = true;
-          buildInputs = with pkgs; [ ocl-icd ];
-          nativeBuildInputs = with pkgs; with ps; [
-            # Building and testing
-            cabal-install
-            doctest
-            hsc2hs
-            # hspec-discover
-            nil
-            # Formatters
-            nixpkgs-fmt
-          ];
-          shellHook = ''
-            export LD_LIBRARY_PATH="${pkgs.arrayfire}/lib:$LD_LIBRARY_PATH"
-          '';
-        };
+          ps.shellFor {
+            packages = ps: if isLinux then [ ps.arrayfire ] else [ ];
+            withHoogle = true;
+            buildInputs = with pkgs; (if isLinux then [ ocl-icd ] else [ darwin.apple_sdk.frameworks.Security ]);
+            nativeBuildInputs = with pkgs; with ps; [
+              # Building and testing
+              cabal-install
+              doctest
+              hsc2hs
+              # hspec-discover
+              nil
+              # Formatters
+              nixpkgs-fmt
+            ];
+            shellHook = if isLinux then ''export LD_LIBRARY_PATH="${pkgs.arrayfire}/lib:$LD_LIBRARY_PATH"'' else "";
+          };
 
       pkgs-for = system: import inputs.nixpkgs {
         inherit system;
