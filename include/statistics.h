@@ -15,3 +15,4 @@ af_err af_stdev_all(double *real, double *imag, const af_array in);
 af_err af_median_all(double *realVal, double *imagVal, const af_array in);
 af_err af_corrcoef(double *realVal, double *imagVal, const af_array X, const af_array Y);
 af_err af_topk(af_array *values, af_array *indices, const af_array in, const int k, const int dim, const af_topk_function order);
+af_err af_meanvar(af_array *mean, af_array *var, const af_array in, const af_array weights, const af_var_bias bias, const dim_t dim);

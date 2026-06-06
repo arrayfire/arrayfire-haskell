@@ -34,3 +34,12 @@ af_err af_sort_by_key(af_array *out_keys, af_array *out_values, const af_array k
 af_err af_set_unique(af_array *out, const af_array in, const bool is_sorted);
 af_err af_set_union(af_array *out, const af_array first, const af_array second, const bool is_unique);
 af_err af_set_intersect(af_array *out, const af_array first, const af_array second, const bool is_unique);
+af_err af_sum_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
+af_err af_sum_by_key_nan(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim, const double nanval);
+af_err af_product_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
+af_err af_product_by_key_nan(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim, const double nanval);
+af_err af_min_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
+af_err af_max_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
+af_err af_all_true_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
+af_err af_any_true_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
+af_err af_count_by_key(af_array *keys_out, af_array *vals_out, const af_array keys, const af_array vals, const int dim);
