@@ -17,6 +17,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install ArrayFire (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          brew install arrayfire
+          # The cabal file's OSX default paths are hardcoded to /opt/arrayfire;
+          # point them at the Homebrew install so the build finds the headers,
+          # libs, and rpath.
+          sudo ln -sfn "$(brew --prefix arrayfire)" /opt/arrayfire
+
       - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixpkgs-unstable
