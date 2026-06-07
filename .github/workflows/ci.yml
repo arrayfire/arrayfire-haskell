@@ -10,19 +10,31 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+
+      # macos-latest is Apple Silicon, but ArrayFire only ships an x86_64 macOS
+      # binary, so the flake's darwin output is x86_64-darwin. Build it under
+      # Rosetta 2: ensure Rosetta is present and let Nix build x86_64-darwin
+      # derivations via `extra-platforms` below.
+      - name: Install Rosetta 2
+        if: runner.os == 'macOS'
+        run: softwareupdate --install-rosetta --agree-to-license
 
       - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixpkgs-unstable
+          extra_nix_config: |
+            extra-platforms = x86_64-darwin
 
-      - name: Nix channel --update
-        run: nix-channel --update
+      - name: Build and run tests (Linux)
+        if: runner.os == 'Linux'
+        run: nix build -L
 
-      - name: Cabal update
-        run: nix develop --command bash -c 'cabal update'
-
-      - name: Build and run tests
-        run: nix develop --command bash -c 'cabal install && cabal test'
+      - name: Build and run tests (macOS, x86_64 via Rosetta)
+        if: runner.os == 'macOS'
+        run: nix build -L .#packages.x86_64-darwin.default
