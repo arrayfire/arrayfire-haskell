@@ -12,30 +12,16 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]  # Add macOS to the matrix
+        # macos-13 is the last x86_64 runner; ArrayFire only ships an x86_64
+        # macOS binary, so the flake has no aarch64-darwin (macos-latest) build.
+        os: [ubuntu-latest, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install ArrayFire (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          set -euo pipefail
-          brew install arrayfire
-          # The cabal file's OSX default paths are hardcoded to /opt/arrayfire;
-          # point them at the Homebrew install so the build finds the headers,
-          # libs, and rpath.
-          sudo ln -sfn "$(brew --prefix arrayfire)" /opt/arrayfire
 
       - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixpkgs-unstable
 
-      - name: Nix channel --update
-        run: nix-channel --update
-
-      - name: Cabal update
-        run: nix develop --command bash -c 'cabal update'
-
       - name: Build and run tests
-        run: nix develop --command bash -c 'cabal install hspec-discover && cabal test'
+        run: nix build -L

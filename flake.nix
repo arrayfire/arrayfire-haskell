@@ -50,6 +50,21 @@
           mkdir -p $out
           bash $src --exclude-subdir --prefix=$out
         '';
+        # autoPatchelfIgnoreMissingDeps silences missing-dep errors at build time,
+        # but a genuinely-absent dep of libafcpu.so would still make its runtime
+        # dlopen fail with LoadLibError. Fail the build loudly if the CPU backend
+        # has any unresolved (=> not just intentionally-ignored GPU) dependencies.
+        doInstallCheck = true;
+        installCheckPhase = ''
+          libdir=$out/lib64
+          [ -d "$libdir" ] || libdir=$out/lib
+          cpu=$(echo "$libdir"/libafcpu.so* | tr ' ' '\n' | head -n1)
+          echo "Checking runtime deps of $cpu"
+          if ldd "$cpu" | grep -i 'not found'; then
+            echo "ERROR: libafcpu.so has unresolved dependencies" >&2
+            exit 1
+          fi
+        '';
         meta = {
           description = "A general-purpose library for parallel and massively-parallel architectures";
           platforms = [ "x86_64-linux" ];
@@ -155,7 +170,18 @@
                       export DYLD_LIBRARY_PATH="${self.arrayfire}/lib''${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
                     '';
                   })
-                  else pkg;
+                  # On Linux we link against the unified backend (libaf), which is
+                  # just a dispatcher that dlopens the real backend impl
+                  # (libafcpu.so) at runtime. The sandboxed check phase has no
+                  # LD_LIBRARY_PATH/AF_PATH, so that dlopen finds nothing and every
+                  # test throws AFException LoadLibError (501). Point the loader at
+                  # the arrayfire libs so the backend can be found.
+                  else pkg.overrideAttrs (old: {
+                    preCheck = (old.preCheck or "") + ''
+                      export AF_PATH="${self.arrayfire}"
+                      export LD_LIBRARY_PATH="${self.arrayfire}/lib:${self.arrayfire}/lib64''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+                    '';
+                  });
             });
         };
       };
