@@ -201,12 +201,16 @@ op2p2kv (Array fptr1) (Array fptr2) op =
             peek p
           alloca $ \ptrOutput1 ->
             alloca $ \ptrOutput2 -> do
-              throwAFError =<< op ptrOutput1 ptrOutput2 castedKey ptr2
+              onException
+                (throwAFError =<< op ptrOutput1 ptrOutput2 castedKey ptr2)
+                (af_release_array_ffi castedKey)
               _ <- af_release_array_ffi castedKey
               outKey <- peek ptrOutput1
               outVal <- peek ptrOutput2
               finalKey <- alloca $ \p -> do
-                throwAFError =<< af_cast p outKey s64
+                onException
+                  (throwAFError =<< af_cast p outKey s64)
+                  (af_release_array_ffi outKey)
                 peek p
               _ <- af_release_array_ffi outKey
               pure (finalKey, outVal)
@@ -415,7 +419,7 @@ infoFromFeatures
   -> a
 {-# NOINLINE infoFromFeatures #-}
 infoFromFeatures (Features fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
@@ -450,7 +454,7 @@ infoFromArray
   -> a
 {-# NOINLINE infoFromArray #-}
 infoFromArray (Array fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
@@ -463,7 +467,7 @@ infoFromArray2
   -> (a,b)
 {-# NOINLINE infoFromArray2 #-}
 infoFromArray2 (Array fptr1) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput1 -> do
         alloca $ \ptrInput2 -> do
@@ -478,7 +482,7 @@ infoFromArray22
   -> (a,b)
 {-# NOINLINE infoFromArray22 #-}
 infoFromArray22 (Array fptr1) (Array fptr2) op =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
      withForeignPtr fptr2 $ \ptr2 -> do
       alloca $ \ptrInput1 -> do
@@ -493,7 +497,7 @@ infoFromArray3
   -> (a,b,c)
 {-# NOINLINE infoFromArray3 #-}
 infoFromArray3 (Array fptr1) op =
-  unsafePerformIO $
+  unsafePerformIO . mask_ $
     withForeignPtr fptr1 $ \ptr1 -> do
       alloca $ \ptrInput1 -> do
         alloca $ \ptrInput2 -> do
@@ -510,7 +514,7 @@ infoFromArray4
   -> (a,b,c,d)
 {-# NOINLINE infoFromArray4 #-}
 infoFromArray4 (Array fptr1) op =
-  unsafePerformIO $
+  unsafePerformIO . mask_ $
     withForeignPtr fptr1 $ \ptr1 ->
       alloca $ \ptrInput1 ->
         alloca $ \ptrInput2 ->

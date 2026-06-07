@@ -69,3 +69,28 @@ spec =
       A.norm (A.vector @Double 2 [3,4]) A.NormVectorOne 1 1 `shouldBeApprox` 7
       -- || [3, 4] ||_inf = 4
       A.norm (A.vector @Double 2 [3,4]) A.NormVectorInf 1 1 `shouldBeApprox` 4
+
+    it "Should perform cholesky decomposition" $ do
+      -- A = | 4  2 |  (column-major: [4,2,2,3])
+      --     | 2  3 |
+      -- L = | 2    0   |  where L*L^T = A
+      --     | 1    √2  |
+      let a = A.mkArray @Double [2,2] [4,2,2,3]
+          (status, l) = A.cholesky a False
+      status `shouldBe` 0
+      let ls = A.toList @Double l
+      mapM_ (uncurry shouldBeApprox) (zip ls [2, 1, 0, sqrt 2])
+
+    it "choleskyInplace returns 0 for a symmetric positive definite matrix" $ do
+      let a = A.mkArray @Double [2,2] [4,2,2,3]
+      A.choleskyInplace a False `shouldBe` 0
+
+    it "Should solve Ax=b using solveLU" $ do
+      -- A = | 2  1 |  b = | 5 |  =>  x = | 2 |
+      --     | 1  3 |      | 10|           | 3 |
+      -- Column-major A: [2,1,1,3],  b: [5,10]
+      let a   = A.mkArray @Double [2,2] [2,1,1,3]
+          b   = A.vector  @Double 2     [5,10]
+          piv = A.luInPlace a True
+          x   = A.solveLU a piv b A.None
+      mapM_ (uncurry shouldBeApprox) (zip (A.toList @Double x) [1,3])

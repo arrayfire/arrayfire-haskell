@@ -177,21 +177,30 @@ mkArray
   -- ^ Returned array
 {-# NOINLINE mkArray #-}
 mkArray dims xs =
-  unsafePerformIO $ do
-    when (Prelude.length (take size xs) < size) $ do
-      let msg = "Invalid elements provided. "
-           <> "Expected "
-           <> show size
-           <> " elements received "
-           <> show (Prelude.length xs)
-      throwIO (AFException SizeError 203 msg)
-    dataPtr <- castPtr <$> newArray (Prelude.take size xs)
+  unsafePerformIO . mask_ $ do
     let ndims = fromIntegral (Prelude.length dims)
     alloca $ \arrayPtr -> do
       zeroOutArray arrayPtr
       dimsPtr <- newArray (DimT . fromIntegral <$> dims)
-      throwAFError =<< af_create_array arrayPtr dataPtr ndims dimsPtr dType
-      free dataPtr >> free dimsPtr
+      if size == 0
+        then onException
+               (do throwAFError =<< af_create_handle arrayPtr ndims dimsPtr dType
+                   free dimsPtr)
+               (free dimsPtr)
+        else do
+          when (Prelude.length (Prelude.take size xs) < size) $ do
+            free dimsPtr
+            let msg = "Invalid elements provided. "
+                 <> "Expected "
+                 <> show size
+                 <> " elements received "
+                 <> show (Prelude.length xs)
+            throwIO (AFException SizeError 203 msg)
+          dataPtr <- castPtr <$> newArray (Prelude.take size xs)
+          onException
+            (do throwAFError =<< af_create_array arrayPtr dataPtr ndims dimsPtr dType
+                free dataPtr >> free dimsPtr)
+            (free dataPtr >> free dimsPtr)
       arr <- peek arrayPtr
       Array <$> newForeignPtr af_release_array_finalizer arr
     where
@@ -484,7 +493,7 @@ toVector arr@(Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     let len = getElements arr
         size = len * getSizeOf (Proxy @a)
-    ptr <- mallocBytes (len * size)
+    ptr <- mallocBytes size
     throwAFError =<< af_get_data_ptr (castPtr ptr) arrPtr
     newFptr <- newForeignPtr finalizerFree ptr
     pure $ unsafeFromForeignPtr0 newFptr len

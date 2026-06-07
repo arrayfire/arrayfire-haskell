@@ -4,6 +4,7 @@ module ArrayFire.ArraySpec where
 
 import Control.Exception
 import Data.Complex
+import qualified Data.Vector.Storable as V
 import Data.Word
 import Foreign.C.Types
 import GHC.Int
@@ -16,15 +17,12 @@ spec =
   describe "Array tests" $ do
     it "Should add two scalar arrays" $ do
       (scalar @Int 1 + scalar @Int 1) `shouldBe` scalar @Int 2
-    it "Should fail to create 0 dimension arrays" $ do
-      let arr = mkArray @Int [0,0,0,0] [1..]
-      evaluate arr `shouldThrow` anyException
-    it "Should fail to create 0 length arrays" $ do
-      let arr = mkArray @Int [0,0,0,1] []
-      evaluate arr `shouldThrow` anyException
-    it "Should fail to create 0 length arrays w/ 0 dimensions" $ do
-      let arr = mkArray @Int [0,0,0,0] []
-      evaluate arr `shouldThrow` anyException
+    it "Should create a 0 dimension array" $ do
+      getElements (mkArray @Int [3,0,1,1] []) `shouldBe` 0
+    it "Should create a 0 length array" $ do
+      getElements (mkArray @Int [0,0,0,1] []) `shouldBe` 0
+    it "Should create a 0 length array w/ 0 dimensions" $ do
+      getElements (mkArray @Int [0,0,0,0] []) `shouldBe` 0
     it "Should create a column vector" $ do
       let arr = mkArray @Int [9,1,1,1] (repeat 9)
       isColumn arr `shouldBe` True
@@ -47,10 +45,10 @@ spec =
     it "Should return the number of elements" $ do
       let arr = mkArray @Int [9,9,1,1] [1..]
       getElements arr `shouldBe` 81
---    it "Should give an empty array" $ do
---      let arr = mkArray @Int [-1,1,1,1] []
---      getElements arr `shouldBe` 0
---      isEmpty arr `shouldBe` True
+    it "Should give an empty array" $ do
+      let arr = mkArray @Int [0,1,1,1] []
+      getElements arr `shouldBe` 0
+      isEmpty arr `shouldBe` True
     it "Should create a scalar array" $ do
       let arr = mkArray @Int [1] [1]
       isScalar arr `shouldBe` True
@@ -154,3 +152,19 @@ spec =
 
       let arr = mkArray @Word [10] [1..10]
       toList arr `shouldBe` [1..10]
+
+    -- Regression: toVector previously allocated len*size bytes instead of size,
+    -- causing quadratic memory use. These round-trips verify correct element count
+    -- and values at sizes where the bug was most wasteful.
+    describe "toVector round-trip" $ do
+      it "preserves all elements for a 1000-element Double array" $ do
+        let xs  = [1..1000] :: [Double]
+            arr = mkArray @Double [1000] xs
+        V.toList (toVector arr) `shouldBe` xs
+      it "preserves all elements for a 500-element Int array" $ do
+        let xs  = [1..500] :: [Int]
+            arr = mkArray @Int [500] xs
+        V.toList (toVector arr) `shouldBe` xs
+      it "length of toVector matches getElements" $ do
+        let arr = mkArray @Double [7, 13] (repeat 0)
+        V.length (toVector arr) `shouldBe` getElements arr

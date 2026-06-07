@@ -166,3 +166,41 @@ spec =
     prop "Floating @Float (asinh)" $ \(x :: Float) -> asinh `shouldMatchBuiltin` asinh $ x
     prop "Floating @Float (acosh)" $ \(x :: Float) -> acosh `shouldMatchBuiltin` acosh $ x
     prop "Floating @Float (atanh)" $ \(x :: Float) -> atanh `shouldMatchBuiltin` atanh $ x
+
+    describe "erf" $ do
+      it "erf 0 = 0" $
+        evalf (ArrayFire.erf (scalar @Double 0)) `shouldBeApprox` 0
+      it "erf 1 ≈ 0.8427" $
+        evalf (ArrayFire.erf (scalar @Double 1)) `shouldBeApprox` 0.8427007929497149
+      it "erf is odd: erf(-x) = -erf(x)" $
+        evalf (ArrayFire.erf (scalar @Double (-1))) `shouldBeApprox`
+          negate (evalf (ArrayFire.erf (scalar @Double 1)))
+
+    describe "erfc" $ do
+      it "erfc 0 = 1" $
+        evalf (ArrayFire.erfc (scalar @Double 0)) `shouldBeApprox` 1
+      it "erf(x) + erfc(x) = 1" $ do
+        let x = scalar @Double 1.5
+        (evalf (ArrayFire.erf x) + evalf (ArrayFire.erfc x)) `shouldBeApprox` 1
+
+    describe "sigmoid" $ do
+      it "sigmoid 0 = 0.5" $
+        evalf (ArrayFire.sigmoid (scalar @Double 0)) `shouldBeApprox` 0.5
+      it "sigmoid(-x) = 1 - sigmoid(x)" $ do
+        let x = scalar @Double 2.0
+        evalf (ArrayFire.sigmoid (negate x))
+          `shouldBeApprox`
+          (1 - evalf (ArrayFire.sigmoid x))
+
+    describe "expm1" $ do
+      it "expm1 0 = 0" $
+        evalf (ArrayFire.expm1 (scalar @Double 0)) `shouldBeApprox` 0
+      it "expm1 1 = e - 1" $
+        evalf (ArrayFire.expm1 (scalar @Double 1)) `shouldBeApprox` (exp 1 - 1)
+
+    describe "clamp (vector)" $ do
+      it "clamps each element to [lo, hi]" $
+        clamp (vector @Int 5 [0,1,5,9,10])
+              (scalar @Int 2)
+              (scalar @Int 8)
+          `shouldBe` vector @Int 5 [2,2,5,8,8]

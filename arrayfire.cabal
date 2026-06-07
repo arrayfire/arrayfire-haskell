@@ -177,6 +177,7 @@ test-suite test
     ArrayFire.ImageSpec
     ArrayFire.IndexSpec
     ArrayFire.LAPACKSpec
+    ArrayFire.NumericalSpec
     ArrayFire.RandomSpec
     ArrayFire.SignalSpec
     ArrayFire.SparseSpec

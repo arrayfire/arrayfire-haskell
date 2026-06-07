@@ -42,12 +42,36 @@ import Foreign.Storable
 import System.IO.Unsafe
 import Unsafe.Coerce
 
+import Data.Bits
+
 import ArrayFire.Exception
 import ArrayFire.FFI
+import ArrayFire.Internal.Array (af_get_dims)
 import ArrayFire.Internal.Data
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Types
 import ArrayFire.Arith
+
+-- | Bitwise complement of every element in an 'Array'
+--
+-- >>> A.bitNot (A.scalar @Int32 0)
+-- ArrayFire Array
+-- [1 1 1 1]
+--        -1
+bitNot
+  :: (AFType a, Bits a)
+  => Array a
+  -> Array a
+bitNot arr = arr `bitXor` ones
+  where
+    (d0, d1, d2, d3) = arr `infoFromArray4` af_get_dims
+    ones = constant
+      [ fromIntegral d0
+      , fromIntegral d1
+      , fromIntegral d2
+      , fromIntegral d3
+      ]
+      (complement zeroBits)
 
 -- | Creates an 'Array' from a scalar value from given dimensions
 --

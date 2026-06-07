@@ -526,10 +526,10 @@ bitAnd
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
+  -> Array a
   -- ^ Result of bitwise and
 bitAnd x y =
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 1
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
@@ -546,10 +546,10 @@ bitAndBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
+  -> Array a
   -- ^ Result of bitwise and
 bitAndBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 batch
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
@@ -564,10 +564,10 @@ bitOr
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
-  -- ^ Result of bit or
+  -> Array a
+  -- ^ Result of bitwise or
 bitOr x y = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 1
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
@@ -584,10 +584,10 @@ bitOrBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
-  -- ^ Result of bit or
+  -> Array a
+  -- ^ Result of bitwise or
 bitOrBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 batch
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
@@ -602,10 +602,10 @@ bitXor
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
-  -- ^ Result of bit xor
+  -> Array a
+  -- ^ Result of bitwise xor
 bitXor x y = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 1
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
@@ -622,10 +622,10 @@ bitXorBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
-  -- ^ Result of bit xor
+  -> Array a
+  -- ^ Result of bitwise xor
 bitXorBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 batch
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
@@ -640,10 +640,10 @@ bitShiftL
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
+  -> Array a
   -- ^ Result of bit shift left
 bitShiftL x y =
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 1
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
@@ -660,10 +660,10 @@ bitShiftLBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
+  -> Array a
   -- ^ Result of bit shift left
 bitShiftLBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
@@ -678,10 +678,10 @@ bitShiftR
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
+  -> Array a
   -- ^ Result of bit shift right
 bitShiftR x y =
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 1
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
@@ -698,10 +698,10 @@ bitShiftRBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
-  -- ^ Result of bit shift left
+  -> Array a
+  -- ^ Result of bit shift right
 bitShiftRBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
 
 -- | Cast one 'Array' into another
