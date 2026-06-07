@@ -94,13 +94,13 @@ spec =
       A.max (A.vector @(A.Complex Float) 3 [3 A.:+ 4, 1 A.:+ 0, 2 A.:+ 2]) 0 `shouldBe` A.scalar (3 A.:+ 4)
       A.max (A.vector @A.CBool 5 [0,1,1,0,1]) 0 `shouldBe` 1
     it "Should find if all elements are true along dimension" $ do
-      A.allTrue (A.vector @Double 5 (repeat 12.0)) 0 `shouldBe` 1
-      A.allTrue (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` 1
-      A.allTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` 0
+      A.allTrue (A.vector @Double 5 (repeat 12.0)) 0 `shouldBe` A.scalar @A.CBool 1
+      A.allTrue (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` A.scalar @A.CBool 1
+      A.allTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` A.scalar @A.CBool 0
     it "Should find if any elements are true along dimension" $ do
-      A.anyTrue (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` 1
-      A.anyTrue (A.vector @Int 5 (repeat 23)) 0 `shouldBe` 1
-      A.anyTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` 0
+      A.anyTrue (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` A.scalar @A.CBool 1
+      A.anyTrue (A.vector @Int 5 (repeat 23)) 0 `shouldBe` A.scalar @A.CBool 1
+      A.anyTrue (A.vector @A.CBool 5 (repeat 0)) 0 `shouldBe` A.scalar @A.CBool 0
     it "Should get count of all elements" $ do
       A.count (A.vector @Int 5 (repeat 1)) 0 `shouldBe` 5
       A.count (A.vector @A.CBool 5 (repeat 1)) 0 `shouldBe` 5
@@ -205,7 +205,7 @@ spec =
     describe "where'" $ do
       it "returns indices of nonzero elements" $ do
         A.where' (A.vector @Double 5 [0,1,0,2,0])
-          `shouldBe` A.vector @Double 2 [1,3]
+          `shouldBe` A.vector @A.Word32 2 [1,3]
       it "returns empty array when all elements are zero" $ do
         A.getDims (A.where' (A.vector @Double 3 [0,0,0]))
           `shouldBe` (0,1,1,1)

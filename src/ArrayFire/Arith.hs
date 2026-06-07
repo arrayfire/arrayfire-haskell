@@ -28,7 +28,7 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFrac)
+import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFloat)
 
 import Data.Coerce
 import Data.Proxy
@@ -1315,12 +1315,12 @@ atan2Batched x y (fromIntegral . fromEnum -> batch) = do
 --          (9.0000,9.0000)
 --          (10.0000,10.0000)
 cplx2
-  :: AFType a
+  :: (RealFloat a, AFType a, AFType (Complex a))
   => Array a
-  -- ^ First input
+  -- ^ First input (real part)
   -> Array a
-  -- ^ Second input
-  -> Array a
+  -- ^ Second input (imaginary part)
+  -> Array (Complex a)
   -- ^ Result of cplx2
 cplx2 x y =
   x `op2` y $ \arr arr1 arr2 ->
@@ -1342,14 +1342,14 @@ cplx2 x y =
 --          (9.0000,9.0000)
 --          (10.0000,10.0000)
 cplx2Batched
-  :: AFType a
+  :: (RealFloat a, AFType a, AFType (Complex a))
   => Array a
-  -- ^ First input
+  -- ^ First input (real part)
   -> Array a
-  -- ^ Second input
+  -- ^ Second input (imaginary part)
   -> Bool
   -- ^ Use batch
-  -> Array a
+  -> Array (Complex a)
   -- ^ Result of cplx2
 cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
@@ -1371,11 +1371,11 @@ cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
 --          (9.0000,0.0000)
 --          (10.0000,0.0000)
 cplx
-  :: AFType a
+  :: (RealFloat a, AFType a, AFType (Complex a))
   => Array a
   -- ^ Input array
-  -> Array a
-  -- ^ Result of calling 'atan'
+  -> Array (Complex a)
+  -- ^ Complex array with input as real part and zero imaginary part
 cplx = flip op1 af_cplx
 
 -- | Execute real
@@ -1385,11 +1385,11 @@ cplx = flip op1 af_cplx
 -- [1 1 1 1]
 --    10.0000
 real
-  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
-  => Array (Complex b)
+  :: (RealFloat a, AFType a, AFType (Complex a))
+  => Array (Complex a)
   -- ^ Input array
   -> Array a
-  -- ^ Result of calling 'real'
+  -- ^ Real part of each element
 real = flip op1 af_real
 
 -- | Execute imag
@@ -1399,11 +1399,11 @@ real = flip op1 af_real
 -- [1 1 1 1]
 --    11.0000
 imag
-  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
-  => Array (Complex b)
+  :: (RealFloat a, AFType a, AFType (Complex a))
+  => Array (Complex a)
   -- ^ Input array
   -> Array a
-  -- ^ Result of calling 'imag'
+  -- ^ Imaginary part of each element
 imag = flip op1 af_imag
 
 -- | Execute conjg
@@ -2043,7 +2043,7 @@ isZero
   :: AFType a
   => Array a
   -- ^ Input array
-  -> Array a
+  -> Array CBool
   -- ^ Result of calling 'isZero'
 isZero = (`op1` af_iszero)
 
@@ -2066,7 +2066,7 @@ isInf
   :: (Real a, AFType a)
   => Array a
   -- ^ Input array
-  -> Array a
+  -> Array CBool
   -- ^ will contain 1's where input is Inf or -Inf, and 0 otherwise.
 isInf = (`op1` af_isinf)
 
@@ -2086,9 +2086,9 @@ isInf = (`op1` af_isinf)
 --          1
 --          1
 isNaN
-  :: forall a. (AFType a, Real a)
+  :: (AFType a, Real a)
   => Array a
   -- ^ Input array
-  -> Array a
+  -> Array CBool
   -- ^ Will contain 1's where input is NaN, and 0 otherwise.
 isNaN = (`op1` af_isnan)

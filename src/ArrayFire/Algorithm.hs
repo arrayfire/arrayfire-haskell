@@ -27,6 +27,7 @@
 module ArrayFire.Algorithm where
 
 import Data.Word (Word32)
+import Foreign.C.Types (CBool)
 
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
@@ -154,13 +155,13 @@ max x (fromIntegral -> n) = x `op1` (\p a -> af_max p a n)
 -- [1 1 1 1]
 --         0
 allTrue
-  :: forall a. AFType a
+  :: AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to see if all elements are True
-  -> Array a
-  -- ^ Will contain the maximum of all values in the input array along dim
+  -> Array CBool
+  -- ^ Will contain 1 where all elements along dim are true, 0 otherwise
 allTrue x (fromIntegral -> n) =
   x `op1` (\p a -> af_all_true p a n)
 
@@ -171,13 +172,13 @@ allTrue x (fromIntegral -> n) =
 -- [1 1 1 1]
 --         0
 anyTrue
-  :: forall a . AFType a
+  :: AFType a
   => Array a
   -- ^ Array input
   -> Int
-  -- ^ Dimension along which to see if all elements are True
-  -> Array a
-  -- ^ Returns if all elements are true
+  -- ^ Dimension along which to see if any elements are True
+  -> Array CBool
+  -- ^ Will contain 1 where any element along dim is true, 0 otherwise
 anyTrue x (fromIntegral -> n) =
   (x `op1` (\p a -> af_any_true p a n))
 
@@ -473,8 +474,8 @@ where'
   :: AFType a
   => Array a
   -- ^ Is the input array.
-  -> Array a
-  -- ^ will contain indices where input array is non-zero
+  -> Array Word32
+  -- ^ Indices where input array is non-zero
 where' = (`op1` af_where)
 
 -- | First order numerical difference along specified dimension.

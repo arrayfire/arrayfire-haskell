@@ -140,15 +140,15 @@ spec =
       clamp (scalar @Int 2) (scalar @Int 1) (scalar @Int 3)
         `shouldBe` 2
     it "Should check if an array has positive or negative infinities" $ do
-      isInf (scalar @Double (1 / 0)) `shouldBe` scalar @Double 1
-      isInf (scalar @Double 10) `shouldBe` scalar @Double 0
+      isInf (scalar @Double (1 / 0)) `shouldBe` scalar @CBool 1
+      isInf (scalar @Double 10) `shouldBe` scalar @CBool 0
     it "Should check if an array has any NaN values" $ do
-      ArrayFire.isNaN (scalar @Double (acos 2)) `shouldBe` scalar @Double 1
-      ArrayFire.isNaN (scalar @Double 10) `shouldBe` scalar @Double 0
+      ArrayFire.isNaN (scalar @Double (acos 2)) `shouldBe` scalar @CBool 1
+      ArrayFire.isNaN (scalar @Double 10) `shouldBe` scalar @CBool 0
     it "Should check if an array has any Zero values" $ do
-      isZero (scalar @Double (acos 2)) `shouldBe` scalar @Double 0
-      isZero (scalar @Double 0) `shouldBe` scalar @Double 1
-      isZero (scalar @Double 1) `shouldBe` scalar @Double 0
+      isZero (scalar @Double (acos 2)) `shouldBe` scalar @CBool 0
+      isZero (scalar @Double 0) `shouldBe` scalar @CBool 1
+      isZero (scalar @Double 1) `shouldBe` scalar @CBool 0
 
     prop "Floating @Float (exp)" $ \(x :: Float) -> exp `shouldMatchBuiltin` exp $ x
     prop "Floating @Float (log)" $ \(x :: Float) -> log `shouldMatchBuiltin` log $ x
