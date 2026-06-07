@@ -209,6 +209,46 @@ mkArray dims xs =
 
 -- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
 
+-- | Constructs an 'Array' from a 'Storable' 'Vector', avoiding the intermediate list allocation of 'mkArray'.
+--
+-- The vector's pinned buffer is passed directly to @af_create_array@.
+-- Throws 'AFException' if the vector length does not match the product of the given dimensions.
+--
+-- >>> fromVector @Double [3] (Data.Vector.Storable.fromList [1,2,3])
+-- ArrayFire Array
+-- [3 1 1 1]
+--     1.0000
+--     2.0000
+--     3.0000
+fromVector
+  :: forall a
+   . AFType a
+  => [Int]
+  -- ^ Dimensions
+  -> Vector a
+  -- ^ Source storable vector
+  -> Array a
+{-# NOINLINE fromVector #-}
+fromVector dims vec =
+  unsafePerformIO . mask_ $ do
+    let size  = Prelude.product dims
+        ndims = fromIntegral (Prelude.length dims)
+        dType = afType (Proxy @a)
+    when (V.length vec /= size) $
+      throwIO $ AFException SizeError 203 $
+        "fromVector: dimension product " <> show size <>
+        " does not match vector length " <> show (V.length vec)
+    alloca $ \arrayPtr -> do
+      zeroOutArray arrayPtr
+      dimsPtr <- newArray (DimT . fromIntegral <$> dims)
+      onException
+        (V.unsafeWith vec $ \ptr -> do
+          throwAFError =<< af_create_array arrayPtr (castPtr ptr) ndims dimsPtr dType
+          free dimsPtr)
+        (free dimsPtr)
+      arr <- peek arrayPtr
+      Array <$> newForeignPtr af_release_array_finalizer arr
+
 -- | Copies an 'Array' to a new 'Array'
 --
 -- >>> copyArray (scalar @Double 10)

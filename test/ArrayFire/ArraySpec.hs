@@ -168,3 +168,25 @@ spec =
       it "length of toVector matches getElements" $ do
         let arr = mkArray @Double [7, 13] (repeat 0)
         V.length (toVector arr) `shouldBe` getElements arr
+
+    describe "fromVector" $ do
+      it "round-trips a Double vector" $ do
+        let xs  = V.fromList [1..10 :: Double]
+            arr = fromVector @Double [10] xs
+        toVector arr `shouldBe` xs
+      it "round-trips an Int vector" $ do
+        let xs  = V.fromList [1..100 :: Int]
+            arr = fromVector @Int [100] xs
+        toVector arr `shouldBe` xs
+      it "round-trips a Complex Double vector" $ do
+        let xs  = V.fromList [1 :+ 2, 3 :+ 4 :: Complex Double]
+            arr = fromVector @(Complex Double) [2] xs
+        toVector arr `shouldBe` xs
+      it "produces the same result as mkArray" $ do
+        let xs  = [1..25 :: Double]
+            arr1 = mkArray @Double [5,5] xs
+            arr2 = fromVector @Double [5,5] (V.fromList xs)
+        arr2 `shouldBe` arr1
+      it "throws on dimension mismatch" $ do
+        let xs = V.fromList [1,2,3 :: Double]
+        evaluate (fromVector @Double [4] xs) `shouldThrow` anyException
