@@ -1,4 +1,8 @@
 ## <a href="http://arrayfire.com/"><img src="http://arrayfire.com/logos/arrayfire_logo_whitebkgnd.png" width="300"></a>
+
+[![CI](https://github.com/arrayfire/arrayfire-haskell/actions/workflows/ci.yml/badge.svg)](https://github.com/arrayfire/arrayfire-haskell/actions/workflows/ci.yml)
+[![Hackage](https://img.shields.io/hackage/v/arrayfire.svg)](https://hackage.haskell.org/package/arrayfire)
+
 `ArrayFire` is a general-purpose library that simplifies the process of developing software that targets parallel and massively-parallel architectures including CPUs, GPUs, and other hardware acceleration devices.
 
 `arrayfire-haskell` is a [Haskell](https://haskell.org) binding to [ArrayFire](https://arrayfire.com).
