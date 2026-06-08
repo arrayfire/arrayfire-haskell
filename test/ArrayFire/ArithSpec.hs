@@ -204,3 +204,25 @@ spec =
               (scalar @Int 2)
               (scalar @Int 8)
           `shouldBe` vector @Int 5 [2,2,5,8,8]
+
+    describe "signum" $ do
+      it "positive Int → 1" $
+        signum (scalar @Int 5) `shouldBe` scalar @Int 1
+      it "negative Int → -1" $
+        signum (scalar @Int (-3)) `shouldBe` scalar @Int (-1)
+      it "zero Int → 0" $
+        signum (scalar @Int 0) `shouldBe` scalar @Int 0
+      -- unsigned: old sign(-x) - sign(x) wrapped, making signum always 0
+      it "positive Word32 → 1 (unsigned negate wraps)" $
+        signum (scalar @ArrayFire.Word32 7) `shouldBe` scalar @ArrayFire.Word32 1
+      it "zero Word32 → 0" $
+        signum (scalar @ArrayFire.Word32 0) `shouldBe` scalar @ArrayFire.Word32 0
+      -- IEEE 754: af_sign checks the sign bit, so sign(-0.0) = 1 → old signum(0.0) = 1
+      it "negative zero Double → 0 (IEEE 754 -0.0)" $
+        evalf (signum (scalar @Double (-0.0))) `shouldBeApprox` 0
+      it "positive Double → 1" $
+        evalf (signum (scalar @Double 2.5)) `shouldBeApprox` 1
+      it "negative Double → -1" $
+        evalf (signum (scalar @Double (-2.5))) `shouldBeApprox` (-1)
+      it "signum vector" $
+        signum (vector @Int 3 [-4, 0, 7]) `shouldBe` vector @Int 3 [-1, 0, 1]
