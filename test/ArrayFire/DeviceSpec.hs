@@ -7,7 +7,7 @@ import           Test.Hspec
 
 spec :: Spec
 spec =
-  describe "Algorithm tests" $ do
+  describe "Device tests" $ do
     it "Should show device info" $ do
       A.info `shouldReturn` ()
     it "Should show device init" $ do

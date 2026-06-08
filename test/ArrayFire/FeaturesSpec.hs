@@ -7,7 +7,7 @@ import Test.Hspec
 
 spec :: Spec
 spec =
-  describe "Feautures tests" $ do
+  describe "Features tests" $ do
     it "Should get features number an array" $ do
       let feats = createFeatures 10
       getFeaturesNum feats `shouldBe` 10

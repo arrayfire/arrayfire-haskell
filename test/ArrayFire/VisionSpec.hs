@@ -1,14 +1,267 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 module ArrayFire.VisionSpec where
 
-import qualified ArrayFire  as A
+import qualified ArrayFire as A
+import           Control.Exception (SomeException, evaluate, try)
+import           Control.Monad     (when)
 import           Test.Hspec
 
-spec :: Spec
-spec =
-  describe "Vision spec" $ do
-    it "Should construct Features for fast feature detection" $ do
-      let arr = A.vector @Int 30000 [1..]
-      let feats = A.fast arr 1.0 9 False 1.0 3
-      (1 + 1) `shouldBe` 2
+-- | 100×100 constant-intensity Float image. No edges or corners.
+-- FAST / Harris / SUSAN must produce 0 features on this image.
+flatImg :: A.Array Float
+flatImg = A.constant @Float [100, 100] 0.5
 
+-- | 100×100 image composed of four 50×50 quadrants with alternating
+-- intensities (0.0 / 1.0), creating a strong corner at the centre.
+quadrantImg :: A.Array Float
+quadrantImg =
+  let tl = A.constant @Float [50, 50] 0.0
+      tr = A.constant @Float [50, 50] 1.0
+      bl = A.constant @Float [50, 50] 1.0
+      br = A.constant @Float [50, 50] 0.0
+  in A.join 0 (A.join 1 tl tr) (A.join 1 bl br)
+
+xpos, ypos, score, orient, size_ :: A.Features -> A.Array Float
+xpos   = A.getFeaturesXPos
+ypos   = A.getFeaturesYPos
+score  = A.getFeaturesScore
+orient = A.getFeaturesOrientation
+size_  = A.getFeaturesSize
+
+spec :: Spec
+spec = describe "Vision spec" $ do
+
+  -- ------------------------------------------------------------------ --
+  --  FAST
+  -- ------------------------------------------------------------------ --
+  describe "fast" $ do
+    it "detects 0 features on a flat image" $
+      A.getFeaturesNum (A.fast flatImg 0.05 9 False 1.0 3) `shouldBe` 0
+
+    it "all accessor arrays are consistent with getFeaturesNum" $ do
+      let feats = A.fast quadrantImg 0.1 9 False 1.0 3
+          n     = A.getFeaturesNum feats
+      A.getElements (xpos   feats) `shouldBe` n
+      A.getElements (ypos   feats) `shouldBe` n
+      A.getElements (score  feats) `shouldBe` n
+      A.getElements (orient feats) `shouldBe` n
+      A.getElements (size_  feats) `shouldBe` n
+
+    it "detected x-coordinates lie in [0, 100)" $ do
+      let feats = A.fast quadrantImg 0.1 9 False 1.0 3
+      A.toList (xpos feats) `shouldSatisfy` all (\x -> x >= (0 :: Float) && x < 100)
+
+    it "detected y-coordinates lie in [0, 100)" $ do
+      let feats = A.fast quadrantImg 0.1 9 False 1.0 3
+      A.toList (ypos feats) `shouldSatisfy` all (\y -> y >= (0 :: Float) && y < 100)
+
+    it "all feature scores are non-negative" $ do
+      let feats = A.fast quadrantImg 0.1 9 False 1.0 3
+      A.toList (score feats) `shouldSatisfy` all (>= (0 :: Float))
+
+  -- ------------------------------------------------------------------ --
+  --  Harris
+  -- ------------------------------------------------------------------ --
+  describe "harris" $ do
+    it "detects 0 corners on a flat image" $
+      A.getFeaturesNum (A.harris flatImg 500 1e-3 1.0 0 0.04) `shouldBe` 0
+
+    it "all accessor arrays are consistent with getFeaturesNum" $ do
+      let feats = A.harris quadrantImg 500 1e-3 1.0 0 0.04
+          n     = A.getFeaturesNum feats
+      A.getElements (xpos  feats) `shouldBe` n
+      A.getElements (ypos  feats) `shouldBe` n
+      A.getElements (score feats) `shouldBe` n
+
+    it "detected x-coordinates lie in [0, 100)" $ do
+      let feats = A.harris quadrantImg 500 1e-3 1.0 0 0.04
+      A.toList (xpos feats) `shouldSatisfy` all (\x -> x >= (0 :: Float) && x < 100)
+
+    it "detected y-coordinates lie in [0, 100)" $ do
+      let feats = A.harris quadrantImg 500 1e-3 1.0 0 0.04
+      A.toList (ypos feats) `shouldSatisfy` all (\y -> y >= (0 :: Float) && y < 100)
+
+  -- ------------------------------------------------------------------ --
+  --  ORB
+  -- ------------------------------------------------------------------ --
+  describe "orb" $ do
+    it "descriptor row count equals getFeaturesNum" $ do
+      let (feats, descs) = A.orb quadrantImg 0.1 500 1.5 4 False
+          n              = A.getFeaturesNum feats
+          (d0, _, _, _)  = A.getDims (descs :: A.Array Float)
+      d0 `shouldBe` n
+
+    it "all coordinate arrays are consistent with getFeaturesNum" $ do
+      let (feats, _) = A.orb quadrantImg 0.1 500 1.5 4 False
+          n          = A.getFeaturesNum feats
+      A.getElements (xpos   feats) `shouldBe` n
+      A.getElements (ypos   feats) `shouldBe` n
+      A.getElements (score  feats) `shouldBe` n
+      A.getElements (orient feats) `shouldBe` n
+      A.getElements (size_  feats) `shouldBe` n
+
+  -- ------------------------------------------------------------------ --
+  --  SUSAN
+  -- ------------------------------------------------------------------ --
+  describe "susan" $ do
+    it "detects 0 corners on a flat image" $
+      A.getFeaturesNum (A.susan flatImg 3 0.1 0.5 0.05 3) `shouldBe` 0
+
+    it "all accessor arrays are consistent with getFeaturesNum" $ do
+      let feats = A.susan quadrantImg 3 0.1 0.5 0.05 3
+          n     = A.getFeaturesNum feats
+      A.getElements (xpos  feats) `shouldBe` n
+      A.getElements (ypos  feats) `shouldBe` n
+      A.getElements (score feats) `shouldBe` n
+
+    it "detected x-coordinates lie in [0, 100)" $ do
+      let feats = A.susan quadrantImg 3 0.1 0.5 0.05 3
+      A.toList (xpos feats) `shouldSatisfy` all (\x -> x >= (0 :: Float) && x < 100)
+
+  -- ------------------------------------------------------------------ --
+  --  Difference of Gaussians
+  -- ------------------------------------------------------------------ --
+  describe "dog" $ do
+    it "output has the same dimensions as the input image" $
+      A.getDims (A.dog flatImg 1 2) `shouldBe` (100, 100, 1, 1)
+
+    it "DoG of a constant image has zero interior values" $ do
+      -- Border pixels are non-zero due to Gaussian zero-padding; the interior
+      -- (at least 2 pixels from each edge for kernel radius=2) must be zero.
+      let result   = A.dog (A.constant @Float [20, 20] 0.5) 1 2
+          interior = result A.! (A.range 2 17, A.range 2 17)
+      A.toList @Float interior `shouldSatisfy` all (\v -> abs v < 1e-5)
+
+    it "different radii produce different results on a non-constant image" $ do
+      let dog12 = A.dog quadrantImg 1 2
+          dog13 = A.dog quadrantImg 1 3
+      (dog12 == dog13) `shouldBe` False
+
+  -- ------------------------------------------------------------------ --
+  --  matchTemplate
+  -- ------------------------------------------------------------------ --
+  describe "matchTemplate" $ do
+    it "output has the same dimensions as the search image" $ do
+      let img  = A.constant @Float [20, 20] 1.0
+          tmpl = A.constant @Float [5,  5] 1.0
+      A.getDims (A.matchTemplate img tmpl A.MatchTypeSAD) `shouldBe` (20, 20, 1, 1)
+
+    it "SAD of a zero image against a zero template is zero everywhere" $ do
+      let img    = A.constant @Float [10, 10] 0.0
+          tmpl   = A.constant @Float [3,  3] 0.0
+          result = A.matchTemplate img tmpl A.MatchTypeSAD
+      A.toList @Float result `shouldSatisfy` all (< 1e-5)
+
+    it "SSD of a zero image against a zero template is zero everywhere" $ do
+      let img    = A.constant @Float [10, 10] 0.0
+          tmpl   = A.constant @Float [3,  3] 0.0
+          result = A.matchTemplate img tmpl A.MatchTypeSSD
+      A.toList @Float result `shouldSatisfy` all (< 1e-5)
+
+  -- ------------------------------------------------------------------ --
+  --  hammingMatcher
+  -- ------------------------------------------------------------------ --
+  describe "hammingMatcher" $ do
+    it "identical descriptors produce 0 Hamming distances" $ do
+      -- 4 features, each 4 uint32 components; dim 0 = feature length
+      let desc           = A.mkArray @A.Word32 [4, 4] (replicate 16 0xDEADBEEF)
+          (_idxs, dists) = A.hammingMatcher desc desc 0 1
+      A.toList @A.Word32 dists `shouldBe` replicate 4 0
+
+    it "result arrays have one entry per query feature (n_dist = 1)" $ do
+      let query         = A.mkArray @A.Word32 [4, 3] (replicate 12 0x00000000)
+          train         = A.mkArray @A.Word32 [4, 5] (replicate 20 0xFFFFFFFF)
+          (idxs, dists) = A.hammingMatcher query train 0 1
+      A.getElements @A.Word32 idxs  `shouldBe` 3
+      A.getElements @A.Word32 dists `shouldBe` 3
+
+    it "returned indices are within training-set bounds" $ do
+      let query          = A.mkArray @A.Word32 [4, 3] (replicate 12 0x00000000)
+          train          = A.mkArray @A.Word32 [4, 5] (replicate 20 0x00000000)
+          (idxs, _dists) = A.hammingMatcher query train 0 1
+      A.toList @A.Word32 idxs `shouldSatisfy` all (< 5)
+
+  -- ------------------------------------------------------------------ --
+  --  nearestNeighbor
+  -- ------------------------------------------------------------------ --
+  describe "nearestNeighbor" $ do
+    it "identical descriptors produce 0 SAD distances" $ do
+      let desc           = A.mkArray @Float [4, 4] (replicate 16 1.0)
+          (_idxs, dists) = A.nearestNeighbor desc desc 0 1 A.MatchTypeSAD
+      A.toList @Float dists `shouldBe` replicate 4 0.0
+
+    it "identical descriptors produce 0 SSD distances" $ do
+      let desc           = A.mkArray @Float [4, 4] (replicate 16 1.0)
+          (_idxs, dists) = A.nearestNeighbor desc desc 0 1 A.MatchTypeSSD
+      A.toList @Float dists `shouldBe` replicate 4 0.0
+
+    it "result count matches number of query features" $ do
+      let query         = A.mkArray @Float [4, 3] (replicate 12 0.0)
+          train         = A.mkArray @Float [4, 5] (replicate 20 1.0)
+          (idxs, dists) = A.nearestNeighbor query train 0 1 A.MatchTypeSAD
+      A.getElements @Float idxs  `shouldBe` 3
+      A.getElements @Float dists `shouldBe` 3
+
+    it "returned indices are within training-set bounds" $ do
+      let query     = A.mkArray @Float [4, 3] (replicate 12 0.0)
+          train     = A.mkArray @Float [4, 5] (replicate 20 1.0)
+          (idxs, _) = A.nearestNeighbor query train 0 1 A.MatchTypeSAD
+      A.toList @Float idxs `shouldSatisfy` all (< 5)
+
+  -- ------------------------------------------------------------------ --
+  --  homography
+  -- ------------------------------------------------------------------ --
+  describe "homography" $ do
+    it "returns a 3×3 homography matrix" $ do
+      -- 4 exact correspondences: unit square → 2× scaled square
+      let sx     = A.vector @Float 4 [0, 1, 0, 1]
+          sy     = A.vector @Float 4 [0, 0, 1, 1]
+          dx     = A.vector @Float 4 [0, 2, 0, 2]
+          dy     = A.vector @Float 4 [0, 0, 2, 2]
+          (_, h) = A.homography sx sy dx dy A.RANSAC 1.0 1000
+      A.getDims h `shouldBe` (3, 3, 1, 1)
+
+    it "inlier count is non-negative" $ do
+      let sx           = A.vector @Float 4 [0, 1, 0, 1]
+          sy           = A.vector @Float 4 [0, 0, 1, 1]
+          (inliers, _) = A.homography sx sy sx sy A.RANSAC 1.0 1000
+      inliers `shouldSatisfy` (>= 0)
+
+    it "identity correspondences yield at least 4 inliers" $ do
+      let sx           = A.vector @Float 4 [0, 1, 0, 1]
+          sy           = A.vector @Float 4 [0, 0, 1, 1]
+          (inliers, _) = A.homography sx sy sx sy A.RANSAC 10.0 1000
+      inliers `shouldSatisfy` (>= 4)
+
+  -- ------------------------------------------------------------------ --
+  --  SIFT  (may not be compiled into every ArrayFire build)
+  -- ------------------------------------------------------------------ --
+  describe "sift" $ do
+    it "descriptor row count equals getFeaturesNum; width is 128 when features found" $ do
+      result <- try $ evaluate $
+        A.sift quadrantImg 3 0.04 10.0 1.6 False (1.0 / 256.0) 0.05
+      case (result :: Either SomeException (A.Features, A.Array Float)) of
+        Left _               -> pendingWith "SIFT not available in this ArrayFire build"
+        Right (feats, descs) -> do
+          let n              = A.getFeaturesNum feats
+              (d0, d1, _, _) = A.getDims descs
+          d0 `shouldBe` n
+          -- AF returns (0,0) when no features are found rather than (0,128),
+          -- so only assert the column width when at least one feature exists.
+          when (n > 0) $ d1 `shouldBe` 128
+
+  -- ------------------------------------------------------------------ --
+  --  GLOH  (may not be compiled into every ArrayFire build)
+  -- ------------------------------------------------------------------ --
+  describe "gloh" $ do
+    it "descriptor row count equals getFeaturesNum; width is 272 when features found" $ do
+      result <- try $ evaluate $
+        A.gloh quadrantImg 3 0.04 10.0 1.6 False (1.0 / 256.0) 0.05
+      case (result :: Either SomeException (A.Features, A.Array Float)) of
+        Left _               -> pendingWith "GLOH not available in this ArrayFire build"
+        Right (feats, descs) -> do
+          let n              = A.getFeaturesNum feats
+              (d0, d1, _, _) = A.getDims descs
+          d0 `shouldBe` n
+          when (n > 0) $ d1 `shouldBe` 272

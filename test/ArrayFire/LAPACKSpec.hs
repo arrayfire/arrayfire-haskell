@@ -86,7 +86,7 @@ spec =
       A.choleskyInplace a False `shouldBe` 0
 
     it "Should solve Ax=b using solveLU" $ do
-      -- A = | 2  1 |  b = | 5 |  =>  x = | 2 |
+      -- A = | 2  1 |  b = | 5 |  =>  x = | 1 |
       --     | 1  3 |      | 10|           | 3 |
       -- Column-major A: [2,1,1,3],  b: [5,10]
       let a   = A.mkArray @Double [2,2] [2,1,1,3]

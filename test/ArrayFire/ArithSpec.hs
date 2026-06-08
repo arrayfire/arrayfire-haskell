@@ -15,6 +15,7 @@ import GHC.Stack
 import Test.HUnit.Lang (FailureReason (..), HUnitFailure (..))
 import Test.Hspec
 import Test.Hspec.QuickCheck
+import Test.QuickCheck ((==>))
 import Prelude hiding (div)
 
 compareWith :: (HasCallStack, Show a) => (a -> a -> Bool) -> a -> a -> Expectation
@@ -40,8 +41,10 @@ instance HasEpsilon Double where
 approxWith :: (Ord a, Num a) => a -> a -> a -> a -> Bool
 approxWith rtol atol a b = abs (a - b) <= Prelude.max atol (rtol * Prelude.max (abs a) (abs b))
 
+-- | Relative + absolute tolerance check at machine-epsilon scale.
+-- Tolerance = max(4*eps, 2*eps * max(|a|,|b|)).
 approx :: (Ord a, HasEpsilon a) => a -> a -> Bool
-approx a b = approxWith (2 * eps * Prelude.max (abs a) (abs b)) (4 * eps) a b
+approx a b = approxWith (2 * eps) (4 * eps) a b
 
 shouldBeApprox :: (Ord a, HasEpsilon a, Show a) => a -> a -> Expectation
 shouldBeApprox = compareWith approx
@@ -93,7 +96,9 @@ spec =
       matrix @Int (2, 2) [[1, 1], [1, 1]] + matrix @Int (2, 2) [[1, 1], [1, 1]]
         `shouldBe` matrix @Int (2, 2) [[2, 2], [2, 2]]
     prop "Should take cubed root" $ \(x :: Double) ->
-      evalf (ArrayFire.cbrt (scalar (x * x * x))) `shouldBeApprox` x
+      let x3 = x * x * x
+      in not (isNaN x3 || isInfinite x3) ==>
+         evalf (ArrayFire.cbrt (scalar x3)) `shouldBeApprox` x
 
     it "Should lte Array" $ do
       2 `ArrayFire.le` (3 :: Array Double) `shouldBe` 1
