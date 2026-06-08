@@ -4,8 +4,9 @@
 
 module ArrayFire.ArithSpec where
 
-import ArrayFire (AFType, Array, cast, clamp, getType, isInf, isZero, matrix, maxOf, minOf, mkArray, scalar, vector)
+import ArrayFire (AFType, Array, cast, clamp, cplx, cplx2, getType, imag, isInf, isZero, matrix, maxOf, minOf, mkArray, real, scalar, vector)
 import qualified ArrayFire
+import Data.Complex (Complex (..))
 import Control.Exception (throwIO)
 import Control.Monad (unless, when)
 import Foreign.C
@@ -226,3 +227,37 @@ spec =
         evalf (signum (scalar @Double (-2.5))) `shouldBeApprox` (-1)
       it "signum vector" $
         signum (vector @Int 3 [-4, 0, 7]) `shouldBe` vector @Int 3 [-1, 0, 1]
+
+    describe "cplx" $ do
+      it "lifts a real scalar to complex with zero imaginary part" $
+        cplx (scalar @Double 5.0) `shouldBe` scalar @(Complex Double) (5.0 :+ 0.0)
+      it "real . cplx == id on a vector" $ do
+        let v = vector @Double 4 [1, 2, 3, 4]
+        (real (cplx v) :: Array Double) `shouldBe` v
+      it "imag . cplx == 0 on a vector" $ do
+        let v = vector @Double 4 [1, 2, 3, 4]
+        ArrayFire.toList (imag (cplx v) :: Array Double) `shouldBe` [0, 0, 0, 0]
+
+    describe "cplx2" $ do
+      it "combines real and imaginary parts into a complex scalar" $
+        cplx2 (scalar @Double 3.0) (scalar @Double 4.0)
+          `shouldBe` scalar @(Complex Double) (3.0 :+ 4.0)
+      it "real . cplx2 r i == r" $ do
+        let r = vector @Double 3 [1, 2, 3]
+            i = vector @Double 3 [4, 5, 6]
+        (real (cplx2 r i) :: Array Double) `shouldBe` r
+      it "imag . cplx2 r i == i" $ do
+        let r = vector @Double 3 [1, 2, 3]
+            i = vector @Double 3 [4, 5, 6]
+        (imag (cplx2 r i) :: Array Double) `shouldBe` i
+
+    describe "real / imag" $ do
+      it "real extracts the real part of a complex scalar" $
+        (real (scalar @(Complex Double) (7.0 :+ 3.0)) :: Array Double)
+          `shouldBe` scalar @Double 7.0
+      it "imag extracts the imaginary part of a complex scalar" $
+        (imag (scalar @(Complex Double) (7.0 :+ 3.0)) :: Array Double)
+          `shouldBe` scalar @Double 3.0
+      it "real and imag round-trip via cplx2" $ do
+        let c = vector @(Complex Double) 3 [1:+2, 3:+4, 5:+6]
+        cplx2 (real c :: Array Double) (imag c :: Array Double) `shouldBe` c

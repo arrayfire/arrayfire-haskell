@@ -148,3 +148,14 @@ spec =
       join 1 (constant @Int [1, 2] 1) (constant @Int [1, 2] 2) `shouldBe` mkArray @Int [1, 4] [1, 1, 2, 2]
       joinMany 0 [constant @Int [1, 3] 1, constant @Int [1, 3] 2] `shouldBe` mkArray @Int [2, 3] [1, 2, 1, 2, 1, 2]
       joinMany 1 [constant @Int [1, 2] 1, constant @Int [1, 1] 2, constant @Int [1, 3] 3] `shouldBe` mkArray @Int [1, 6] [1, 1, 2, 3, 3, 3]
+
+    describe "bitNot" $ do
+      it "complements 0 to all-ones (-1 in two's complement) for Int32" $ do
+        bitNot (scalar @Int32 0) `shouldBe` scalar @Int32 (-1)
+      it "complements -1 to 0 for Int32" $ do
+        bitNot (scalar @Int32 (-1)) `shouldBe` scalar @Int32 0
+      it "complements 0 to maxBound for Word32" $ do
+        bitNot (scalar @Word32 0) `shouldBe` scalar @Word32 maxBound
+      it "bitNot . bitNot == id" $ do
+        let v = vector @Int32 4 [0, 1, -1, 42]
+        bitNot (bitNot v) `shouldBe` v
