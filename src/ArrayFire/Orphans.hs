@@ -23,6 +23,7 @@ import           Control.DeepSeq (NFData(..))
 import qualified ArrayFire.Arith     as A
 import qualified ArrayFire.Array     as A
 import qualified ArrayFire.Algorithm as A
+import qualified ArrayFire.Data      as A
 import           ArrayFire.Types
 import           ArrayFire.Util
 
@@ -39,7 +40,7 @@ instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
   x * y       = A.mul x y
   abs         = A.abs
-  signum x    = A.cast (A.gt x 0) - A.cast (A.lt x 0)
+  signum x    = A.select (A.gt x 0) 1 (A.select (A.lt x 0) (-1) 0)
   negate arr  = A.scalar @a (fromInteger (-1)) `A.mul` arr
   x - y       = A.sub x y
   fromInteger = A.scalar . fromIntegral
