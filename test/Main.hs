@@ -3,8 +3,11 @@
 {-# LANGUAGE TypeApplications           #-}
 module Main where
 
+import           Control.Monad           (forM_, unless)
+import           Data.IORef              (IORef, newIORef, readIORef, writeIORef)
 import           Data.Proxy
 import           Spec                    (spec)
+import           System.Exit             (exitFailure)
 import           Test.Hspec              (hspec)
 import           Test.QuickCheck
 import           Test.QuickCheck.Classes
@@ -55,33 +58,43 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Scalar a) where
     x : _ -> shrink x
     []    -> []
 
+-- Run a Laws check, print results in the same format as lawsCheck, and mark
+-- the IORef False on any failure so we can call exitFailure at the end.
+checkLaws :: IORef Bool -> Laws -> IO ()
+checkLaws ref laws = do
+  let cls = lawsTypeclass laws
+  forM_ (lawsProperties laws) $ \(name, prop) -> do
+    putStr $ cls ++ ": " ++ name ++ " "
+    r <- quickCheckWithResult stdArgs { chatty = False } prop
+    putStr (output r)
+    unless (isSuccess r) (writeIORef ref False)
+
 main :: IO ()
 main = do
-  hspec spec
+  ref <- newIORef True
+  let check = checkLaws ref
   -- IEEE 754 is not an exact ring; only Eq laws for floating-point arrays.
-  lawsCheck (eqLaws (Proxy :: Proxy (Array Double)))
-  lawsCheck (eqLaws (Proxy :: Proxy (Array Float)))
-  lawsCheck (showLaws (Proxy :: Proxy (Array Float)))
-  lawsCheck (showLaws (Proxy :: Proxy (Array Double)))
+  check (eqLaws (Proxy :: Proxy (Array Double)))
+  check (eqLaws (Proxy :: Proxy (Array Float)))
   -- Complex: Eq only (IEEE 754 + gt/lt undefined for complex numbers).
-  lawsCheck (eqLaws (Proxy :: Proxy (Array (A.Complex Double))))
-  lawsCheck (eqLaws (Proxy :: Proxy (Array (A.Complex Float))))
-  lawsCheck (showLaws (Proxy :: Proxy (Array (A.Complex Double))))
-  lawsCheck (showLaws (Proxy :: Proxy (Array (A.Complex Float))))
+  check (eqLaws (Proxy :: Proxy (Array (A.Complex Double))))
+  check (eqLaws (Proxy :: Proxy (Array (A.Complex Float))))
   -- Integral types: exact ring laws via Scalar, Eq laws via multi-dim Array.
-  intChecks (Proxy :: Proxy Int)
-  intChecks (Proxy :: Proxy A.Int16)
-  intChecks (Proxy :: Proxy A.Int32)
-  intChecks (Proxy :: Proxy A.Int64)
-  intChecks (Proxy :: Proxy A.Word8)
-  intChecks (Proxy :: Proxy A.Word16)
-  intChecks (Proxy :: Proxy A.Word32)
-  intChecks (Proxy :: Proxy A.Word64)
-  intChecks (Proxy :: Proxy Word)
-  intChecks (Proxy :: Proxy A.CBool)
+  intChecks ref (Proxy :: Proxy Int)
+  intChecks ref (Proxy :: Proxy A.Int16)
+  intChecks ref (Proxy :: Proxy A.Int32)
+  intChecks ref (Proxy :: Proxy A.Int64)
+  intChecks ref (Proxy :: Proxy A.Word8)
+  intChecks ref (Proxy :: Proxy A.Word16)
+  intChecks ref (Proxy :: Proxy A.Word32)
+  intChecks ref (Proxy :: Proxy A.Word64)
+  intChecks ref (Proxy :: Proxy Word)
+  intChecks ref (Proxy :: Proxy A.CBool)
+  hspec spec
+  ok <- readIORef ref
+  unless ok exitFailure
 
-intChecks :: forall a. (A.AFType a, Arbitrary a, Num a, Eq a) => Proxy a -> IO ()
-intChecks _ = do
-  lawsCheck (showLaws (Proxy :: Proxy (Array a)))
-  lawsCheck (numLaws (Proxy :: Proxy (Scalar a)))
-  lawsCheck (eqLaws  (Proxy :: Proxy (Array  a)))
+intChecks :: forall a. (A.AFType a, Arbitrary a, Num a, Eq a) => IORef Bool -> Proxy a -> IO ()
+intChecks ref _ = do
+  checkLaws ref (numLaws (Proxy :: Proxy (Scalar a)))
+  checkLaws ref (eqLaws  (Proxy :: Proxy (Array  a)))
