@@ -1,0 +1,6 @@
+packages: .
+ignore-project: False
+write-ghc-environment-files: always
+tests: True
+test-options: "--color"
+test-show-details: streaming

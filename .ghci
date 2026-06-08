@@ -1,0 +1,7 @@
+:set prompt "\x03BB> "
+:seti -XTypeApplications
+:load ArrayFire
+:m - ArrayFire
+import qualified ArrayFire as A
+:set -laf
+:set -isrc:test
