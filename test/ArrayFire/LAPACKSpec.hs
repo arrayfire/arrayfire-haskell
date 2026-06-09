@@ -1,10 +1,33 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 module ArrayFire.LAPACKSpec where
 
-import qualified ArrayFire       as A
+import qualified ArrayFire             as A
 import           Prelude
 import           Test.Hspec
 import           Test.Hspec.ApproxExpect
+import           Test.Hspec.QuickCheck (prop)
+import           Test.QuickCheck       (Gen, choose, forAll, vectorOf)
+
+-- | A 3x3 matrix product with default (None) operands.
+mm :: A.Array Double -> A.Array Double -> A.Array Double
+mm a b = (a `A.matmul` b) A.None A.None
+
+-- | Transpose (real, no conjugation).
+tr :: A.Array Double -> A.Array Double
+tr a = A.transpose a False
+
+-- | Generate the entries of an @n@x@n@ matrix with modestly sized values so
+-- the decompositions stay numerically well-behaved.
+genMat :: Int -> Gen [Double]
+genMat n = vectorOf (n * n) (choose (-5, 5))
+
+-- | Element-wise closeness with a relative tolerance, for comparing a
+-- reconstructed matrix against the original.
+closeList :: [Double] -> [Double] -> Bool
+closeList as bs =
+  length as == length bs &&
+  and (zipWith (\a b -> abs (a - b) <= 1e-6 + 1e-6 * max (abs a) (abs b)) as bs)
 
 spec :: Spec
 spec =
@@ -94,3 +117,31 @@ spec =
           piv = A.luInPlace a True
           x   = A.solveLU a piv b A.None
       mapM_ (uncurry shouldBeApprox) (zip (A.toList @Double x) [1,3])
+
+    describe "decomposition reconstruction properties" $ do
+      -- QR factors multiply back to the original matrix.
+      prop "QR: Q*R = A" $ forAll (genMat 3) $ \xs ->
+        let a       = A.mkArray @Double [3,3] xs
+            (q,r,_) = A.qr a
+        in closeList (A.toList (mm q r)) (A.toList a)
+
+      -- The Q factor is orthogonal: Q^T Q = I.
+      prop "QR: Q^T Q = I" $ forAll (genMat 3) $ \xs ->
+        let a       = A.mkArray @Double [3,3] xs
+            (q,_,_) = A.qr a
+        in closeList (A.toList (mm (tr q) q)) (A.toList (A.identity @Double [3,3]))
+
+      -- SVD factors multiply back to the original: U * diag(S) * V^T = A.
+      prop "SVD: U diag(S) V^T = A" $ forAll (genMat 3) $ \xs ->
+        let a          = A.mkArray @Double [3,3] xs
+            (u,s,vt)   = A.svd a
+            sigma      = A.diagCreate s 0
+        in closeList (A.toList (mm (mm u sigma) vt)) (A.toList a)
+
+      -- Cholesky factor reproduces a symmetric positive-definite matrix:
+      -- A = B^T B + 3I is SPD, and L*L^T = A.
+      prop "Cholesky: L*L^T = A (SPD)" $ forAll (genMat 3) $ \xs ->
+        let b           = A.mkArray @Double [3,3] xs
+            a           = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
+            (status, l) = A.cholesky a False
+        in status == 0 && closeList (A.toList (mm l (tr l))) (A.toList a)

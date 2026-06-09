@@ -3,9 +3,11 @@
 {-# LANGUAGE TypeApplications           #-}
 module Main where
 
+import           Prelude                 hiding (negate)
 import           Control.Monad           (forM_, unless)
 import           Data.IORef              (IORef, newIORef, readIORef, writeIORef)
 import           Data.Proxy
+import           Data.Semiring           (Semiring (..), Ring (..))
 import           Spec                    (spec)
 import           System.Exit             (exitFailure)
 import           Test.Hspec              (hspec)
@@ -48,6 +50,20 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
 -- that makes every Num law well-typed and exact for integer element types.
 newtype Scalar a = Scalar (Array a)
   deriving (Show, Eq, Num)
+
+-- Semiring/Ring instances so we can exercise semiringLaws/ringLaws, which
+-- check associativity, distributivity and annihilation explicitly (stronger
+-- than numLaws).  Defined in terms of the derived Num instance; exact for the
+-- integral element types these are instantiated at.
+instance (A.AFType a, Num a) => Semiring (Scalar a) where
+  zero          = 0
+  one           = 1
+  plus          = (+)
+  times         = (*)
+  fromNatural n = fromInteger (toInteger n)
+
+instance (A.AFType a, Num a) => Ring (Scalar a) where
+  negate x = 0 - x
 
 instance Arbitrary CBool where
   arbitrary = CBool <$> arbitrary
@@ -96,5 +112,7 @@ main = do
 
 intChecks :: forall a. (A.AFType a, Arbitrary a, Num a, Eq a) => IORef Bool -> Proxy a -> IO ()
 intChecks ref _ = do
-  checkLaws ref (numLaws (Proxy :: Proxy (Scalar a)))
-  checkLaws ref (eqLaws  (Proxy :: Proxy (Array  a)))
+  checkLaws ref (numLaws      (Proxy :: Proxy (Scalar a)))
+  checkLaws ref (semiringLaws (Proxy :: Proxy (Scalar a)))
+  checkLaws ref (ringLaws     (Proxy :: Proxy (Scalar a)))
+  checkLaws ref (eqLaws       (Proxy :: Proxy (Array  a)))

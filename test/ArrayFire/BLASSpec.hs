@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeApplications    #-}
 module ArrayFire.BLASSpec where
 
-import ArrayFire    hiding (not)
+import ArrayFire    hiding (not, and, abs, max)
 
 import Data.Complex
 import Test.Hspec
@@ -12,6 +12,22 @@ import Test.Hspec.QuickCheck (prop)
 -- padding with zeros so the shape is always well-defined.
 mat4 :: [Double] -> Array Double
 mat4 xs = mkArray [4,4] (take 16 (xs ++ repeat 0))
+
+-- | Build a length-4 'Double' vector, padding with zeros.
+vec4 :: [Double] -> Array Double
+vec4 xs = vector 4 (take 4 (xs ++ repeat 0))
+
+-- | Plain matrix product with default (None) operands.
+mm :: Array Double -> Array Double -> Array Double
+mm a b = (a `matmul` b) None None
+
+-- | Transpose (no conjugation).
+tr :: Array Double -> Array Double
+tr a = transpose a False
+
+-- | Scale every element of a 4x4 matrix by a constant.
+scaleMat :: Double -> Array Double -> Array Double
+scaleMat c a = mkArray [4,4] (map (c *) (toList a))
 
 -- | Element-wise closeness, tolerant of floating-point rounding in BLAS.
 closeList :: [Double] -> [Double] -> Bool
@@ -83,3 +99,53 @@ spec =
             lhs = transpose ((transpose a False `matmul` transpose b False) None None) False
             rhs = (b `matmul` a) None None
         in closeList (toList lhs) (toList rhs)
+
+      -- Matrix multiplication is associative.
+      prop "(A*B)*C = A*(B*C)" $ \(xs :: [Double]) (ys :: [Double]) (zs :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys; c = mat4 zs
+        in closeList (toList (mm (mm a b) c)) (toList (mm a (mm b c)))
+
+      -- Multiplication distributes over addition on the left.
+      prop "A*(B+C) = A*B + A*C" $ \(xs :: [Double]) (ys :: [Double]) (zs :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys; c = mat4 zs
+        in closeList (toList (mm a (b + c))) (toList (mm a b + mm a c))
+
+      -- Multiplication distributes over addition on the right.
+      prop "(A+B)*C = A*C + B*C" $ \(xs :: [Double]) (ys :: [Double]) (zs :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys; c = mat4 zs
+        in closeList (toList (mm (a + b) c)) (toList (mm a c + mm b c))
+
+      -- The identity is a left identity too (the existing case is right-sided).
+      prop "I*A = A" $ \(xs :: [Double]) ->
+        let a = mat4 xs
+        in closeList (toList (mm (identity [4,4]) a)) (toList a)
+
+      -- Transpose of a product reverses the order of the factors.
+      prop "(A*B)^T = B^T * A^T" $ \(xs :: [Double]) (ys :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys
+        in closeList (toList (tr (mm a b))) (toList (mm (tr b) (tr a)))
+
+      -- Transpose is additive.
+      prop "(A+B)^T = A^T + B^T" $ \(xs :: [Double]) (ys :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys
+        in closeList (toList (tr (a + b))) (toList (tr a + tr b))
+
+      -- Scalar factors pull through a product: (cA)*B = c(A*B).
+      prop "(cA)*B = c(A*B)" $ \(c :: Double) (xs :: [Double]) (ys :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys
+        in closeList (toList (mm (scaleMat c a) b)) (toList (scaleMat c (mm a b)))
+
+      -- The zero matrix annihilates under multiplication.
+      prop "A*0 = 0" $ \(xs :: [Double]) ->
+        let a = mat4 xs
+        in all (== 0) (toList (mm a (mat4 [])))
+
+      -- gemm with alpha=1 and no transposition agrees with matmul.
+      prop "gemm None None 1 A B = A*B" $ \(xs :: [Double]) (ys :: [Double]) ->
+        let a = mat4 xs; b = mat4 ys
+        in closeList (toList (gemm None None 1.0 a b)) (toList (mm a b))
+
+      -- The dot product of real vectors is symmetric.
+      prop "dot x y = dot y x" $ \(xs :: [Double]) (ys :: [Double]) ->
+        let x = vec4 xs; y = vec4 ys
+        in closeList (toList (dot x y None None)) (toList (dot y x None None))
