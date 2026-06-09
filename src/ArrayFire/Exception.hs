@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Exception
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
