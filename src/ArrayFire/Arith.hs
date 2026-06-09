@@ -1299,7 +1299,8 @@ atan2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_atan2 arr arr1 arr2 batch
 
--- | Take the cplx2 of all values in an 'Array'
+-- | Construct a complex 'Array' from two real 'Array's, taking the first as the
+-- real part and the second as the imaginary part.
 --
 -- >>> A.cplx2 (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
 -- ArrayFire Array
@@ -1321,12 +1322,13 @@ cplx2
   -> Array a
   -- ^ Second input (imaginary part)
   -> Array (Complex a)
-  -- ^ Result of cplx2
+  -- ^ Complex result with the inputs as real and imaginary parts
 cplx2 x y =
   x `op2` y $ \arr arr1 arr2 ->
     af_cplx2 arr arr1 arr2 1
 
--- | Take the cplx2Batched of all values in an 'Array'
+-- | Construct a complex 'Array' from two real 'Array's (real and imaginary
+-- parts), with explicit control over batched broadcasting of the inputs.
 --
 -- >>> A.cplx2Batched (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
 -- ArrayFire Array
@@ -1348,9 +1350,9 @@ cplx2Batched
   -> Array a
   -- ^ Second input (imaginary part)
   -> Bool
-  -- ^ Use batch
+  -- ^ Whether to enable batched broadcasting of the inputs
   -> Array (Complex a)
-  -- ^ Result of cplx2
+  -- ^ Complex result with the inputs as real and imaginary parts
 cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_cplx2 arr arr1 arr2 batch

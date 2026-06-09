@@ -8,6 +8,20 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck (prop)
 import           Test.QuickCheck       ((==>))
 
+-- | Reference grouping that mirrors ArrayFire's by-key semantics: each
+-- contiguous run of equal keys forms one group.
+groupByKeyRef :: Eq k => [k] -> [v] -> [(k, [v])]
+groupByKeyRef ks vs =
+  [ (k, map snd grp)
+  | grp@((k,_):_) <- L.groupBy (\a b -> fst a == fst b) (zip ks vs)
+  ]
+
+-- | Element-wise closeness, tolerant of floating-point rounding.
+closeList :: [Double] -> [Double] -> Bool
+closeList as bs =
+  length as == length bs &&
+  and (zipWith (\a b -> abs (a - b) <= 1e-9 + 1e-6 * max (abs a) (abs b)) as bs)
+
 spec :: Spec
 spec =
   describe "Algorithm tests" $ do
@@ -156,19 +170,25 @@ spec =
           vals = A.vector @Double 4 [1,0,1,1]
           (ko, vo) = A.countByKey keys vals 0
       ko `shouldBe` A.vector @Int 2 [1,2]
-      vo `shouldBe` A.vector @Double 2 [1,2]
+      vo `shouldBe` A.vector @A.Word32 2 [1,2]
+      -- Regression: countByKey output is u32, not the input value dtype.
+      -- Marshalling to the host (toList) would read garbage if vo were typed
+      -- as the input value type (Double = 8 bytes vs u32 = 4 bytes).
+      A.toList vo `shouldBe` [1,2]
     it "Should check allTrue per key group" $ do
       let keys = A.vector @Int 4 [1,1,2,2]
           vals = A.vector @A.CBool 4 [1,1,1,0]
           (ko, vo) = A.allTrueByKey keys vals 0
       ko `shouldBe` A.vector @Int 2 [1,2]
       vo `shouldBe` A.vector @A.CBool 2 [1,0]
+      A.toList vo `shouldBe` [1,0]
     it "Should check anyTrue per key group" $ do
       let keys = A.vector @Int 4 [1,1,2,2]
           vals = A.vector @A.CBool 4 [0,0,0,1]
           (ko, vo) = A.anyTrueByKey keys vals 0
       ko `shouldBe` A.vector @Int 2 [1,2]
       vo `shouldBe` A.vector @A.CBool 2 [0,1]
+      A.toList vo `shouldBe` [0,1]
     it "Should sum values grouped by key, substituting NaN with 0" $ do
       let keys = A.vector @Int 4 [1,1,2,2]
           vals = A.vector @Double 4 [10, (acos 2), 3, 4]
@@ -296,4 +316,41 @@ spec =
       prop "descending sort is the reverse ordering" $ \(xs :: [Double]) ->
         not (null xs) ==>
           A.toList (A.sort (A.vector (length xs) xs) 0 False) == L.sortBy (flip compare) xs
+
+    describe "by-key reductions (property)" $ do
+      -- These exercise the op2p2kv marshalling (s32 key cast in, s64 cast out)
+      -- against a pure contiguous-groupBy reference. Keys are squeezed into a
+      -- small range so random inputs produce real multi-element runs.
+      prop "sumByKey matches a contiguous groupBy reference" $ \(pairs :: [(Int, Double)]) ->
+        not (null pairs) ==>
+          let n        = length pairs
+              keys     = map ((`mod` 8) . abs . fst) pairs
+              vals     = map snd pairs
+              (ko, vo) = A.sumByKey (A.vector @Int n keys) (A.vector @Double n vals) 0
+              groups   = groupByKeyRef keys vals
+          in A.toList ko == map fst groups
+               && closeList (A.toList vo) (map (sum . snd) groups)
+
+      prop "maxByKey matches per-group maxima" $ \(pairs :: [(Int, Double)]) ->
+        not (null pairs) ==>
+          let n        = length pairs
+              keys     = map ((`mod` 8) . abs . fst) pairs
+              vals     = map snd pairs
+              (ko, vo) = A.maxByKey (A.vector @Int n keys) (A.vector @Double n vals) 0
+              groups   = groupByKeyRef keys vals
+          in A.toList ko == map fst groups
+               && closeList (A.toList vo) (map (maximum . snd) groups)
+
+      -- countByKey output is u32, not the input dtype. Comparing host values
+      -- (toList) guards against the result being mistyped as the value dtype.
+      prop "countByKey matches per-group nonzero counts" $ \(pairs :: [(Int, Double)]) ->
+        not (null pairs) ==>
+          let n        = length pairs
+              keys     = map ((`mod` 8) . abs . fst) pairs
+              vals     = map snd pairs
+              (ko, vo) = A.countByKey (A.vector @Int n keys) (A.vector @Double n vals) 0
+              groups   = groupByKeyRef keys vals
+          in A.toList ko == map fst groups
+               && A.toList vo
+                    == map (fromIntegral . length . filter (/= 0) . snd) groups
 

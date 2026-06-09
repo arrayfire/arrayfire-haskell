@@ -3,14 +3,17 @@
 module ArrayFire.DataSpec where
 
 import           Control.Exception
+import           Data.Bits             (complement)
 import           Data.Complex
 import           Data.Word
 import           Foreign.C.Types
 import           GHC.Int
 import           Prelude hiding (flip)
 import           Test.Hspec
+import           Test.Hspec.QuickCheck (prop)
+import           Test.QuickCheck       ((==>))
 
-import           ArrayFire
+import           ArrayFire hiding (not)
 
 spec :: Spec
 spec =
@@ -159,3 +162,9 @@ spec =
       it "bitNot . bitNot == id" $ do
         let v = vector @Int32 4 [0, 1, -1, 42]
         bitNot (bitNot v) `shouldBe` v
+      prop "bitNot is an involution (Int32)" $ \(xs :: [Int32]) ->
+        not (null xs) ==>
+          toList (bitNot (bitNot (vector @Int32 (length xs) xs))) == xs
+      prop "bitNot agrees with Data.Bits.complement (Int32)" $ \(xs :: [Int32]) ->
+        not (null xs) ==>
+          toList (bitNot (vector @Int32 (length xs) xs)) == map complement xs

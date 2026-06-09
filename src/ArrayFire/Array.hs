@@ -211,7 +211,9 @@ mkArray dims xs =
 
 -- | Constructs an 'Array' from a 'Storable' 'Vector', avoiding the intermediate list allocation of 'mkArray'.
 --
--- The vector's pinned buffer is passed directly to @af_create_array@.
+-- The vector's contiguous buffer is handed straight to @af_create_array@, which
+-- copies it into the 'Array' (and uploads to device memory on GPU backends), so
+-- no intermediate Haskell list is built.
 -- Throws 'AFException' if the vector length does not match the product of the given dimensions.
 --
 -- >>> fromVector @Double [3] (Data.Vector.Storable.fromList [1,2,3])

@@ -396,6 +396,10 @@ joinMany (fromIntegral -> n) (fmap (\(Array fp) -> fp) -> arrays) = unsafePerfor
   Array <$>
     newForeignPtr af_release_array_finalizer newPtr
 
+-- | Marshals a list of 'ForeignPtr' into a temporary, contiguous C array of
+-- raw pointers, keeping every 'ForeignPtr' alive for the duration of the
+-- action. The continuation receives the number of pointers and a pointer to
+-- the array.
 withManyForeignPtr :: [ForeignPtr a] -> (Int -> Ptr (Ptr a) -> IO b) -> IO b
 withManyForeignPtr fptrs action = go [] fptrs
   where

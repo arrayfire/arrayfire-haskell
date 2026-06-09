@@ -9,8 +9,10 @@ import Data.Word
 import Foreign.C.Types
 import GHC.Int
 import Test.Hspec
+import Test.Hspec.QuickCheck (prop)
+import Test.QuickCheck       ((==>))
 
-import ArrayFire
+import ArrayFire hiding (not)
 
 spec :: Spec
 spec =
@@ -190,3 +192,13 @@ spec =
       it "throws on dimension mismatch" $ do
         let xs = V.fromList [1,2,3 :: Double]
         evaluate (fromVector @Double [4] xs) `shouldThrow` anyException
+      -- Round-trip is data-preserving (no arithmetic), so equality is exact.
+      -- This also guards the toVector allocation fix against host over-reads.
+      prop "toVector . fromVector == id (Double)" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          let v = V.fromList xs
+          in V.toList (toVector (fromVector @Double [length xs] v)) == xs
+      prop "toVector . fromVector == id (Int)" $ \(xs :: [Int]) ->
+        not (null xs) ==>
+          let v = V.fromList xs
+          in V.toList (toVector (fromVector @Int [length xs] v)) == xs

@@ -30,12 +30,34 @@ import           ArrayFire.Util
 instance NFData (Array a) where
   rnf x = x `seq` ()
 
+-- | Structural equality on 'Array': equal shapes and elementwise-equal values.
+--
+-- 'A.allTrueAll' reads back a @(real, imaginary)@ pair; for the boolean
+-- reduction produced by 'A.eqBatched' the imaginary component is reliably
+-- @0@, so comparing the full tuple against @(1.0, 0.0)@ is safe. '/=' is the
+-- negation of '==', which keeps the two operators consistent by construction.
 instance (AFType a, Eq a) => Eq (Array a) where
   x == y = A.getDims x == A.getDims y
         && A.allTrueAll (A.eqBatched x y False) == (1.0,0.0)
+
   x /= y = A.getDims x /= A.getDims y
         || A.anyTrueAll (A.neqBatched x y False) /= (0.0,0.0)
 
+
+-- | Elementwise 'Num' instance for 'Array'.
+--
+-- Note that 'signum' implements the real-valued, three-way sign
+-- (@x > 0 -> 1@, @x < 0 -> -1@, otherwise @0@). This matches Haskell's
+-- 'signum' for integral and real-floating arrays with finite values, but
+-- diverges in a few cases:
+--
+--     * @NaN@ (for 'Float'\/'Double') yields @0@, whereas Haskell yields @NaN@.
+--     * Negative zero @-0.0@ yields @+0.0@, losing the signed zero that
+--       Haskell preserves.
+--     * For complex arrays (e.g. @'Array' ('Data.Complex.Complex' Double)@)
+--       it returns @1@\/@-1@\/@0@ from an order comparison rather than the unit
+--       phasor @z / 'abs' z@ that Haskell's 'signum' produces, so the law
+--       @'abs' x * 'signum' x == x@ does not hold for complex inputs.
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
   x * y       = A.mul x y

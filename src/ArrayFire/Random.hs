@@ -222,11 +222,17 @@ setSeed = afCall . af_set_seed . fromIntegral
 getSeed :: IO Int
 getSeed = fromIntegral <$> afCall1 af_get_seed
 
+-- | Internal helper that runs a random-generation FFI call which draws from a
+-- given 'RandomEngine'. Builds an 'Array' of the requested dimensions, passing
+-- the dimensions, element type and engine through to the supplied C function.
 randEng
   :: forall a . AFType a
   => [Int]
+  -- ^ Dimensions of the 'Array' to generate
   -> (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> AFRandomEngine -> IO AFErr)
+  -- ^ Underlying ArrayFire random function to invoke
   -> RandomEngine
+  -- ^ Engine to draw random numbers from
   -> IO (Array a)
 randEng dims f (RandomEngine fptr) = mask_ $
   withForeignPtr fptr $ \rptr -> do
@@ -242,11 +248,15 @@ randEng dims f (RandomEngine fptr) = mask_ $
     n = fromIntegral (length dims)
     typ = afType (Proxy @a)
 
+-- | Internal helper that runs a random-generation FFI call using the default
+-- random engine. Builds an 'Array' of the requested dimensions, passing the
+-- dimensions and element type through to the supplied C function.
 rand
   :: forall a . AFType a
   => [Int]
   -- ^ Dimensions
   -> (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr)
+  -- ^ Underlying ArrayFire random function to invoke
   -> IO (Array a)
 rand dims f = mask_ $ do
   ptr <- alloca $ \ptrPtr -> do

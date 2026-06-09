@@ -757,6 +757,8 @@ maxByKey keys vals (fromIntegral -> dim) =
   op2p2kv keys vals (\ko vo k v -> af_max_by_key ko vo k v dim)
 
 -- | True if all values are true within each key group.
+--
+-- The value output is always boolean (@b8@) regardless of the input value type.
 allTrueByKey
   :: AFType a
   => Array Int
@@ -765,11 +767,13 @@ allTrueByKey
   -- ^ Values array (treated as boolean)
   -> Int
   -- ^ Dimension
-  -> (Array Int, Array a)
+  -> (Array Int, Array CBool)
 allTrueByKey keys vals (fromIntegral -> dim) =
   op2p2kv keys vals (\ko vo k v -> af_all_true_by_key ko vo k v dim)
 
 -- | True if any value is true within each key group.
+--
+-- The value output is always boolean (@b8@) regardless of the input value type.
 anyTrueByKey
   :: AFType a
   => Array Int
@@ -778,11 +782,13 @@ anyTrueByKey
   -- ^ Values array (treated as boolean)
   -> Int
   -- ^ Dimension
-  -> (Array Int, Array a)
+  -> (Array Int, Array CBool)
 anyTrueByKey keys vals (fromIntegral -> dim) =
   op2p2kv keys vals (\ko vo k v -> af_any_true_by_key ko vo k v dim)
 
 -- | Count non-zero values within each key group.
+--
+-- The value output is always @u32@ regardless of the input value type.
 countByKey
   :: AFType a
   => Array Int
@@ -791,6 +797,6 @@ countByKey
   -- ^ Values array
   -> Int
   -- ^ Dimension
-  -> (Array Int, Array a)
+  -> (Array Int, Array Word32)
 countByKey keys vals (fromIntegral -> dim) =
   op2p2kv keys vals (\ko vo k v -> af_count_by_key ko vo k v dim)
