@@ -321,8 +321,10 @@ spec =
       -- These exercise the op2p2kv marshalling (s32 key cast in, s64 cast out)
       -- against a pure contiguous-groupBy reference. Keys are squeezed into a
       -- small range so random inputs produce real multi-element runs.
+      -- Note: ArrayFire's by-key C functions require n >= 2; single-element
+      -- arrays return ArgError at the C level, so we guard length >= 2.
       prop "sumByKey matches a contiguous groupBy reference" $ \(pairs :: [(Int, Double)]) ->
-        not (null pairs) ==>
+        length pairs >= 2 ==>
           let n        = length pairs
               keys     = map ((`mod` 8) . abs . fst) pairs
               vals     = map snd pairs
@@ -332,7 +334,7 @@ spec =
                && closeList (A.toList vo) (map (sum . snd) groups)
 
       prop "maxByKey matches per-group maxima" $ \(pairs :: [(Int, Double)]) ->
-        not (null pairs) ==>
+        length pairs >= 2 ==>
           let n        = length pairs
               keys     = map ((`mod` 8) . abs . fst) pairs
               vals     = map snd pairs
@@ -344,7 +346,7 @@ spec =
       -- countByKey output is u32, not the input dtype. Comparing host values
       -- (toList) guards against the result being mistyped as the value dtype.
       prop "countByKey matches per-group nonzero counts" $ \(pairs :: [(Int, Double)]) ->
-        not (null pairs) ==>
+        length pairs >= 2 ==>
           let n        = length pairs
               keys     = map ((`mod` 8) . abs . fst) pairs
               vals     = map snd pairs

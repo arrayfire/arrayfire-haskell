@@ -84,7 +84,7 @@ meanWeighted x y (fromIntegral -> n) =
 -- >>> var (vector @Double 8 [1..8]) False 0
 -- ArrayFire Array
 --   [1 1 1 1]
---      6.0000
+--      5.2500
 var
   :: AFType a
   => Array a
