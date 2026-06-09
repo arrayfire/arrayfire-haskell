@@ -530,23 +530,23 @@ infoFromArray (Array fptr1) op =
 -- | Like 'infoFromArray', but reads back a pair of 'Storable' scalars from a
 -- single input 'Array'.
 infoFromArray2
-  :: (Storable a, Storable b)
+  :: forall a b arr. (Storable a, Storable b)
   => Array arr
   -> (Ptr a -> Ptr b -> AFArray -> IO AFErr)
   -> (a,b)
 {-# NOINLINE infoFromArray2 #-}
 infoFromArray2 (Array fptr1) op =
   unsafePerformIO . mask_ $ do
-    withForeignPtr fptr1 $ \ptr1 -> do
-      alloca $ \ptrInput1 -> do
-        alloca $ \ptrInput2 -> do
+    withForeignPtr fptr1 $ \ptr1 ->
+      bracket (callocBytes (sizeOf (undefined :: a))) free $ \ptrInput1 ->
+        bracket (callocBytes (sizeOf (undefined :: b))) free $ \ptrInput2 -> do
           throwAFError =<< op ptrInput1 ptrInput2 ptr1
           (,) <$> peek ptrInput1 <*> peek ptrInput2
 
 -- | Like 'infoFromArray2', but reads back a pair of 'Storable' scalars derived
 -- from two input 'Array's.
 infoFromArray22
-  :: (Storable a, Storable b)
+  :: forall a b arr. (Storable a, Storable b)
   => Array arr
   -> Array arr
   -> (Ptr a -> Ptr b -> AFArray -> AFArray -> IO AFErr)
@@ -554,27 +554,27 @@ infoFromArray22
 {-# NOINLINE infoFromArray22 #-}
 infoFromArray22 (Array fptr1) (Array fptr2) op =
   unsafePerformIO . mask_ $ do
-    withForeignPtr fptr1 $ \ptr1 -> do
-     withForeignPtr fptr2 $ \ptr2 -> do
-      alloca $ \ptrInput1 -> do
-        alloca $ \ptrInput2 -> do
-          throwAFError =<< op ptrInput1 ptrInput2 ptr1 ptr2
-          (,) <$> peek ptrInput1 <*> peek ptrInput2
+    withForeignPtr fptr1 $ \ptr1 ->
+      withForeignPtr fptr2 $ \ptr2 ->
+        bracket (callocBytes (sizeOf (undefined :: a))) free $ \ptrInput1 ->
+          bracket (callocBytes (sizeOf (undefined :: b))) free $ \ptrInput2 -> do
+            throwAFError =<< op ptrInput1 ptrInput2 ptr1 ptr2
+            (,) <$> peek ptrInput1 <*> peek ptrInput2
 
 -- | Like 'infoFromArray', but reads back three 'Storable' scalars from a
 -- single input 'Array'.
 infoFromArray3
-  :: (Storable a, Storable b, Storable c)
+  :: forall a b c arr. (Storable a, Storable b, Storable c)
   => Array arr
   -> (Ptr a -> Ptr b -> Ptr c -> AFArray -> IO AFErr)
   -> (a,b,c)
 {-# NOINLINE infoFromArray3 #-}
 infoFromArray3 (Array fptr1) op =
   unsafePerformIO . mask_ $
-    withForeignPtr fptr1 $ \ptr1 -> do
-      alloca $ \ptrInput1 -> do
-        alloca $ \ptrInput2 -> do
-          alloca $ \ptrInput3 -> do
+    withForeignPtr fptr1 $ \ptr1 ->
+      bracket (callocBytes (sizeOf (undefined :: a))) free $ \ptrInput1 ->
+        bracket (callocBytes (sizeOf (undefined :: b))) free $ \ptrInput2 ->
+          bracket (callocBytes (sizeOf (undefined :: c))) free $ \ptrInput3 -> do
             throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptr1
             (,,) <$> peek ptrInput1
                  <*> peek ptrInput2

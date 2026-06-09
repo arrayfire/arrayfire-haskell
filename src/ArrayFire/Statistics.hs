@@ -43,7 +43,7 @@ import ArrayFire.Internal.Types
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
--- >>> mean ( vector @Int 10 [1..] ) 0
+-- >>> mean (vector @Int 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
@@ -81,7 +81,7 @@ meanWeighted x y (fromIntegral -> n) =
 
 -- | Calculates /variance/ of 'Array' along user-specified dimension.
 --
--- >>> var (vector @Double 8 [1..8]) False 0
+-- >>> var (vector @Double 8 [1..8]) Population 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.2500
@@ -89,7 +89,7 @@ var
   :: AFType a
   => Array a
   -- ^ Input 'Array'
-  -> Bool
+  -> VarianceType
   -- ^ boolean denoting Population variance (false) or Sample Variance (true)
   -> Int
   -- ^ The dimension along which the variance is extracted
@@ -99,12 +99,16 @@ var arr (fromIntegral . fromEnum -> b) d =
   arr `op1` (\p x ->
     af_var p x b (fromIntegral d))
 
+-- | Data type used to express variance type in the 'var' function
+data VarianceType = Population | Sample
+  deriving (Show, Eq, Enum)
+
 -- | Calculates 'varWeighted' of 'Array' along user-specified dimension.
 --
--- >>> varWeighted ( vector @Double 10 [1..] ) ( vector @Double 10 [1..] ) 0
+-- >>> varWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
---      6.0000
+--      1.9091
 varWeighted
   :: AFType a
   => Array a
@@ -159,7 +163,7 @@ cov x y (fromIntegral . fromEnum -> n) =
 
 -- | Calculates 'median' of 'Array' along user-specified dimension.
 --
--- >>> median ( vector @Double 10 [1..] ) 0
+-- >>> median (vector @Double 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
@@ -178,7 +182,7 @@ median a n =
 -- | Calculates 'mean' of all elements in an 'Array'
 --
 -- >>> meanAll $ matrix @Double (2,2) [[1,2],[4,5]]
--- (3.0,2.232709401e-314)
+-- (3.0,0.0)
 meanAll
   :: AFType a
   => Array a
@@ -190,7 +194,7 @@ meanAll = (`infoFromArray2` af_mean_all)
 -- | Calculates weighted mean of all elements in an 'Array'
 --
 -- >>> meanAllWeighted (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[1,2],[3,4]])
--- (3.0,1.400743288453e-312)
+-- (2.8181818181818183,0.0)
 meanAllWeighted
   :: AFType a
   => Array a
@@ -205,7 +209,7 @@ meanAllWeighted a b =
 -- | Calculates variance of all elements in an 'Array'
 --
 -- >>> varAll (vector @Double 10 (repeat 10)) False
--- (0.0,1.4013073623e-312)
+-- (0.0,0.0)
 varAll
   :: AFType a
   => Array a
@@ -221,7 +225,7 @@ varAll a (fromIntegral . fromEnum -> b) =
 -- | Calculates weighted variance of all elements in an 'Array'
 --
 -- >>> varAllWeighted ( vector @Double 10 [1..] ) ( vector @Double 10 [1..] )
--- (6.0,2.1941097984e-314)
+-- (6.011479591836735,0.0)
 varAllWeighted
   :: AFType a
   => Array a
@@ -236,7 +240,7 @@ varAllWeighted a b =
 -- | Calculates standard deviation of all elements in an 'Array'
 --
 -- >>> stdevAll (vector @Double 10 (repeat 10))
--- (0.0,2.190573324e-314)
+-- (0.0,0.0)
 stdevAll
   :: AFType a
   => Array a
@@ -248,7 +252,7 @@ stdevAll = (`infoFromArray2` af_stdev_all)
 -- | Calculates median of all elements in an 'Array'
 --
 -- >>> medianAll (vector @Double 10 (repeat 10))
--- (10.0,2.1961564713e-314)
+-- (10.0,0.0)
 medianAll
   :: (AFType a, Fractional a)
   => Array a
@@ -261,7 +265,7 @@ medianAll = (`infoFromArray2` af_median_all)
 -- <https://en.wikipedia.org/wiki/Pearson_correlation_coefficient>
 --
 -- >>> corrCoef ( vector @Int 10 [1..] ) ( vector @Int 10 [10,9..] )
--- (-1.0,2.1904819737e-314)
+-- (-1.0,0.0)
 corrCoef
   :: AFType a
   => Array a

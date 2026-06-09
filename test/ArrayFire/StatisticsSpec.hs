@@ -21,13 +21,16 @@ spec =
         `shouldBe`
            (Just 7.0)
     it "Should find the variance" $ do
-      var (vector @Double 8 [1..8]) False 0
+      var (vector @Double 8 [1..8]) Population 0
         `shouldBe`
            5.25
-    it "Should find the weighted variance" $ do
+    it "Should find the weighted variance (equal weights)" $ do
       varWeighted (vector @Double 8 [1..]) (vector @Double 8 (repeat 1)) 0
         `shouldBe`
            5.25
+    it "Should find the weighted variance (increasing weights)" $ do
+      head (toList (varWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0))
+        `shouldBeApprox` (21/11 :: Double)
     it "Should find the standard deviation" $ do
       stdev (vector @Double 10 (cycle [1,-1])) 0
         `shouldBe`
