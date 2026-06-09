@@ -34,7 +34,15 @@ import Foreign.Storable
 import Foreign.Ptr
 import Foreign.C
 import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils (fillBytes)
 import System.IO.Unsafe
+
+-- | Like 'alloca' but zero-initialises the memory before handing the pointer
+-- to the continuation. Prevents uninitialized stack garbage from leaking into
+-- output scalars when the C function does not write the imaginary-part pointer
+-- for real-valued arrays (e.g. af_mean_all_weighted).
+calloca :: forall a b. Storable a => (Ptr a -> IO b) -> IO b
+calloca f = alloca $ \p -> fillBytes p 0 (sizeOf (undefined :: a)) >> f p
 
 foreign import ccall unsafe "af_cast"
     af_cast :: Ptr AFArray -> AFArray -> AFDtype -> IO AFErr
@@ -538,8 +546,8 @@ infoFromArray2
 infoFromArray2 (Array fptr1) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 ->
-      bracket (callocBytes (sizeOf (undefined :: a))) free $ \ptrInput1 ->
-        bracket (callocBytes (sizeOf (undefined :: b))) free $ \ptrInput2 -> do
+      calloca $ \ptrInput1 ->
+        calloca $ \ptrInput2 -> do
           throwAFError =<< op ptrInput1 ptrInput2 ptr1
           (,) <$> peek ptrInput1 <*> peek ptrInput2
 
@@ -556,8 +564,8 @@ infoFromArray22 (Array fptr1) (Array fptr2) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 ->
-        bracket (callocBytes (sizeOf (undefined :: a))) free $ \ptrInput1 ->
-          bracket (callocBytes (sizeOf (undefined :: b))) free $ \ptrInput2 -> do
+        calloca $ \ptrInput1 ->
+          calloca $ \ptrInput2 -> do
             throwAFError =<< op ptrInput1 ptrInput2 ptr1 ptr2
             (,) <$> peek ptrInput1 <*> peek ptrInput2
 
@@ -572,9 +580,9 @@ infoFromArray3
 infoFromArray3 (Array fptr1) op =
   unsafePerformIO . mask_ $
     withForeignPtr fptr1 $ \ptr1 ->
-      bracket (callocBytes (sizeOf (undefined :: a))) free $ \ptrInput1 ->
-        bracket (callocBytes (sizeOf (undefined :: b))) free $ \ptrInput2 ->
-          bracket (callocBytes (sizeOf (undefined :: c))) free $ \ptrInput3 -> do
+      calloca $ \ptrInput1 ->
+        calloca $ \ptrInput2 ->
+          calloca $ \ptrInput3 -> do
             throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptr1
             (,,) <$> peek ptrInput1
                  <*> peek ptrInput2

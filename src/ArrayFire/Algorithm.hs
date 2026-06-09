@@ -66,7 +66,7 @@ sum x (fromIntegral -> n) = (x `op1` (\p a -> af_sum p a n))
 
 -- | Sum all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
--- >>> A.sumNaN (A.vector @Double 10 [1..]) 0 0.0
+-- >>> let nan = 0/0 in A.sumNaN (A.vector @Double 10 (nan : [1..])) 0 10.0
 -- ArrayFire Array
 -- [1 1 1 1]
 --   55.0000
@@ -100,7 +100,7 @@ product x (fromIntegral -> n) = (x `op1` (\p a -> af_product p a n))
 
 -- | Product all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
--- >>> A.productNaN (A.vector @Double 10 [1..]) 0 0.0
+-- >>> let nan = 0/0 in A.productNaN (A.vector @Double 10 (nan : [1..])) 0 2.0
 -- ArrayFire Array
 -- [1 1 1 1]
 -- 3628800.0000
@@ -150,10 +150,10 @@ max x (fromIntegral -> n) = x `op1` (\p a -> af_max p a n)
 
 -- | Find if all elements in an 'Array' are 'True' along a dimension
 --
--- >>> A.allTrue (A.vector @CBool 10 (repeat 0)) 0
+-- >>> A.allTrue (A.vector @CBool 10 (repeat 1)) 0
 -- ArrayFire Array
 -- [1 1 1 1]
---         0
+--         1
 allTrue
   :: AFType a
   => Array a
@@ -212,7 +212,7 @@ sumAll = (`infoFromArray2` af_sum_all)
 
 -- | Sum all elements in an 'Array' along all dimensions, using a default value for NaN
 --
--- >>> A.sumNaNAll (A.vector @Double 10 [1..]) 0.0
+-- >>> let nan = 0/0 in A.sumNaNAll (A.vector @Double 10 (nan : [1..])) 0.0
 -- (55.0,0.0)
 sumNaNAll
   :: (AFType a, Fractional a)
@@ -516,7 +516,7 @@ diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 
 -- | Sort an Array along a specified dimension, specifying ordering of results (ascending / descending)
 --
--- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 True
+-- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 Asc
 -- ArrayFire Array
 -- [4 1 1 1]
 --     1.0000
@@ -524,7 +524,7 @@ diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 --     3.0000
 --     4.0000
 --
--- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 False
+-- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 Desc
 -- ArrayFire Array
 -- [4 1 1 1]
 --     4.0000
@@ -537,7 +537,7 @@ sort
   -- ^ Input array
   -> Int
   -- ^ Dimension along `sort` is performed
-  -> Bool
+  -> Order
   -- ^ Return results in ascending order
   -> Array a
   -- ^ Will contain sorted input
@@ -546,7 +546,7 @@ sort a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
 
 -- | Sort an 'Array' along a specified dimension, specifying ordering of results (ascending / descending), returns indices of sorted results
 --
--- >>> A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 True
+-- >>> A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 Asc
 -- (ArrayFire Array
 -- [4 1 1 1]
 --     1.0000
@@ -566,12 +566,17 @@ sortIndex
   -- ^ Input array
   -> Int
   -- ^ Dimension along `sortIndex` is performed
-  -> Bool
+  -> Order
   -- ^ Return results in ascending order
   -> (Array a, Array Word32)
   -- ^ Contains the sorted, contains indices for original input
 sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
+
+
+-- | Data type for expressing sort order
+data Order = Desc | Asc
+  deriving (Enum, Show, Eq)
 
 -- | Sort an 'Array' along a specified dimension by keys, specifying ordering of results (ascending / descending)
 --
@@ -597,7 +602,7 @@ sortByKey
   -- ^ Values input array
   -> Int
   -- ^ Dimension along which to perform the operation
-  -> Bool
+  -> Order
   -- ^ Return results in ascending order
   -> (Array a, Array a)
 sortByKey a1 a2 (fromIntegral -> n) (fromIntegral . fromEnum -> b) =

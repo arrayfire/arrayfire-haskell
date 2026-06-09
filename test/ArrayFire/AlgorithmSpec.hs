@@ -254,15 +254,15 @@ spec =
 
     describe "sort" $ do
       it "sorts ascending" $ do
-        A.sort (A.vector @Double 5 [3,1,4,1,5]) 0 True
+        A.sort (A.vector @Double 5 [3,1,4,1,5]) 0 A.Asc
           `shouldBe` A.vector @Double 5 [1,1,3,4,5]
       it "sorts descending" $ do
-        A.sort (A.vector @Double 5 [3,1,4,1,5]) 0 False
+        A.sort (A.vector @Double 5 [3,1,4,1,5]) 0 A.Desc
           `shouldBe` A.vector @Double 5 [5,4,3,1,1]
 
     describe "sortIndex" $ do
       it "returns sorted values and original indices" $ do
-        let (vals, idxs) = A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 True
+        let (vals, idxs) = A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 A.Asc
         vals  `shouldBe` A.vector @Double  4 [1,2,3,4]
         idxs  `shouldBe` A.vector @A.Word32 4 [2,1,0,3]
 
@@ -271,7 +271,7 @@ spec =
         let (ks, vs) = A.sortByKey
               (A.vector @Double 4 [2,1,4,3])
               (A.vector @Double 4 [10,9,8,7])
-              0 True
+              0 A.Asc
         ks `shouldBe` A.vector @Double 4 [1,2,3,4]
         vs `shouldBe` A.vector @Double 4 [9,10,7,8]
 
@@ -310,12 +310,12 @@ spec =
       -- non-decreasing order — i.e. agree element-for-element with Data.List.
       prop "ascending sort agrees with Data.List.sort" $ \(xs :: [Double]) ->
         not (null xs) ==>
-          A.toList (A.sort (A.vector (length xs) xs) 0 True) == L.sort xs
+          A.toList (A.sort (A.vector (length xs) xs) 0 A.Asc) == L.sort xs
 
-      -- Descending sort is the reverse ordering.
+      -- A.Descending sort is the reverse ordering.
       prop "descending sort is the reverse ordering" $ \(xs :: [Double]) ->
         not (null xs) ==>
-          A.toList (A.sort (A.vector (length xs) xs) 0 False) == L.sortBy (flip compare) xs
+          A.toList (A.sort (A.vector (length xs) xs) 0 A.Desc) == L.sortBy (flip compare) xs
 
     describe "by-key reductions (property)" $ do
       -- These exercise the op2p2kv marshalling (s32 key cast in, s64 cast out)
