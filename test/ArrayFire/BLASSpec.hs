@@ -1,10 +1,23 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 module ArrayFire.BLASSpec where
 
 import ArrayFire    hiding (not)
 
 import Data.Complex
 import Test.Hspec
+import Test.Hspec.QuickCheck (prop)
+
+-- | Build a 4x4 'Double' matrix from an arbitrary (possibly short) list,
+-- padding with zeros so the shape is always well-defined.
+mat4 :: [Double] -> Array Double
+mat4 xs = mkArray [4,4] (take 16 (xs ++ repeat 0))
+
+-- | Element-wise closeness, tolerant of floating-point rounding in BLAS.
+closeList :: [Double] -> [Double] -> Bool
+closeList as bs =
+  length as == length bs &&
+  and (zipWith (\a b -> abs (a - b) <= 1e-9 + 1e-6 * max (abs a) (abs b)) as bs)
 
 spec :: Spec
 spec =
@@ -50,3 +63,23 @@ spec =
       let a = matrix @Double (2,2) [[1,2],[3,4]]
           b = matrix @Double (2,2) [[5,6],[7,8]]
       gemm None None 1.0 a b `shouldBe` matrix @Double (2,2) [[23,34],[31,46]]
+
+    describe "algebraic properties" $ do
+      -- Transposition only moves data, so double-transpose is exactly the
+      -- identity (no floating-point rounding involved).
+      prop "transpose is an involution" $ \(xs :: [Double]) ->
+        let m = mat4 xs
+        in toList (transpose (transpose m False) False) == toList m
+
+      -- Multiplying by the identity matrix recovers the original.
+      prop "A * I = A" $ \(xs :: [Double]) ->
+        let a = mat4 xs
+        in closeList (toList ((a `matmul` identity [4,4]) None None)) (toList a)
+
+      -- (A^T B^T)^T = B A : transpose distributes over a product (reversed).
+      prop "(A^T B^T)^T = B A" $ \(xs :: [Double]) (ys :: [Double]) ->
+        let a   = mat4 xs
+            b   = mat4 ys
+            lhs = transpose ((transpose a False `matmul` transpose b False) None None) False
+            rhs = (b `matmul` a) None None
+        in closeList (toList lhs) (toList rhs)

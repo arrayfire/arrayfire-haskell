@@ -1,8 +1,12 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 module ArrayFire.AlgorithmSpec where
 
-import qualified ArrayFire       as A
+import qualified ArrayFire             as A
+import qualified Data.List            as L
 import           Test.Hspec
+import           Test.Hspec.QuickCheck (prop)
+import           Test.QuickCheck       ((==>))
 
 spec :: Spec
 spec =
@@ -280,4 +284,16 @@ spec =
     it "imaxAll returns correct value and index" $ do
       let arr = A.vector @Double 5 [3, 1, 4, 1, 5]
       A.imaxAll arr `shouldBe` (5.0, 0.0, 4)
+
+    describe "sort (property)" $ do
+      -- An ascending sort must return exactly the multiset of inputs in
+      -- non-decreasing order — i.e. agree element-for-element with Data.List.
+      prop "ascending sort agrees with Data.List.sort" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          A.toList (A.sort (A.vector (length xs) xs) 0 True) == L.sort xs
+
+      -- Descending sort is the reverse ordering.
+      prop "descending sort is the reverse ordering" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          A.toList (A.sort (A.vector (length xs) xs) 0 False) == L.sortBy (flip compare) xs
 

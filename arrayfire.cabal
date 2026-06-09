@@ -172,6 +172,7 @@ test-suite test
     ArrayFire.BackendSpec
     ArrayFire.DataSpec
     ArrayFire.DeviceSpec
+    ArrayFire.ExceptionSpec
     ArrayFire.FeaturesSpec
     ArrayFire.GraphicsSpec
     ArrayFire.ImageSpec

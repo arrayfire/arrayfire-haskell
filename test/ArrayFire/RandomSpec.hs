@@ -2,13 +2,13 @@
 module ArrayFire.RandomSpec where
 
 import ArrayFire
-import Control.Monad
 
 import Test.Hspec
 
 spec :: Spec
-spec =
-  describe "Random engine spec" $ do
+spec = describe "Random spec" $ do
+
+  describe "random engine" $ do
     it "Should create random engine" $ do
       (`shouldBe` Philox)
          =<< getRandomEngineType
@@ -27,4 +27,49 @@ spec =
        setSeed 100
        (`shouldBe` 100) =<< getSeed
 
+  -- Reproducibility is the contract that makes randomness usable in tests and
+  -- science: a fixed seed must yield a fixed stream.
+  describe "seed reproducibility" $ do
 
+    it "global setSeed makes randu reproducible" $ do
+      setSeed 1234
+      a1 <- toList <$> randu @Float [256]
+      setSeed 1234
+      a2 <- toList <$> randu @Float [256]
+      a2 `shouldBe` a1
+
+    it "global setSeed makes randn reproducible" $ do
+      setSeed 9876
+      a1 <- toList <$> randn @Double [256]
+      setSeed 9876
+      a2 <- toList <$> randn @Double [256]
+      a2 `shouldBe` a1
+
+    it "two engines with the same seed + type draw the same stream" $ do
+      e1 <- createRandomEngine 42 Philox
+      e2 <- createRandomEngine 42 Philox
+      a1 <- toList <$> randomUniform @Float [256] e1
+      a2 <- toList <$> randomUniform @Float [256] e2
+      a2 `shouldBe` a1
+
+    it "engines with different seeds draw different streams" $ do
+      e1 <- createRandomEngine 1 Philox
+      e2 <- createRandomEngine 2 Philox
+      a1 <- toList <$> randomUniform @Float [256] e1
+      a2 <- toList <$> randomUniform @Float [256] e2
+      a2 `shouldNotBe` a1
+
+  describe "distribution shape & range" $ do
+
+    it "randu produces the requested dimensions" $ do
+      a <- randu @Float [3,4]
+      getDims a `shouldBe` (3,4,1,1)
+
+    it "randn produces the requested dimensions" $ do
+      a <- randn @Double [5,2,3]
+      getDims a `shouldBe` (5,2,3,1)
+
+    it "uniform draws lie in [0,1)" $ do
+      setSeed 7
+      xs <- toList <$> randu @Float [4096]
+      xs `shouldSatisfy` all (\x -> x >= 0 && x < 1)
