@@ -114,5 +114,6 @@ foreign import ccall unsafe "&af_release_random_engine"
 foreign import ccall unsafe "&af_destroy_window"
   af_release_window_finalizer :: FunPtr (AFWindow -> IO ())
 
-foreign import ccall unsafe "&af_release_array"
+foreign import ccall unsafe "&af_release_array_safe"
   af_release_array_finalizer :: FunPtr (AFArray -> IO ())
+

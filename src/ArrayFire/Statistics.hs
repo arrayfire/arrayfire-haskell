@@ -1,4 +1,6 @@
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE ViewPatterns        #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports    #-}
 --------------------------------------------------------------------------------
 -- |
@@ -182,100 +184,100 @@ median a n =
 -- | Calculates 'mean' of all elements in an 'Array'
 --
 -- >>> meanAll $ matrix @Double (2,2) [[1,2],[4,5]]
--- (3.0,0.0)
+-- 3.0
 meanAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Mean result (real and imaginary part)
-meanAll = (`infoFromArray2` af_mean_all)
+  -> Scalar a
+  -- ^ Mean of all elements
+meanAll arr = toAFResult @a (arr `infoFromArray2` af_mean_all)
 
 -- | Calculates weighted mean of all elements in an 'Array'
 --
 -- >>> meanAllWeighted (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[1,2],[3,4]])
--- (2.8181818181818183,0.0)
+-- 2.8181818181818183
 meanAllWeighted
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
   -> Array a
   -- ^ 'Array' of weights
-  -> (Double, Double)
-  -- ^ Weighted mean (real and imaginary part)
+  -> Scalar a
+  -- ^ Weighted mean
 meanAllWeighted a b =
-  infoFromArray22 a b af_mean_all_weighted
+  toAFResult @a (infoFromArray22 a b af_mean_all_weighted)
 
 -- | Calculates variance of all elements in an 'Array'
 --
--- >>> varAll (vector @Double 10 (repeat 10)) False
--- (0.0,0.0)
+-- >>> varAll (vector @Double 10 (repeat 10)) Population
+-- 0.0
 varAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> Bool
-  -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Variance (real and imaginary part)
+  -> VarianceType
+  -- ^ 'Population' variance (÷N) or 'Sample' variance (÷N-1)
+  -> Scalar a
+  -- ^ Variance of all elements
 varAll a (fromIntegral . fromEnum -> b) =
-  infoFromArray2 a $ \x y z ->
-    af_var_all x y z b
+  toAFResult @a (infoFromArray2 a $ \x y z ->
+    af_var_all x y z b)
 
 -- | Calculates weighted variance of all elements in an 'Array'
 --
 -- >>> varAllWeighted ( vector @Double 10 [1..] ) ( vector @Double 10 [1..] )
--- (6.011479591836735,0.0)
+-- 6.011479591836735
 varAllWeighted
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
   -> Array a
   -- ^ 'Array' of weights
-  -> (Double, Double)
-  -- ^ Variance weighted result, (real and imaginary part)
+  -> Scalar a
+  -- ^ Weighted variance of all elements
 varAllWeighted a b =
-  infoFromArray22 a b af_var_all_weighted
+  toAFResult @a (infoFromArray22 a b af_var_all_weighted)
 
 -- | Calculates standard deviation of all elements in an 'Array'
 --
 -- >>> stdevAll (vector @Double 10 (repeat 10))
--- (0.0,0.0)
+-- 0.0
 stdevAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Standard deviation result, (real and imaginary part)
-stdevAll = (`infoFromArray2` af_stdev_all)
+  -> Scalar a
+  -- ^ Standard deviation of all elements
+stdevAll arr = toAFResult @a (arr `infoFromArray2` af_stdev_all)
 
 -- | Calculates median of all elements in an 'Array'
 --
 -- >>> medianAll (vector @Double 10 (repeat 10))
--- (10.0,0.0)
+-- 10.0
 medianAll
-  :: (AFType a, Fractional a)
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Median result, real and imaginary part
-medianAll = (`infoFromArray2` af_median_all)
+  -> Scalar a
+  -- ^ Median of all elements
+medianAll arr = toAFResult @a (arr `infoFromArray2` af_median_all)
 
 -- | This algorithm returns Pearson product-moment correlation coefficient.
 -- <https://en.wikipedia.org/wiki/Pearson_correlation_coefficient>
 --
 -- >>> corrCoef ( vector @Int 10 [1..] ) ( vector @Int 10 [10,9..] )
--- (-1.0,0.0)
+-- -1.0
 corrCoef
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ First input 'Array'
   -> Array a
   -- ^ Second input 'Array'
-  -> (Double, Double)
-  -- ^ Correlation coefficient result, real and imaginary part
+  -> Scalar a
+  -- ^ Correlation coefficient
 corrCoef a b =
-  infoFromArray22 a b af_corrcoef
+  toAFResult @a (infoFromArray22 a b af_corrcoef)
 
 -- | This function returns the top k values along a given dimension of the input array.
 --

@@ -168,3 +168,14 @@ spec =
       prop "bitNot agrees with Data.Bits.complement (Int32)" $ \(xs :: [Int32]) ->
         not (null xs) ==>
           toList (bitNot (vector @Int32 (length xs) xs)) == map complement xs
+
+    describe "reorder" $ do
+      it "reorder [0,1] is identity for a 2D matrix" $ do
+        let m = matrix @Double (3,4) [[1..3],[3..6],[6..9],[9..12]]
+        reorder m [0,1] `shouldBe` m
+      it "reorder [1,0] transposes a matrix" $ do
+        let m = matrix @Double (2,3) [[1,2],[3,4],[5,6]]
+        getDims (reorder m [1,0]) `shouldBe` (3,2,1,1)
+      it "reorder [1,0] then [1,0] round-trips" $ do
+        let m = matrix @Double (3,4) [[1..3],[3..6],[6..9],[9..12]]
+        reorder (reorder m [1,0]) [1,0] `shouldBe` m

@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
@@ -244,12 +246,12 @@ rank a b =
 -- C Interface for finding the determinant of a matrix.
 --
 det
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
-  -- ^ is input matrix
-  -> (Double,Double)
-  -- ^ will contain the real and imaginary part of the determinant of in
-det = (`infoFromArray2` af_det)
+  -- ^ Input matrix
+  -> Scalar a
+  -- ^ Determinant ('Double' for real matrices, 'Complex Double' for complex)
+det arr = toAFResult @a (arr `infoFromArray2` af_det)
 
 -- | Find the norm of the input matrix.
 --

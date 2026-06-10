@@ -202,3 +202,37 @@ spec =
         not (null xs) ==>
           let v = V.fromList xs
           in V.toList (toVector (fromVector @Int [length xs] v)) == xs
+
+    describe "cube" $ do
+      it "creates a 2x2x2 cube with correct dims" $ do
+        let c = cube @Double (2,2,2)
+                  [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+        getDims c `shouldBe` (2,2,2,1)
+      it "creates a 2x2x2 cube with correct element count" $ do
+        let c = cube @Double (2,2,2)
+                  [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+        getElements c `shouldBe` 8
+      it "all-constant cube equals constant array" $ do
+        let c = cube @Double (2,2,2)
+                  [ [[3,3],[3,3]], [[3,3],[3,3]] ]
+        c `shouldBe` mkArray @Double [2,2,2] (replicate 8 3)
+
+    describe "tensor" $ do
+      it "creates a 2x2x2x2 tensor with correct dims" $ do
+        let t = tensor @Double (2,2,2,2)
+                  [ [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  , [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  ]
+        getDims t `shouldBe` (2,2,2,2)
+      it "creates a 2x2x2x2 tensor with correct element count" $ do
+        let t = tensor @Double (2,2,2,2)
+                  [ [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  , [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  ]
+        getElements t `shouldBe` 16
+      it "all-constant tensor equals constant array" $ do
+        let t = tensor @Double (2,2,2,2)
+                  [ [ [[5,5],[5,5]], [[5,5],[5,5]] ]
+                  , [ [[5,5],[5,5]], [[5,5],[5,5]] ]
+                  ]
+        t `shouldBe` mkArray @Double [2,2,2,2] (replicate 16 5)

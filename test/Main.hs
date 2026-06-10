@@ -86,7 +86,7 @@ checkLaws ref laws = do
     unless (isSuccess r) (writeIORef ref False)
 
 main :: IO ()
-main = do
+main = A.withArrayFire $ do
   ref <- newIORef True
   let check = checkLaws ref
   -- IEEE 754 is not an exact ring; only Eq laws for floating-point arrays.

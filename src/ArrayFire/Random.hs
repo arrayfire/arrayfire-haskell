@@ -178,10 +178,14 @@ getDefaultRandomEngine =
       alloca $ \ptrInput -> do
         throwAFError =<< af_get_default_random_engine ptrInput
         peek ptrInput
-    fptr <- newForeignPtr af_release_random_engine_finalizer ptr
+    retained <-
+      alloca $ \ptrRetained -> do
+        throwAFError =<< af_retain_random_engine ptrRetained ptr
+        peek ptrRetained
+    fptr <- newForeignPtr af_release_random_engine_finalizer retained
     pure (RandomEngine fptr)
 
--- | Set defualt 'RandomEngine' type
+-- | Set default 'RandomEngine' type
 --
 -- @
 -- >>> setDefaultRandomEngineType Philox

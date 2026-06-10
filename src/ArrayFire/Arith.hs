@@ -1569,32 +1569,24 @@ atanh
   -- ^ Result of calling 'tanh'
 atanh = flip op1 af_atanh
 
--- | Execute root
+-- | Execute root: compute the nth root of each element.
+-- @root base n@ computes @base^(1\/n)@.
 --
--- >>> A.root (A.vector @Double 10 [1..]) (A.vector @Double 10 [1..])
+-- >>> A.root (A.scalar @Double 1 8) (A.scalar @Double 1 3)
 -- ArrayFire Array
--- [10 1 1 1]
---     1.0000
---     1.4142
---     1.4422
---     1.4142
---     1.3797
---     1.3480
---     1.3205
---     1.2968
---     1.2765
---     1.2589
+-- [1 1 1 1]
+--     2.0000
 root
   :: AFType a
   => Array a
-  -- ^ First input
+  -- ^ The input data (base)
   -> Array a
-  -- ^ Second input
+  -- ^ The root degree (n)
   -> Array a
-  -- ^ Result of root
+  -- ^ Result: base^(1\/n)
 root x y =
   x `op2` y $ \arr arr1 arr2 ->
-    af_root arr arr1 arr2 1
+    af_root arr arr2 arr1 1
 
 -- | Execute rootBatched
 --
@@ -1621,9 +1613,9 @@ rootBatched
   -- ^ Use batch
   -> Array a
   -- ^ Result of root
-rootBatched x y (fromIntegral . fromEnum -> batch) = do
+rootBatched x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
-    af_root arr arr1 arr2 batch
+    af_root arr arr2 arr1 batch
 
 -- | Execute pow
 --
@@ -1913,19 +1905,19 @@ log2 = flip op1 af_log2
 
 -- | Execute sqrt
 --
--- >>> A.sqrt (A.vector @Int 10 [1..])
+-- >>> A.sqrt (A.vector @Int 10 [ x * x | x <- [ 1 .. 10 ]])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
---     1.4142
---     1.7321
 --     2.0000
---     2.2361
---     2.4495
---     2.6458
---     2.8284
 --     3.0000
---     3.1623
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 sqrt
   :: AFType a
   => Array a
@@ -1936,19 +1928,19 @@ sqrt = flip op1 af_sqrt
 
 -- | Execute cbrt
 --
--- >>> A.cbrt (A.vector @Int 10 [1..])
+-- >>> A.cbrt (A.vector @Int 10 [ x * x * x | x <- [ 1 .. 10 ]])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
---     1.2599
---     1.4422
---     1.5874
---     1.7100
---     1.8171
---     1.9129
 --     2.0000
---     2.0801
---     2.1544
+--     3.0000
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 cbrt
   :: AFType a
   => Array a

@@ -68,3 +68,25 @@ spec =
         let sp = A.createSparseArrayFromDense diag3 A.CSR
             (_, _, _, storage) = A.sparseGetInfo sp
         storage `shouldBe` A.sparseGetStorage sp
+
+    describe "createSparseArray" $ do
+      -- Build a 3x3 diagonal sparse matrix directly from COO components:
+      -- values = [1,2,3], rowIdx = [0,1,2], colIdx = [0,1,2]
+      it "NNZ equals length of supplied values array" $ do
+        let vals   = A.vector @Double 3 [1,2,3]
+            rowIdx = A.vector @Int32  3 [0,1,2]
+            colIdx = A.vector @Int32  3 [0,1,2]
+            sp     = A.createSparseArray 3 3 vals rowIdx colIdx A.COO
+        A.sparseGetNNZ sp `shouldBe` 3
+      it "storage format matches the requested format" $ do
+        let vals   = A.vector @Double 3 [1,2,3]
+            rowIdx = A.vector @Int32  3 [0,1,2]
+            colIdx = A.vector @Int32  3 [0,1,2]
+            sp     = A.createSparseArray 3 3 vals rowIdx colIdx A.COO
+        A.sparseGetStorage sp `shouldBe` A.COO
+      it "converting to dense recovers the diagonal matrix" $ do
+        let vals   = A.vector @Double 3 [1,2,3]
+            rowIdx = A.vector @Int32  3 [0,1,2]
+            colIdx = A.vector @Int32  3 [0,1,2]
+            sp     = A.createSparseArray 3 3 vals rowIdx colIdx A.COO
+        A.sparseToDense sp `shouldBe` diag3

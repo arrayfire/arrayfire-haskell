@@ -73,3 +73,78 @@ spec = describe "Random spec" $ do
       setSeed 7
       xs <- toList <$> randu @Float [4096]
       xs `shouldSatisfy` all (\x -> x >= 0 && x < 1)
+
+  describe "randomNormal" $ do
+    it "produces the requested dimensions" $ do
+      e <- getDefaultRandomEngine
+      a <- randomNormal @Double [3,4] e
+      getDims a `shouldBe` (3,4,1,1)
+    it "produces the right number of elements" $ do
+      e <- getDefaultRandomEngine
+      a <- randomNormal @Float [5,2] e
+      getElements a `shouldBe` 10
+
+    it "two engines with the same seed produce the same normal stream" $ do
+      e1 <- createRandomEngine 42 Philox
+      e2 <- createRandomEngine 42 Philox
+      a1 <- toList <$> randomNormal @Double [256] e1
+      a2 <- toList <$> randomNormal @Double [256] e2
+      a2 `shouldBe` a1
+    it "engines with different seeds produce different normal streams" $ do
+      e1 <- createRandomEngine 1 Philox
+      e2 <- createRandomEngine 2 Philox
+      a1 <- toList <$> randomNormal @Double [256] e1
+      a2 <- toList <$> randomNormal @Double [256] e2
+      a2 `shouldNotBe` a1
+
+  describe "randomEngineSetSeed / randomEngineGetSeed" $ do
+    it "getSeed returns the seed supplied to createRandomEngine" $ do
+      e <- createRandomEngine 9999 Philox
+      s <- randomEngineGetSeed e
+      s `shouldBe` 9999
+    it "setAndGet round-trip: seed is updated after randomEngineSetSeed" $ do
+      e <- createRandomEngine 1 Philox
+      randomEngineSetSeed e 12345
+      s <- randomEngineGetSeed e
+      s `shouldBe` 12345
+    it "different seeds produce different streams after randomEngineSetSeed" $ do
+      e <- createRandomEngine 1 Philox
+      randomEngineSetSeed e 100
+      a1 <- toList <$> randomUniform @Float [64] e
+      randomEngineSetSeed e 200
+      a2 <- toList <$> randomUniform @Float [64] e
+      a2 `shouldNotBe` a1
+    it "same seed after reset produces the same stream" $ do
+      e <- createRandomEngine 1 Philox
+      randomEngineSetSeed e 777
+      a1 <- toList <$> randomUniform @Float [64] e
+      randomEngineSetSeed e 777
+      a2 <- toList <$> randomUniform @Float [64] e
+      a2 `shouldBe` a1
+
+  describe "retainRandomEngine" $ do
+    it "retained engine has the same type as the original" $ do
+      e  <- createRandomEngine 42 Philox
+      e' <- retainRandomEngine e
+      getRandomEngineType e' `shouldReturn` Philox
+    it "retained handle shares state with original (both advance the same stream)" $ do
+      e  <- createRandomEngine 42 Philox
+      e' <- retainRandomEngine e
+      a1 <- toList <$> randomUniform @Double [4] e
+      a2 <- toList <$> randomUniform @Double [4] e'
+      a2 `shouldNotBe` a1
+
+  describe "setDefaultRandomEngineType" $ do
+    it "default engine type reflects the type that was set" $ do
+      setDefaultRandomEngineType ThreeFry
+      e <- getDefaultRandomEngine
+      getRandomEngineType e `shouldReturn` ThreeFry
+    it "switching type changes what getDefaultRandomEngine reports" $ do
+      setDefaultRandomEngineType Philox
+      e1 <- getDefaultRandomEngine
+      t1 <- getRandomEngineType e1
+      setDefaultRandomEngineType Mersenne
+      e2 <- getDefaultRandomEngine
+      t2 <- getRandomEngineType e2
+      t1 `shouldBe` Philox
+      t2 `shouldBe` Mersenne

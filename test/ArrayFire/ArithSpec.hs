@@ -266,3 +266,263 @@ spec =
       it "real and imag round-trip via cplx2" $ do
         let c = vector @(Complex Double) 3 [1:+2, 3:+4, 5:+6]
         cplx2 (real c :: Array Double) (imag c :: Array Double) `shouldBe` c
+
+    describe "factorial" $ do
+      it "factorial 0 = 1" $
+        evalf (ArrayFire.factorial (scalar @Double 0)) `shouldBeApprox` 1
+      it "factorial 5 = 120" $
+        evalf (ArrayFire.factorial (scalar @Double 5)) `shouldBeApprox` 120
+      it "factorial 10 = 3628800" $
+        evalf (ArrayFire.factorial (scalar @Double 10)) `shouldBeApprox` 3628800
+
+    describe "floor" $ do
+      it "floor of 1.7 is 1" $
+        evalf (ArrayFire.floor (scalar @Double 1.7)) `shouldBeApprox` 1
+      it "floor of -1.2 is -2" $
+        evalf (ArrayFire.floor (scalar @Double (-1.2))) `shouldBeApprox` (-2)
+      it "floor of exact integer is unchanged" $
+        evalf (ArrayFire.floor (scalar @Double 3.0)) `shouldBeApprox` 3
+
+    describe "ceil" $ do
+      it "ceil of 1.2 is 2" $
+        evalf (ArrayFire.ceil (scalar @Double 1.2)) `shouldBeApprox` 2
+      it "ceil of -1.7 is -1" $
+        evalf (ArrayFire.ceil (scalar @Double (-1.7))) `shouldBeApprox` (-1)
+      it "ceil of exact integer is unchanged" $
+        evalf (ArrayFire.ceil (scalar @Double 4.0)) `shouldBeApprox` 4
+
+    describe "trunc" $ do
+      it "trunc of 1.9 is 1" $
+        evalf (ArrayFire.trunc (scalar @Double 1.9)) `shouldBeApprox` 1
+      it "trunc of -1.9 is -1" $
+        evalf (ArrayFire.trunc (scalar @Double (-1.9))) `shouldBeApprox` (-1)
+      it "trunc of exact integer is unchanged" $
+        evalf (ArrayFire.trunc (scalar @Double 5.0)) `shouldBeApprox` 5
+
+    describe "log10" $ do
+      it "log10 of 100 is 2" $
+        evalf (ArrayFire.log10 (scalar @Double 100)) `shouldBeApprox` 2
+      it "log10 of 1 is 0" $
+        evalf (ArrayFire.log10 (scalar @Double 1)) `shouldBeApprox` 0
+
+    describe "log2" $ do
+      it "log2 of 8 is 3" $
+        evalf (ArrayFire.log2 (scalar @Double 8)) `shouldBeApprox` 3
+      it "log2 of 1 is 0" $
+        evalf (ArrayFire.log2 (scalar @Double 1)) `shouldBeApprox` 0
+
+    describe "log1p" $ do
+      it "log1p 0 = 0" $
+        evalf (ArrayFire.log1p (scalar @Double 0)) `shouldBeApprox` 0
+      it "log1p (e-1) = 1" $
+        evalf (ArrayFire.log1p (scalar @Double (exp 1 - 1))) `shouldBeApprox` 1
+
+    describe "pow" $ do
+      it "2^10 = 1024" $
+        ArrayFire.pow (scalar @Int 2) (scalar @Int 10) `shouldBe` scalar @Int 1024
+      it "3^3 = 27" $
+        ArrayFire.pow (scalar @Int 3) (scalar @Int 3) `shouldBe` scalar @Int 27
+
+    describe "pow2" $ do
+      it "pow2 1 = 2" $
+        ArrayFire.pow2 (scalar @Int 1) `shouldBe` scalar @Int 2
+      it "pow2 4 = 16" $
+        ArrayFire.pow2 (scalar @Int 4) `shouldBe` scalar @Int 16
+      it "pow2 0 = 1" $
+        ArrayFire.pow2 (scalar @Int 0) `shouldBe` scalar @Int 1
+
+    describe "root" $ do
+      it "cube root of 8 is 2" $
+        evalf (ArrayFire.root (scalar @Double 8) (scalar @Double 3)) `shouldBeApprox` 2
+      it "square root of 9 is 3" $
+        evalf (ArrayFire.root (scalar @Double 9) (scalar @Double 2)) `shouldBeApprox` 3
+
+    describe "arg" $ do
+      it "arg of a positive real scalar is 0" $
+        evalf (ArrayFire.arg (scalar @Double 5)) `shouldBeApprox` 0
+      it "arg of 0 is 0" $
+        evalf (ArrayFire.arg (scalar @Double 0)) `shouldBeApprox` 0
+
+    describe "atan2" $ do
+      it "atan2(1,1) = pi/4" $
+        evalf (ArrayFire.atan2 (scalar @Double 1) (scalar @Double 1))
+          `shouldBeApprox` (pi / 4)
+      it "atan2(0,1) = 0" $
+        evalf (ArrayFire.atan2 (scalar @Double 0) (scalar @Double 1))
+          `shouldBeApprox` 0
+
+    describe "lgamma" $ do
+      it "lgamma 1 = 0" $
+        evalf (ArrayFire.lgamma (scalar @Double 1)) `shouldBeApprox` 0
+      it "lgamma 0.5 = log(sqrt(pi))" $
+        evalf (ArrayFire.lgamma (scalar @Double 0.5)) `shouldBeApprox` log (sqrt pi)
+
+    describe "tgamma" $ do
+      it "tgamma 1 = 1" $
+        evalf (ArrayFire.tgamma (scalar @Double 1)) `shouldBeApprox` 1
+      it "tgamma 5 = 24 (= 4!)" $
+        evalf (ArrayFire.tgamma (scalar @Double 5)) `shouldBeApprox` 24
+      it "tgamma 0.5 = sqrt(pi)" $
+        evalf (ArrayFire.tgamma (scalar @Double 0.5)) `shouldBeApprox` (sqrt pi)
+
+    describe "addBatched" $ do
+      it "adds two scalars (batch=True)" $
+        (scalar @Int 3 `ArrayFire.addBatched` scalar @Int 4) True `shouldBe` scalar @Int 7
+      it "adds two scalars (batch=False)" $
+        (scalar @Int 10 `ArrayFire.addBatched` scalar @Int 5) False `shouldBe` scalar @Int 15
+
+    describe "subBatched" $ do
+      it "subtracts two scalars (batch=True)" $
+        (scalar @Int 9 `ArrayFire.subBatched` scalar @Int 4) True `shouldBe` scalar @Int 5
+      it "subtracts two scalars (batch=False)" $
+        (scalar @Int 10 `ArrayFire.subBatched` scalar @Int 3) False `shouldBe` scalar @Int 7
+
+    describe "mulBatched" $ do
+      it "multiplies two scalars (batch=True)" $
+        (scalar @Int 3 `ArrayFire.mulBatched` scalar @Int 5) True `shouldBe` scalar @Int 15
+      it "multiplies two scalars (batch=False)" $
+        (scalar @Int 6 `ArrayFire.mulBatched` scalar @Int 7) False `shouldBe` scalar @Int 42
+
+    describe "divBatched" $ do
+      it "divides two scalars (batch=True)" $
+        (scalar @Int 12 `ArrayFire.divBatched` scalar @Int 4) True `shouldBe` scalar @Int 3
+      it "divides two scalars (batch=False)" $
+        (scalar @Int 20 `ArrayFire.divBatched` scalar @Int 5) False `shouldBe` scalar @Int 4
+
+    describe "eqBatched" $ do
+      it "equal scalars return 1 (batch=False)" $
+        (scalar @Int 5 `ArrayFire.eqBatched` scalar @Int 5) False `shouldBe` scalar @CBool 1
+      it "unequal scalars return 0 (batch=False)" $
+        (scalar @Int 5 `ArrayFire.eqBatched` scalar @Int 6) False `shouldBe` scalar @CBool 0
+
+    describe "neqBatched" $ do
+      it "unequal scalars return 1 (batch=False)" $
+        (scalar @Int 5 `ArrayFire.neqBatched` scalar @Int 6) False `shouldBe` scalar @CBool 1
+      it "equal scalars return 0 (batch=False)" $
+        (scalar @Int 5 `ArrayFire.neqBatched` scalar @Int 5) False `shouldBe` scalar @CBool 0
+
+    describe "ltBatched" $ do
+      it "1 < 2 returns 1 (batch=False)" $
+        (scalar @Int 1 `ArrayFire.ltBatched` scalar @Int 2) False `shouldBe` scalar @CBool 1
+      it "2 < 1 returns 0 (batch=False)" $
+        (scalar @Int 2 `ArrayFire.ltBatched` scalar @Int 1) False `shouldBe` scalar @CBool 0
+
+    describe "leBatched" $ do
+      it "1 <= 1 returns 1 (batch=False)" $
+        (scalar @Int 1 `ArrayFire.leBatched` scalar @Int 1) False `shouldBe` scalar @CBool 1
+      it "2 <= 1 returns 0 (batch=False)" $
+        (scalar @Int 2 `ArrayFire.leBatched` scalar @Int 1) False `shouldBe` scalar @CBool 0
+
+    describe "gtBatched" $ do
+      it "2 > 1 returns 1 (batch=False)" $
+        (scalar @Int 2 `ArrayFire.gtBatched` scalar @Int 1) False `shouldBe` scalar @CBool 1
+      it "1 > 2 returns 0 (batch=False)" $
+        (scalar @Int 1 `ArrayFire.gtBatched` scalar @Int 2) False `shouldBe` scalar @CBool 0
+
+    describe "geBatched" $ do
+      it "1 >= 1 returns 1 (batch=False)" $
+        (scalar @Int 1 `ArrayFire.geBatched` scalar @Int 1) False `shouldBe` scalar @CBool 1
+      it "1 >= 2 returns 0 (batch=False)" $
+        (scalar @Int 1 `ArrayFire.geBatched` scalar @Int 2) False `shouldBe` scalar @CBool 0
+
+    describe "bitAndBatched" $ do
+      it "bitAndBatched 1 1 = 1 (batch=False)" $
+        ArrayFire.bitAndBatched (scalar @Int 1) (scalar @Int 1) False `shouldBe` scalar @Int 1
+      it "bitAndBatched 1 0 = 0 (batch=False)" $
+        ArrayFire.bitAndBatched (scalar @Int 1) (scalar @Int 0) False `shouldBe` scalar @Int 0
+
+    describe "bitOrBatched" $ do
+      it "bitOrBatched 1 0 = 1 (batch=False)" $
+        ArrayFire.bitOrBatched (scalar @Int 1) (scalar @Int 0) False `shouldBe` scalar @Int 1
+      it "bitOrBatched 0 0 = 0 (batch=False)" $
+        ArrayFire.bitOrBatched (scalar @Int 0) (scalar @Int 0) False `shouldBe` scalar @Int 0
+
+    describe "bitXorBatched" $ do
+      it "bitXorBatched 1 1 = 0 (batch=False)" $
+        ArrayFire.bitXorBatched (scalar @Int 1) (scalar @Int 1) False `shouldBe` scalar @Int 0
+      it "bitXorBatched 1 0 = 1 (batch=False)" $
+        ArrayFire.bitXorBatched (scalar @Int 1) (scalar @Int 0) False `shouldBe` scalar @Int 1
+
+    describe "bitShiftL" $ do
+      it "1 << 3 = 8" $
+        ArrayFire.bitShiftL (scalar @Int 1) (scalar @Int 3) `shouldBe` scalar @Int 8
+      it "1 << 0 = 1" $
+        ArrayFire.bitShiftL (scalar @Int 1) (scalar @Int 0) `shouldBe` scalar @Int 1
+      it "3 << 2 = 12" $
+        ArrayFire.bitShiftL (scalar @Int 3) (scalar @Int 2) `shouldBe` scalar @Int 12
+
+    describe "bitShiftR" $ do
+      it "8 >> 3 = 1" $
+        ArrayFire.bitShiftR (scalar @Int 8) (scalar @Int 3) `shouldBe` scalar @Int 1
+      it "12 >> 2 = 3" $
+        ArrayFire.bitShiftR (scalar @Int 12) (scalar @Int 2) `shouldBe` scalar @Int 3
+      it "1 >> 0 = 1" $
+        ArrayFire.bitShiftR (scalar @Int 1) (scalar @Int 0) `shouldBe` scalar @Int 1
+
+    describe "andBatched" $ do
+      it "1 AND 1 = 1 (batch=False)" $
+        ArrayFire.andBatched (scalar @Int 1) (scalar @Int 1) False `shouldBe` scalar @CBool 1
+      it "1 AND 0 = 0 (batch=False)" $
+        ArrayFire.andBatched (scalar @Int 1) (scalar @Int 0) False `shouldBe` scalar @CBool 0
+
+    describe "orBatched" $ do
+      it "1 OR 0 = 1 (batch=False)" $
+        ArrayFire.orBatched (scalar @Int 1) (scalar @Int 0) False `shouldBe` scalar @CBool 1
+      it "0 OR 0 = 0 (batch=False)" $
+        ArrayFire.orBatched (scalar @Int 0) (scalar @Int 0) False `shouldBe` scalar @CBool 0
+
+    describe "bitShiftLBatched" $ do
+      it "1 << 3 = 8 (batch=False)" $
+        ArrayFire.bitShiftLBatched (scalar @Int 1) (scalar @Int 3) False `shouldBe` scalar @Int 8
+      it "3 << 2 = 12 (batch=False)" $
+        ArrayFire.bitShiftLBatched (scalar @Int 3) (scalar @Int 2) False `shouldBe` scalar @Int 12
+
+    describe "bitShiftRBatched" $ do
+      it "8 >> 3 = 1 (batch=False)" $
+        ArrayFire.bitShiftRBatched (scalar @Int 8) (scalar @Int 3) False `shouldBe` scalar @Int 1
+      it "12 >> 2 = 3 (batch=False)" $
+        ArrayFire.bitShiftRBatched (scalar @Int 12) (scalar @Int 2) False `shouldBe` scalar @Int 3
+
+    describe "clampBatched" $ do
+      it "clamp 2 to [1,3] = 2 (batch=False)" $
+        ArrayFire.clampBatched (scalar @Int 2) (scalar @Int 1) (scalar @Int 3) False `shouldBe` scalar @Int 2
+      it "clamp 0 to [1,3] = 1 (batch=False)" $
+        ArrayFire.clampBatched (scalar @Int 0) (scalar @Int 1) (scalar @Int 3) False `shouldBe` scalar @Int 1
+      it "clamp 5 to [1,3] = 3 (batch=False)" $
+        ArrayFire.clampBatched (scalar @Int 5) (scalar @Int 1) (scalar @Int 3) False `shouldBe` scalar @Int 3
+
+    describe "remBatched" $ do
+      it "7 rem 3 = 1 (batch=False)" $
+        ArrayFire.remBatched (scalar @Int 7) (scalar @Int 3) False `shouldBe` scalar @Int 1
+      it "10 rem 5 = 0 (batch=False)" $
+        ArrayFire.remBatched (scalar @Int 10) (scalar @Int 5) False `shouldBe` scalar @Int 0
+
+    describe "modBatched" $ do
+      it "7 mod 3 = 1 (batch=False)" $
+        ArrayFire.modBatched (scalar @Int 7) (scalar @Int 3) False `shouldBe` scalar @Int 1
+      it "9 mod 3 = 0 (batch=False)" $
+        ArrayFire.modBatched (scalar @Int 9) (scalar @Int 3) False `shouldBe` scalar @Int 0
+
+    describe "minOfBatched" $ do
+      it "min 2 3 = 2 (batch=False)" $
+        ArrayFire.minOfBatched (scalar @Int 2) (scalar @Int 3) False `shouldBe` scalar @Int 2
+      it "min 5 1 = 1 (batch=False)" $
+        ArrayFire.minOfBatched (scalar @Int 5) (scalar @Int 1) False `shouldBe` scalar @Int 1
+
+    describe "maxOfBatched" $ do
+      it "max 2 3 = 3 (batch=False)" $
+        ArrayFire.maxOfBatched (scalar @Int 2) (scalar @Int 3) False `shouldBe` scalar @Int 3
+      it "max 5 1 = 5 (batch=False)" $
+        ArrayFire.maxOfBatched (scalar @Int 5) (scalar @Int 1) False `shouldBe` scalar @Int 5
+
+    describe "rootBatched" $ do
+      it "cube root of 8 = 2 (batch=False)" $
+        evalf (ArrayFire.rootBatched (scalar @Double 8) (scalar @Double 3) False) `shouldBeApprox` 2
+      it "square root of 9 = 3 (batch=False)" $
+        evalf (ArrayFire.rootBatched (scalar @Double 9) (scalar @Double 2) False) `shouldBeApprox` 3
+
+    describe "powBatched" $ do
+      it "2^3 = 8 (batch=False)" $
+        ArrayFire.powBatched (scalar @Int 2) (scalar @Int 3) False `shouldBe` scalar @Int 8
+      it "5^2 = 25 (batch=False)" $
+        ArrayFire.powBatched (scalar @Int 5) (scalar @Int 2) False `shouldBe` scalar @Int 25

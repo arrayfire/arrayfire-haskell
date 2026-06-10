@@ -30,6 +30,7 @@
 module ArrayFire.Data where
 
 import Control.Exception
+import Control.Monad (when)
 import Data.Complex
 import Data.Int
 import Data.Proxy
@@ -309,6 +310,12 @@ identity
   -> Array a
 {-# NOINLINE identity #-}
 identity dims = unsafePerformIO . mask_ $ do
+  when (length dims > 4) $
+    throwIO AFException
+      { afExceptionType = ArgError
+      , afExceptionCode = 202
+      , afExceptionMsg  = "identity: ndims must be <= 4"
+      }
   let dims' = take 4 (dims ++ repeat 1)
   ptr <- alloca $ \ptrPtr -> mask_ $ do
     zeroOutArray ptrPtr
@@ -374,13 +381,15 @@ join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
 -- | Join many Arrays together along a specified dimension
 --
--- *FIX ME*
---
--- >>> joinMany 0 [1,2,3]
+-- >>> joinMany 0 [vector @Int 3 [1..], vector @Int 3 [1..]]
 -- ArrayFire Array
--- [3 1 1 1]
---    1.0000     2.0000     3.0000
---
+-- [6 1 1 1]
+--          1
+--          2
+--          3
+--          1
+--          2
+--          3
 joinMany
   :: Int
   -> [Array a]
@@ -442,9 +451,12 @@ reorder
   :: Array a
   -> [Int]
   -> Array a
-reorder a (take 4 . (++ repeat 0) -> [x,y,z,w]) =
-  a `op1` (\p k -> af_reorder p k (fromIntegral x) (fromIntegral y) (fromIntegral z) (fromIntegral w))
-reorder _ _ = error "impossible"
+reorder a dims =
+  let base    = take 4 dims
+      padding = filter (`notElem` base) [0..3]
+  in case take 4 (base ++ padding) of
+    [x,y,z,w] -> a `op1` (\p k -> af_reorder p k (fromIntegral x) (fromIntegral y) (fromIntegral z) (fromIntegral w))
+    _          -> error "impossible"
 
 -- | Shift elements in an Array along a specified dimension (elements will wrap).
 --

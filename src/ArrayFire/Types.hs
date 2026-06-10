@@ -31,6 +31,7 @@ module ArrayFire.Types
   , RandomEngine
   , Features
   , AFType              (..)
+  , AFResult            (..)
   , TopK                (..)
   , VarBias             (..)
   , Backend             (..)

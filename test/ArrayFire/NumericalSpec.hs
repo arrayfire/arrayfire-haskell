@@ -1,4 +1,5 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 -- | Numerical algorithm tests that exercise broad API surface area.
 -- Each test has a known exact answer derived from mathematics, so failures
 -- indicate either a bug in the library or a precision regression.
@@ -7,6 +8,8 @@ module ArrayFire.NumericalSpec where
 import qualified ArrayFire as A
 import           Data.Function ((&))
 import           Test.Hspec
+import           Test.Hspec.QuickCheck (prop)
+import           Test.QuickCheck       (NonEmptyList (..))
 
 tol :: Double
 tol = 1e-4
@@ -80,16 +83,14 @@ spec = describe "Numerical algorithms" $ do
   -- Exercises: vector, meanAll, sumAll
   describe "Statistical identities" $ do
     it "mean of [1..100] = 50.5" $ do
-      let (m, _) = A.meanAll (A.vector @Double 100 [1..100])
-      m `shouldBeApprox` 50.5
+      A.meanAll (A.vector @Double 100 [1..100]) `shouldBeApprox` 50.5
     it "sumAll = n * meanAll" $ do
-      let arr    = A.vector @Double 100 [1..100]
-          (m, _) = A.meanAll arr
-          (s, _) = A.sumAll  arr
+      let arr   = A.vector @Double 100 [1..100]
+          m     = A.meanAll arr
+          (s,_) = A.sumAll  arr
       s `shouldBeApprox` (100 * m)
     it "variance of a constant array is 0" $ do
-      let (v, _) = A.varAll (A.vector @Double 50 (repeat 7.0)) False
-      v `shouldBeApprox` 0.0
+      A.varAll (A.vector @Double 50 (repeat 7.0)) A.Population `shouldBeApprox` 0.0
 
   -- Sum of first n squares: Σ(k=1..n) k² = n(n+1)(2n+1)/6
   -- Exercises: iota, *, +, scalar, sumAll
@@ -116,3 +117,11 @@ spec = describe "Numerical algorithms" $ do
           fEnergy = (1.0 / fromIntegral n) * fst (A.sumAll (A.real (xf * A.conjg xf) :: A.Array Double))
       tEnergy `shouldBeApprox` 1.0
       tEnergy `shouldBeApprox` fEnergy
+
+  describe "sumAll = n * meanAll (property)" $ do
+    prop "sumAll = n * meanAll for any non-empty list of Double" $ \(NonEmpty xs) ->
+      let n   = length xs
+          arr = A.vector @Double n xs
+          s   = fst (A.sumAll arr)
+          m   = A.meanAll arr
+      in abs (s - fromIntegral n * m) < 1e-9 + 1e-6 * abs s

@@ -1,3 +1,4 @@
+--------------------------------------------------------------------------------
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE PolyKinds           #-}
@@ -82,6 +83,20 @@ scalar x = mkArray [1] [x]
 vector :: AFType a => Int -> [a] -> Array a
 vector n = mkArray [n] . take n
 
+-- | Construct an 'Array' from a flat list with explicit dimensions.
+--
+-- Dimensions are in column-major order (first dim varies fastest).
+-- Prefer 'fromVector' when data is already in a 'Data.Vector.Storable.Vector'
+-- to avoid the intermediate list allocation.
+--
+-- >>> fromList [2,3] [1..6 :: Double]
+-- ArrayFire Array
+-- [2 3 1 1]
+--     1.0000     3.0000     5.0000
+--     2.0000     4.0000     6.0000
+fromList :: AFType a => [Int] -> [a] -> Array a
+fromList = mkArray
+
 -- | Smart constructor for creating a matrix 'Array'
 --
 -- >>> A.matrix @Double (3,2) [[1,2,3],[4,5,6]]
@@ -95,8 +110,8 @@ matrix :: AFType a => (Int,Int) -> [[a]] -> Array a
 matrix (x,y)
   = mkArray [x,y]
   . concat
-  . take y
   . fmap (take x)
+  . take y
 
 -- | Smart constructor for creating a cubic 'Array'
 --
@@ -116,9 +131,9 @@ cube (x,y,z)
   = mkArray [x,y,z]
   . concat
   . fmap concat
-  . take z
   . fmap (take y)
   . (fmap . fmap . take) x
+  . take z
 
 -- | Smart constructor for creating a tensor 'Array'
 --
@@ -140,16 +155,16 @@ cube (x,y,z)
 --     2.0000     2.0000
 --     2.0000     2.0000
 -- @
-tensor :: AFType a => (Int, Int,Int,Int) -> [[[[a]]]] -> Array a
+tensor :: AFType a => (Int,Int,Int,Int) -> [[[[a]]]] -> Array a
 tensor (w,x,y,z)
   = mkArray [w,x,y,z]
   . concat
   . fmap concat
   . (fmap . fmap) concat
-  . take z
-  . (fmap . take) y
-  . (fmap . fmap . take) x
   . (fmap . fmap . fmap . take) w
+  . (fmap . fmap . take) x
+  . (fmap . take) y
+  . take z
 
 -- | Internal function for 'Array' construction
 --
@@ -207,8 +222,6 @@ mkArray dims xs =
       size  = Prelude.product dims
       dType = afType (Proxy @array)
 
--- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
-
 -- | Constructs an 'Array' from a 'Storable' 'Vector', avoiding the intermediate list allocation of 'mkArray'.
 --
 -- The vector's contiguous buffer is handed straight to @af_create_array@, which
@@ -264,8 +277,6 @@ copyArray
   -> Array a
     -- ^ Newly copied 'Array'
 copyArray = (`op1` af_copy_array)
--- af_err af_write_array(af_array arr, const void *data, const size_t bytes, af_source src);
--- af_err af_get_data_ptr(void *data, const af_array arr);
 
 -- | Retains an 'Array', increases reference count
 --
@@ -284,7 +295,7 @@ retainArray =
 -- | Retrieves 'Array' reference count
 --
 -- >>> initialArray = scalar @Double 10
--- >>> retainedArray = retain initialArray
+-- >>> retainedArray = retainArray initialArray
 -- >>> getDataRefCount retainedArray
 -- 2
 --
@@ -296,9 +307,6 @@ getDataRefCount
   -- ^ Reference count
 getDataRefCount =
   fromIntegral . (`infoFromArray` af_get_data_ref_count)
-
--- af_err af_eval(af_array in);
--- af_err af_eval_multiple(const int num, af_array *arrays);
 
 -- | Should manual evaluation occur
 --

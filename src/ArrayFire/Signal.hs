@@ -93,7 +93,7 @@ approx2
   -> Array a
   -- ^	is the array with interpolated values
 approx2 arr1 arr2 arr3 (fromInterpType -> i1) f =
-  op3 arr1 arr2 arr3 (\p x y z -> af_approx2 p x y z i1 f)
+  op3 arr1 arr3 arr2 (\p x y z -> af_approx2 p x y z i1 f)
 
 -- DMJ: Where did these functions go? Were they removed?
 -- http://arrayfire.org/docs/group__approx__mat.htm

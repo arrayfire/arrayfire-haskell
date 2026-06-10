@@ -2,10 +2,11 @@
 {-# LANGUAGE TypeApplications    #-}
 module ArrayFire.BLASSpec where
 
-import ArrayFire    hiding (not, and, abs, max)
+import ArrayFire    hiding (not, and, abs, max, mm, tr)
 
 import Data.Complex
 import Test.Hspec
+import Test.Hspec.ApproxExpect (closeList)
 import Test.Hspec.QuickCheck (prop)
 
 -- | Build a 4x4 'Double' matrix from an arbitrary (possibly short) list,
@@ -29,11 +30,6 @@ tr a = transpose a False
 scaleMat :: Double -> Array Double -> Array Double
 scaleMat c a = mkArray [4,4] (map (c *) (toList a))
 
--- | Element-wise closeness, tolerant of floating-point rounding in BLAS.
-closeList :: [Double] -> [Double] -> Bool
-closeList as bs =
-  length as == length bs &&
-  and (zipWith (\a b -> abs (a - b) <= 1e-9 + 1e-6 * max (abs a) (abs b)) as bs)
 
 spec :: Spec
 spec =

@@ -3,6 +3,10 @@
 module ArrayFire.ImageSpec where
 
 import qualified ArrayFire as A
+import           ArrayFire.Exception       (AFException (..), AFExceptionType (..))
+import           Control.Exception        (bracket, finally, try, throwIO)
+import           System.Directory         (getTemporaryDirectory, removeFile)
+import           System.IO                (openTempFile, hClose)
 import           Test.Hspec
 import           Test.Hspec.ApproxExpect
 
@@ -16,7 +20,6 @@ rgb = A.constant @Float [4,4,3] 1.0
 
 spec :: Spec
 spec = describe "Image spec" $ do
-
   describe "isImageIOAvailable" $
     it "reports whether FreeImage support was compiled in" $
       -- value is build-dependent; we only assert the call succeeds & is Bool
@@ -95,7 +98,57 @@ spec = describe "Image spec" $ do
     it "M00 of a constant image equals its total intensity (area)" $
       A.momentsAll gray A.M00 `shouldBeApprox` (16.0 :: Double)
 
+  describe "Image I/O" $ do
+    it "saveImage/loadImage round-trips a grayscale image" $ do
+      avail <- A.isImageIOAvailable
+      if not avail then pending else do
+        res <- try $ withTempPng $ \path -> do
+          A.saveImage gray path
+          img <- A.loadImage @Float path False
+          A.getDims img `shouldBe` (4,4,1,1)
+          A.toList img `shouldSatisfy` all (`approx` 1.0)
+        case res of
+          Left (AFException LoadLibError _ _) -> pending
+          Left e                              -> throwIO e
+          Right ()                            -> return ()
+
+    it "saveImage/loadImage round-trips a colour image" $ do
+      avail <- A.isImageIOAvailable
+      if not avail then pending else do
+        res <- try $ withTempPng $ \path -> do
+          A.saveImage rgb path
+          img <- A.loadImage @Float path True
+          A.getDims img `shouldBe` (4,4,3,1)
+          A.toList img `shouldSatisfy` all (`approx` 1.0)
+        case res of
+          Left (AFException LoadLibError _ _) -> pending
+          Left e                              -> throwIO e
+          Right ()                            -> return ()
+
+    it "saveImageNative/loadImageNative round-trips dims" $ do
+      avail <- A.isImageIOAvailable
+      if not avail then pending else do
+        res <- try $ withTempPng $ \path -> do
+          A.saveImageNative gray path
+          img <- A.loadImageNative @Float path
+          let (r, c, _, _) = A.getDims img
+          (r, c) `shouldBe` (4, 4)
+        case res of
+          Left (AFException LoadLibError _ _) -> pending
+          Left e                              -> throwIO e
+          Right ()                            -> return ()
+
   where
     -- relative+absolute tolerance check, returning Bool for use with `all`
     approx :: Float -> Float -> Bool
     approx x e = abs (x - e) <= 1e-8 + 1e-5 * max (abs x) (abs e)
+
+    withTempPng :: (FilePath -> IO a) -> IO a
+    withTempPng action =
+      bracket
+        (do tmp <- getTemporaryDirectory
+            (path, h) <- openTempFile tmp "af_test.png"
+            hClose h
+            pure path)
+        removeFile
+        action

@@ -1,7 +1,9 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ViewPatterns      #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE CPP               #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE ViewPatterns        #-}
+{-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE CPP                 #-}
 module ArrayFire.Internal.Types where
 
 #include "af/seq.h"
@@ -163,6 +165,71 @@ instance AFType Word64 where
 
 instance AFType Word where
   afType Proxy = u64
+
+-- | Maps an ArrayFire element type to the scalar type returned by whole-array
+-- reductions (e.g. 'meanAll', 'det').  Real and integral element types yield
+-- 'Double'; complex element types yield 'Complex Double'.
+class AFType a => AFResult a where
+  type Scalar a
+  -- | Convert the raw @(real, imag)@ pair returned by the C API to the
+  -- appropriate Haskell scalar.
+  toAFResult :: (Double, Double) -> Scalar a
+
+instance AFResult Double where
+  type Scalar Double = Double
+  toAFResult (r, _) = r
+
+instance AFResult Float where
+  type Scalar Float = Double
+  toAFResult (r, _) = r
+
+instance AFResult (Complex Double) where
+  type Scalar (Complex Double) = Complex Double
+  toAFResult (r, i) = r :+ i
+
+instance AFResult (Complex Float) where
+  type Scalar (Complex Float) = Complex Double
+  toAFResult (r, i) = r :+ i
+
+instance AFResult CBool where
+  type Scalar CBool = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int32 where
+  type Scalar Int32 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word32 where
+  type Scalar Word32 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word8 where
+  type Scalar Word8 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int64 where
+  type Scalar Int64 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int where
+  type Scalar Int = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int16 where
+  type Scalar Int16 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word16 where
+  type Scalar Word16 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word64 where
+  type Scalar Word64 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word where
+  type Scalar Word = Double
+  toAFResult (r, _) = r
 
 -- | ArrayFire backends
 data Backend

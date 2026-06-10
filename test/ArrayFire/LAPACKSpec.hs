@@ -3,6 +3,7 @@
 module ArrayFire.LAPACKSpec where
 
 import qualified ArrayFire             as A
+import           Data.Complex          (realPart, imagPart)
 import           Prelude
 import           Test.Hspec
 import           Test.Hspec.ApproxExpect
@@ -22,12 +23,6 @@ tr a = A.transpose a False
 genMat :: Int -> Gen [Double]
 genMat n = vectorOf (n * n) (choose (-5, 5))
 
--- | Element-wise closeness with a relative tolerance, for comparing a
--- reconstructed matrix against the original.
-closeList :: [Double] -> [Double] -> Bool
-closeList as bs =
-  length as == length bs &&
-  and (zipWith (\a b -> abs (a - b) <= 1e-6 + 1e-6 * max (abs a) (abs b)) as bs)
 
 spec :: Spec
 spec =
@@ -60,17 +55,17 @@ spec =
       A.getDims tau `shouldBe` (3,1,1,1)
 
     it "Should get determinant of a real matrix" $ do
-      let (re, _im) = A.det $ A.matrix @Double (2,2) [[3,8],[4,6]]
-      re `shouldBeApprox` (-14)
+      A.det (A.matrix @Double (2,2) [[3,8],[4,6]])
+        `shouldBeApprox` (-14)
 
     it "Should get determinant of a complex matrix" $ do
       -- M = | 3+i  4+i |   (column-major: col0=[3+i,8+i], col1=[4+i,6+i])
       --     | 8+i  6+i |
       -- det = (3+i)(6+i) - (4+i)(8+i) = -14 - 3i
-      let (re, im) = A.det $ A.matrix @(A.Complex Double) (2,2)
-                       [[3 A.:+ 1, 8 A.:+ 1], [4 A.:+ 1, 6 A.:+ 1]]
-      re `shouldBeApprox` (-14)
-      im `shouldBeApprox` (-3)
+      let d = A.det $ A.matrix @(A.Complex Double) (2,2)
+                        [[3 A.:+ 1, 8 A.:+ 1], [4 A.:+ 1, 6 A.:+ 1]]
+      realPart d `shouldBeApprox` (-14)
+      imagPart d `shouldBeApprox` (-3)
 
     it "Should calculate inverse" $ do
       -- M = | 4  2 |  (column-major: col0=[4,7], col1=[2,6])
@@ -145,3 +140,52 @@ spec =
             a           = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
             (status, l) = A.cholesky a False
         in status == 0 && closeList (A.toList (mm l (tr l))) (A.toList a)
+
+    describe "more decomposition properties" $ do
+      -- Singular values are all non-negative.
+      prop "SVD: singular values are non-negative" $ forAll (genMat 3) $ \xs ->
+        let a      = A.mkArray @Double [3,3] xs
+            (_,s,_) = A.svd a
+        in all (>= -1e-12) (A.toList s)
+
+      -- LU reconstruction: L * U = P * A  where P is the pivot permutation.
+      -- ArrayFire's lu returns (L, U, piv) where piv is a pivot index vector.
+      -- We verify the simpler invariant that L is unit lower-triangular (diag=1).
+      prop "LU: L has unit diagonal" $ forAll (genMat 3) $ \xs ->
+        let a        = A.mkArray @Double [3,3] xs
+            (l,_,_)  = A.lu a
+            diag     = [A.toList l !! (i * 3 + i) | i <- [0..2]]
+        in all (\d -> abs (d - 1.0) < 1e-9) diag
+
+      -- det(A * B) ≈ det(A) * det(B)  (multiplicativity of determinant)
+      prop "det(A*B) = det(A)*det(B)" $ forAll (genMat 3) $ \xs ->
+        forAll (genMat 3) $ \ys ->
+          let a        = A.mkArray @Double [3,3] xs
+              b        = A.mkArray @Double [3,3] ys
+              da       = A.det a
+              db       = A.det b
+              dab      = A.det (mm a b)
+              expected = da * db
+          in abs (dab - expected) < 1e-6 + 1e-4 * abs expected
+
+      -- inverse(inverse(A)) ≈ A  for a well-conditioned matrix (B^T B + 3I is SPD).
+      prop "inverse is its own inverse (SPD input)" $ forAll (genMat 3) $ \xs ->
+        let b    = A.mkArray @Double [3,3] xs
+            a    = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
+            ainv = A.inverse a A.None
+            ainv2 = A.inverse ainv A.None
+        in closeList (A.toList ainv2) (A.toList a)
+
+    describe "qrInPlace" $ do
+      it "qrInPlace on a 3x3 matrix returns a tau vector of length 3" $ do
+        let a   = A.matrix @Double (3,3) [[12,6,4],[-51,167,24],[4,-68,-41]]
+            tau = A.qrInPlace a
+        A.getDims tau `shouldBe` (3,1,1,1)
+      it "qrInPlace on a 4x3 matrix returns a tau vector with min(rows,cols) elements" $ do
+        let a   = A.mkArray @Double [4,3] [1..12]
+            tau = A.qrInPlace a
+        A.getDims tau `shouldBe` (3,1,1,1)
+      it "qrInPlace on a square matrix produces a non-empty tau array" $ do
+        let a   = A.mkArray @Double [2,2] [1,2,3,4]
+            tau = A.qrInPlace a
+        A.getElements tau `shouldBe` 2

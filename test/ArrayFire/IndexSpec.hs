@@ -1,9 +1,12 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 module ArrayFire.IndexSpec where
 
 import qualified ArrayFire as A
 import           Data.Function ((&))
 import           Test.Hspec
+import           Test.Hspec.QuickCheck (prop)
+import           Test.QuickCheck       (NonEmptyList (..), choose, forAll)
 
 spec :: Spec
 spec =
@@ -109,3 +112,38 @@ spec =
         let arr = A.vector @Double 6 [0,1,2,3,4,5]
         (arr A.! A.rangeStep 0 4 2)
           `shouldBe` A.vector @Double 3 [0,2,4]
+
+    describe "indexing properties" $ do
+      -- afSpan selects all elements, recovering the original array exactly.
+      prop "index with afSpan is identity" $ \(NonEmpty xs) ->
+        let arr = A.vector @Double (length xs) xs
+        in A.index arr [A.afSpan] == arr
+
+      -- Read-after-write: reading back the slice just written returns the source.
+      prop "index (assignSeq arr seqs src) seqs = src" $
+        forAll (choose (1, 20)) $ \n ->
+          forAll (choose (0, n-1)) $ \lo ->
+          forAll (choose (lo, n-1)) $ \hi ->
+          \(xs :: [Double]) (ys :: [Double]) ->
+            let arr = A.vector @Double n (take n (xs ++ repeat 0))
+                src = A.vector @Double (hi - lo + 1) (take (hi - lo + 1) (ys ++ repeat 0))
+                seqs = [A.Seq (fromIntegral lo) (fromIntegral hi) 1]
+            in A.index (A.assignSeq arr seqs src) seqs == src
+
+      -- lookup with identity permutation [0..n-1] returns the original array.
+      prop "lookup with identity permutation is identity" $ \(NonEmpty xs) ->
+        let n      = length xs
+            arr    = A.vector @Double n xs
+            ixArr  = A.vector @Int n [0..n-1]
+        in A.lookup arr ixArr 0 == arr
+
+      -- (.~) write-then-read consistency via the (!) operator.
+      prop "(.~) then (!) recovers the written slice" $
+        forAll (choose (2, 20)) $ \n ->
+          forAll (choose (0, n-1)) $ \lo ->
+          forAll (choose (lo, n-1)) $ \hi ->
+          \(xs :: [Double]) (ys :: [Double]) ->
+            let arr    = A.vector @Double n (take n (xs ++ repeat 0))
+                src    = A.vector @Double (hi - lo + 1) (take (hi - lo + 1) (ys ++ repeat 0))
+                result = arr & A.rangeStep lo hi 1 A..~ src
+            in (result A.! A.rangeStep lo hi 1) == src

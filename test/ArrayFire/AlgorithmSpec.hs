@@ -5,8 +5,9 @@ module ArrayFire.AlgorithmSpec where
 import qualified ArrayFire             as A
 import qualified Data.List            as L
 import           Test.Hspec
+import           Test.Hspec.ApproxExpect (closeList)
 import           Test.Hspec.QuickCheck (prop)
-import           Test.QuickCheck       ((==>))
+import           Test.QuickCheck       (NonEmptyList (..), (==>))
 
 -- | Reference grouping that mirrors ArrayFire's by-key semantics: each
 -- contiguous run of equal keys forms one group.
@@ -15,12 +16,6 @@ groupByKeyRef ks vs =
   [ (k, map snd grp)
   | grp@((k,_):_) <- L.groupBy (\a b -> fst a == fst b) (zip ks vs)
   ]
-
--- | Element-wise closeness, tolerant of floating-point rounding.
-closeList :: [Double] -> [Double] -> Bool
-closeList as bs =
-  length as == length bs &&
-  and (zipWith (\a b -> abs (a - b) <= 1e-9 + 1e-6 * max (abs a) (abs b)) as bs)
 
 spec :: Spec
 spec =
@@ -139,8 +134,8 @@ spec =
       A.minAll (A.vector @Int 5 [0..]) `shouldBe` (0,0)
     it "Should find maximum value of an Array" $ do
       A.maxAll (A.vector @Int 5 [0..]) `shouldBe` (4,0)
---    it "Should find if all elements are true" $ do
---      A.allTrue (A.vector @A.CBool 5 (repeat 0)) `shouldBe` False
+    it "Should find if all elements are true" $ do
+      A.allTrueAll (A.vector @A.CBool 5 (repeat 0)) `shouldBe` (0, 0)
     it "Should sum values grouped by key" $ do
       let keys = A.vector @Int 5 [1,1,2,2,2]
           vals = A.vector @Double 5 [10,20,1,2,3]
@@ -355,4 +350,138 @@ spec =
           in A.toList ko == map fst groups
                && A.toList vo
                     == map (fromIntegral . length . filter (/= 0) . snd) groups
+
+    describe "sort (more properties)" $ do
+      -- Sort is idempotent: sorting a sorted list gives the same list.
+      prop "sort is idempotent" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          let sorted = A.sort (A.vector (length xs) xs) 0 A.Asc
+          in A.toList (A.sort sorted 0 A.Asc) == A.toList sorted
+
+      -- Ascending + descending agree on element multisets (reversed).
+      prop "desc sort is reverse of asc sort" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          A.toList (A.sort (A.vector (length xs) xs) 0 A.Desc)
+            == reverse (A.toList (A.sort (A.vector (length xs) xs) 0 A.Asc))
+
+    describe "accum / scan / diff1 properties" $ do
+      -- accum along dim 0 = inclusive scan with Add.
+      prop "accum = scan Add inclusive" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          let arr = A.vector (length xs) xs
+          in closeList
+               (A.toList (A.accum arr 0))
+               (A.toList (A.scan arr 0 A.Add True))
+
+      -- diff1 is the left-inverse of accum: diff1 (accum xs) recovers xs[1..].
+      -- For a length-n vector, accum produces the prefix sums p[i] = sum xs[0..i].
+      -- diff1 gives p[i] - p[i-1] = xs[i] for i>=1, so toList (diff1 (accum xs))
+      -- equals tail xs.
+      prop "diff1 (accum xs) = tail xs" $ \(NonEmpty xs) ->
+        length xs >= 2 ==>
+          closeList
+            (A.toList (A.diff1 (A.accum (A.vector (length xs) xs) 0) 0))
+            (tail xs)
+
+    describe "set operation properties" $ do
+      -- setUnion result contains all elements of each input.
+      prop "setUnion result contains all elements of A" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          let sorted = L.sort (L.nub xs)
+              n      = length sorted
+              a      = A.vector n sorted
+              b      = A.vector 1 [0]
+              u      = A.toList (A.setUnion a b True)
+          in all (`elem` u) sorted
+
+      -- setIntersect result contains only elements common to both.
+      prop "setIntersect result is a subset of each input" $ \(xs :: [Double]) (ys :: [Double]) ->
+        not (null xs) && not (null ys) ==>
+          let sortedA = L.sort (L.nub xs)
+              sortedB = L.sort (L.nub ys)
+              a       = A.vector (length sortedA) sortedA
+              b       = A.vector (length sortedB) sortedB
+              inter   = A.toList (A.setIntersect a b True)
+          in all (`elem` sortedA) inter && all (`elem` sortedB) inter
+
+    describe "by-key reductions (additional coverage)" $ do
+      prop "minByKey matches per-group minima" $ \(pairs :: [(Int, Double)]) ->
+        length pairs >= 2 ==>
+          let n        = length pairs
+              keys     = map ((`mod` 8) . abs . fst) pairs
+              vals     = map snd pairs
+              (ko, vo) = A.minByKey (A.vector @Int n keys) (A.vector @Double n vals) 0
+              groups   = groupByKeyRef keys vals
+          in A.toList ko == map fst groups
+               && closeList (A.toList vo) (map (minimum . snd) groups)
+
+      prop "allTrueByKey matches per-group allTrue" $ \(pairs :: [(Int, Double)]) ->
+        length pairs >= 2 ==>
+          let n        = length pairs
+              keys     = map ((`mod` 4) . abs . fst) pairs
+              vals     = map (\v -> if v > 0 then 1 else 0 :: Double) (map snd pairs)
+              (ko, vo) = A.allTrueByKey
+                           (A.vector @Int n keys)
+                           (A.vector @Double n vals)
+                           0
+              groups   = groupByKeyRef keys vals
+              expected = map (fromIntegral . fromEnum . all (> 0) . snd) groups :: [A.CBool]
+          in A.toList ko == map fst groups
+               && A.toList @A.CBool vo == expected
+
+      prop "anyTrueByKey matches per-group anyTrue" $ \(pairs :: [(Int, Double)]) ->
+        length pairs >= 2 ==>
+          let n        = length pairs
+              keys     = map ((`mod` 4) . abs . fst) pairs
+              vals     = map (\v -> if v > 0 then 1 else 0 :: Double) (map snd pairs)
+              (ko, vo) = A.anyTrueByKey
+                           (A.vector @Int n keys)
+                           (A.vector @Double n vals)
+                           0
+              groups   = groupByKeyRef keys vals
+              expected = map (fromIntegral . fromEnum . any (> 0) . snd) groups :: [A.CBool]
+          in A.toList ko == map fst groups
+               && A.toList @A.CBool vo == expected
+
+    describe "allTrueAll" $ do
+      it "returns (1,0) when all elements are non-zero" $
+        A.allTrueAll (A.vector @A.CBool 5 (repeat 1)) `shouldBe` (1.0, 0.0)
+      it "returns (0,0) when any element is zero" $
+        A.allTrueAll (A.vector @A.CBool 5 [1,1,0,1,1]) `shouldBe` (0.0, 0.0)
+      it "all-zero vector returns (0,0)" $
+        A.allTrueAll (A.vector @Double 4 (repeat 0)) `shouldBe` (0.0, 0.0)
+
+    describe "anyTrueAll" $ do
+      it "returns (1,0) when at least one element is non-zero" $
+        A.anyTrueAll (A.vector @A.CBool 5 [0,0,1,0,0]) `shouldBe` (1.0, 0.0)
+      it "returns (0,0) when all elements are zero" $
+        A.anyTrueAll (A.vector @A.CBool 5 (repeat 0)) `shouldBe` (0.0, 0.0)
+
+    describe "countAll" $ do
+      it "counts non-zero elements across the whole array" $
+        A.countAll (A.vector @Double 5 [1,0,1,0,1]) `shouldBe` (3.0, 0.0)
+      it "returns 0 for all-zero array" $
+        A.countAll (A.vector @Double 3 (repeat 0)) `shouldBe` (0.0, 0.0)
+      it "counts all elements in an all-nonzero array" $
+        A.countAll (A.vector @Int 4 [1,2,3,4]) `shouldBe` (4.0, 0.0)
+
+    describe "imin" $ do
+      it "returns minimum value and index along dim 0" $ do
+        let (val, idx) = A.imin (A.vector @Double 5 [3,1,4,2,5]) 0
+        val `shouldBe` A.scalar @Double 1.0
+        idx `shouldBe` A.scalar @A.Word32 1
+      it "minimum of sorted ascending vector is the first element" $ do
+        let (val, idx) = A.imin (A.vector @Int 4 [10,20,30,40]) 0
+        val `shouldBe` A.scalar @Int 10
+        idx `shouldBe` A.scalar @A.Word32 0
+
+    describe "imax" $ do
+      it "returns maximum value and index along dim 0" $ do
+        let (val, idx) = A.imax (A.vector @Double 5 [3,1,4,2,5]) 0
+        val `shouldBe` A.scalar @Double 5.0
+        idx `shouldBe` A.scalar @A.Word32 4
+      it "maximum of sorted ascending vector is the last element" $ do
+        let (val, idx) = A.imax (A.vector @Int 4 [10,20,30,40]) 0
+        val `shouldBe` A.scalar @Int 40
+        idx `shouldBe` A.scalar @A.Word32 3
 
