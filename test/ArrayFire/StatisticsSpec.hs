@@ -133,6 +133,6 @@ spec =
       prop "sumAll = n * meanAll" $ \(NonEmpty xs) ->
         let n   = length xs
             arr = vector @Double n xs
-            s   = fst (sumAll arr)
+            s   = sumAll arr
             m   = meanAll arr
         in abs (s - fromIntegral n * m) < 1e-9 + 1e-6 * abs s

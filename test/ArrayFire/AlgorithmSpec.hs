@@ -120,22 +120,22 @@ spec =
       A.count (A.vector @Double 5 (repeat 1)) 0 `shouldBe` 5
       A.count (A.vector @Float 5 (repeat 1)) 0 `shouldBe` 5
     it "Should get sum all elements" $ do
-      A.sumAll (A.vector @Int 5 (repeat 2)) `shouldBe` (10,0)
-      A.sumAll (A.vector @Double 5 (repeat 2)) `shouldBe` (10.0,0)
-      A.sumAll (A.vector @A.CBool 3800 (repeat 1)) `shouldBe` (3800,0)
-      A.sumAll (A.vector @(A.Complex Double) 3 [1 A.:+ 2, 3 A.:+ 4, 5 A.:+ 6]) `shouldBe` (9.0, 12.0)
+      A.sumAll (A.vector @Int 5 (repeat 2)) `shouldBe` 10
+      A.sumAll (A.vector @Double 5 (repeat 2)) `shouldBe` 10.0
+      A.sumAll (A.vector @A.CBool 3800 (repeat 1)) `shouldBe` 3800
+      A.sumAll (A.vector @(A.Complex Double) 3 [1 A.:+ 2, 3 A.:+ 4, 5 A.:+ 6]) `shouldBe` 9.0 A.:+ 12.0
     it "Should sum all elements ignoring NaN" $ do
-      A.sumNaNAll (A.vector @Double 2 [10, acos 2]) 1 `shouldBe` (11.0,0)
+      A.sumNaNAll (A.vector @Double 2 [10, acos 2]) 1 `shouldBe` 11.0
     it "Should product all elements in an Array" $ do
-      A.productAll (A.vector @Int 5 (repeat 2)) `shouldBe` (32,0)
+      A.productAll (A.vector @Int 5 (repeat 2)) `shouldBe` 32
     it "Should product all elements ignoring NaN" $ do
-      A.productNaNAll (A.vector @Double 2 [10,acos 2]) 10 `shouldBe` (100,0)
+      A.productNaNAll (A.vector @Double 2 [10,acos 2]) 10 `shouldBe` 100
     it "Should find minimum value of an Array" $ do
-      A.minAll (A.vector @Int 5 [0..]) `shouldBe` (0,0)
+      A.minAll (A.vector @Int 5 [0..]) `shouldBe` 0
     it "Should find maximum value of an Array" $ do
-      A.maxAll (A.vector @Int 5 [0..]) `shouldBe` (4,0)
+      A.maxAll (A.vector @Int 5 [0..]) `shouldBe` 4
     it "Should find if all elements are true" $ do
-      A.allTrueAll (A.vector @A.CBool 5 (repeat 0)) `shouldBe` (0, 0)
+      A.allTrueAll (A.vector @A.CBool 5 (repeat 0)) `shouldBe` 0
     it "Should sum values grouped by key" $ do
       let keys = A.vector @Int 5 [1,1,2,2,2]
           vals = A.vector @Double 5 [10,20,1,2,3]
@@ -295,10 +295,10 @@ spec =
     -- iminAll and imaxAll are the primary users.
     it "iminAll returns correct value and index" $ do
       let arr = A.vector @Double 5 [3, 1, 4, 2, 5]
-      A.iminAll arr `shouldBe` (1.0, 0.0, 1)
+      A.iminAll arr `shouldBe` (1.0, 1)
     it "imaxAll returns correct value and index" $ do
       let arr = A.vector @Double 5 [3, 1, 4, 1, 5]
-      A.imaxAll arr `shouldBe` (5.0, 0.0, 4)
+      A.imaxAll arr `shouldBe` (5.0, 4)
 
     describe "sort (property)" $ do
       -- An ascending sort must return exactly the multiset of inputs in
@@ -445,25 +445,25 @@ spec =
 
     describe "allTrueAll" $ do
       it "returns (1,0) when all elements are non-zero" $
-        A.allTrueAll (A.vector @A.CBool 5 (repeat 1)) `shouldBe` (1.0, 0.0)
+        A.allTrueAll (A.vector @A.CBool 5 (repeat 1)) `shouldBe` 1.0
       it "returns (0,0) when any element is zero" $
-        A.allTrueAll (A.vector @A.CBool 5 [1,1,0,1,1]) `shouldBe` (0.0, 0.0)
+        A.allTrueAll (A.vector @A.CBool 5 [1,1,0,1,1]) `shouldBe` 0.0
       it "all-zero vector returns (0,0)" $
-        A.allTrueAll (A.vector @Double 4 (repeat 0)) `shouldBe` (0.0, 0.0)
+        A.allTrueAll (A.vector @Double 4 (repeat 0)) `shouldBe` 0.0
 
     describe "anyTrueAll" $ do
       it "returns (1,0) when at least one element is non-zero" $
-        A.anyTrueAll (A.vector @A.CBool 5 [0,0,1,0,0]) `shouldBe` (1.0, 0.0)
+        A.anyTrueAll (A.vector @A.CBool 5 [0,0,1,0,0]) `shouldBe` 1.0
       it "returns (0,0) when all elements are zero" $
-        A.anyTrueAll (A.vector @A.CBool 5 (repeat 0)) `shouldBe` (0.0, 0.0)
+        A.anyTrueAll (A.vector @A.CBool 5 (repeat 0)) `shouldBe` 0.0
 
     describe "countAll" $ do
       it "counts non-zero elements across the whole array" $
-        A.countAll (A.vector @Double 5 [1,0,1,0,1]) `shouldBe` (3.0, 0.0)
+        A.countAll (A.vector @Double 5 [1,0,1,0,1]) `shouldBe` 3.0
       it "returns 0 for all-zero array" $
-        A.countAll (A.vector @Double 3 (repeat 0)) `shouldBe` (0.0, 0.0)
+        A.countAll (A.vector @Double 3 (repeat 0)) `shouldBe` 0.0
       it "counts all elements in an all-nonzero array" $
-        A.countAll (A.vector @Int 4 [1,2,3,4]) `shouldBe` (4.0, 0.0)
+        A.countAll (A.vector @Int 4 [1,2,3,4]) `shouldBe` 4.0
 
     describe "imin" $ do
       it "returns minimum value and index along dim 0" $ do

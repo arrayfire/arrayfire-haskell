@@ -28,7 +28,7 @@ spec = describe "Numerical algorithms" $ do
           h      = pi / fromIntegral n
           is     = A.arange @Double [n] (-1)         -- [0,1,...,n-1]
           xs     = (is + A.scalar 0.5) * A.scalar h  -- midpoints
-          result = h * fst (A.sumAll (sin xs))
+          result = h * A.sumAll (sin xs)
       result `shouldBeApprox` 2.0
 
   -- Power iteration on A = [[2,1],[1,2]]
@@ -38,13 +38,13 @@ spec = describe "Numerical algorithms" $ do
     it "converges to dominant eigenvalue 3 of [[2,1],[1,2]]" $ do
       let a       = A.matrix @Double (2,2) [[2,1],[1,2]]
           v0      = A.matrix @Double (2,1) [[1,1]]
-          norm2 v = sqrt . fst $ A.sumAll (v * v)
+          norm2 v = sqrt @Double (A.sumAll (v * v))
           norm v  = v / A.scalar (norm2 v)
           step v  = norm (A.matmul a v A.None A.None)
           vFinal  = iterate step (norm v0) !! 30
           av      = A.matmul a vFinal A.None A.None
           -- Rayleigh quotient: v^T A v
-          lambda  = fst $ A.sumAll (vFinal * av)
+          lambda  = A.sumAll (vFinal * av)
       lambda `shouldBeApprox` 3.0
 
   -- Geometric series: Σ(k=0..19) 0.5^k = (1 - 0.5^20)/(1 - 0.5)
@@ -54,7 +54,7 @@ spec = describe "Numerical algorithms" $ do
       let n        = 20 :: Int
           ks       = A.arange @Double [n] (-1)
           terms    = A.scalar 0.5 ** ks
-          result   = fst (A.sumAll terms)
+          result   = A.sumAll terms
           expected = (1.0 - 0.5 ^ n) / (1.0 - 0.5)
       result `shouldBeApprox` expected
 
@@ -87,7 +87,7 @@ spec = describe "Numerical algorithms" $ do
     it "sumAll = n * meanAll" $ do
       let arr   = A.vector @Double 100 [1..100]
           m     = A.meanAll arr
-          (s,_) = A.sumAll  arr
+          s     = A.sumAll  arr
       s `shouldBeApprox` (100 * m)
     it "variance of a constant array is 0" $ do
       A.varAll (A.vector @Double 50 (repeat 7.0)) A.Population `shouldBeApprox` 0.0
@@ -98,7 +98,7 @@ spec = describe "Numerical algorithms" $ do
     it "Sigma k^2 for k=1..100 matches closed form n(n+1)(2n+1)/6" $ do
       let n        = 100 :: Int
           ks       = A.iota @Double [n] [] + A.scalar 1.0  -- [1,2,...,n]
-          result   = fst $ A.sumAll (ks * ks)
+          result   = A.sumAll (ks * ks)
           expected = fromIntegral (n * (n+1) * (2*n+1)) / 6.0
       result `shouldBeApprox` expected
 
@@ -111,10 +111,10 @@ spec = describe "Numerical algorithms" $ do
           -- Dirac delta: all energy in first sample
           xs      = A.mkArray @(A.Complex Double) [n] (1 : repeat 0)
           -- time-domain energy: Σ |x[k]|² = 1
-          tEnergy = fst $ A.sumAll (A.real (xs * A.conjg xs) :: A.Array Double)
+          tEnergy = A.sumAll (A.real (xs * A.conjg xs) :: A.Array Double)
           -- frequency-domain energy: (1/N) Σ |X[k]|² = (1/N)*N = 1
           xf      = A.fft xs 1.0 n
-          fEnergy = (1.0 / fromIntegral n) * fst (A.sumAll (A.real (xf * A.conjg xf) :: A.Array Double))
+          fEnergy = (1.0 / fromIntegral n) * (A.sumAll (A.real (xf * A.conjg xf) :: A.Array Double))
       tEnergy `shouldBeApprox` 1.0
       tEnergy `shouldBeApprox` fEnergy
 
@@ -122,6 +122,6 @@ spec = describe "Numerical algorithms" $ do
     prop "sumAll = n * meanAll for any non-empty list of Double" $ \(NonEmpty xs) ->
       let n   = length xs
           arr = A.vector @Double n xs
-          s   = fst (A.sumAll arr)
+          s   = A.sumAll arr
           m   = A.meanAll arr
       in abs (s - fromIntegral n * m) < 1e-9 + 1e-6 * abs s

@@ -203,112 +203,112 @@ count x (fromIntegral -> n) = x `op1` (\p a -> af_count p a n)
 -- >>> A.sumAll (A.vector @Double 10 [1..])
 -- (55.0,0.0)
 sumAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-sumAll = (`infoFromArray2` af_sum_all)
+sumAll = toAFResult @a . (`infoFromArray2` af_sum_all)
 
 -- | Sum all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- >>> let nan = 0/0 in A.sumNaNAll (A.vector @Double 10 (nan : [1..])) 0.0
 -- (55.0,0.0)
 sumNaNAll
-  :: (AFType a, Fractional a)
+  :: forall a . (AFResult a, Fractional a)
   => Array a
   -- ^ Input array
   -> Double
   -- ^ NaN substitute
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-sumNaNAll a d = infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
+sumNaNAll a d = toAFResult @a $ infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
 
 -- | Product all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- >>> A.productAll (A.vector @Double 10 [1..])
 -- (3628800.0,0.0)
 productAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-productAll = (`infoFromArray2` af_product_all)
+productAll = toAFResult @a . (`infoFromArray2` af_product_all)
 
 -- | Product all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- >>> A.productNaNAll (A.vector @Double 10 [1..]) 1.0
 -- (3628800.0,0.0)
 productNaNAll
-  :: (AFType a, Fractional a)
+  :: forall a . (AFResult a, Fractional a)
   => Array a
   -- ^ Input array
   -> Double
   -- ^ NaN substitute
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-productNaNAll a d = infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
+productNaNAll a d = toAFResult @a $ infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
 
 -- | Take the minimum across all elements along all dimensions in 'Array'
 --
 -- >>> A.minAll (A.vector @Double 10 [1..])
 -- (1.0,0.0)
 minAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-minAll = (`infoFromArray2` af_min_all)
+minAll = toAFResult @a . (`infoFromArray2` af_min_all)
 
 -- | Take the maximum across all elements along all dimensions in 'Array'
 --
 -- >>> A.maxAll (A.vector @Double 10 [1..])
 -- (10.0,0.0)
 maxAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-maxAll = (`infoFromArray2` af_max_all)
+maxAll = toAFResult @a . (`infoFromArray2` af_max_all)
 
 -- | Decide if all elements along all dimensions in 'Array' are True
 --
 -- >>> A.allTrueAll (A.vector @CBool 10 (repeat 1))
 -- (1.0, 0.0)
 allTrueAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-allTrueAll = (`infoFromArray2` af_all_true_all)
+allTrueAll = toAFResult @a . (`infoFromArray2` af_all_true_all)
 
 -- | Decide if any elements along all dimensions in 'Array' are True
 --
 -- >>> A.anyTrueAll $ A.vector @CBool 10 (repeat 0)
 -- (0.0,0.0)
 anyTrueAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-anyTrueAll = (`infoFromArray2` af_any_true_all)
+anyTrueAll = toAFResult @a . (`infoFromArray2` af_any_true_all)
 
 -- | Count all elements along all dimensions in 'Array'
 --
 -- >>> A.countAll (A.matrix @Double (100,100) (replicate 100 [1..]))
 -- (10000.0,0.0)
 countAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-countAll = (`infoFromArray2` af_count_all)
+countAll = toAFResult @a . (`infoFromArray2` af_count_all)
 
 -- | Find the minimum element along a specified dimension in 'Array'
 --
@@ -355,28 +355,28 @@ imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 -- >>> A.iminAll (A.vector @Double 10 [1..])
 -- (1.0,0.0,0)
 iminAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double, Int)
+  -> (Scalar a, Int)
   -- ^ will contain the real part of minimum value of all elements in input in, also will contain the imaginary part of minimum value of all elements in input in, will contain the location of minimum of all values in
 iminAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imin_all
-  (x,y,z)
+  (toAFResult @a (x,y), z)
 
 -- | Find the maximum element along all dimensions in 'Array'
 --
 -- >>> A.imaxAll (A.vector @Double 10 [1..])
 -- (10.0,0.0,9)
 imaxAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double, Int)
+  -> (Scalar a, Int)
   -- ^ will contain the real part of maximum value of all elements in input in, also will contain the imaginary part of maximum value of all elements in input in, will contain the location of maximum of all values in
 imaxAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imax_all
-  (x,y,z)
+  (toAFResult @a (x,y), z)
 
 -- | Calculate sum of 'Array' across specified dimension
 --
