@@ -31,10 +31,10 @@ spec =
     it "Should create a row vector" $ do
       let arr = mkArray @Int [1,9,1,1] (repeat 9)
       isRow arr `shouldBe` True
-    it "Should create a vector" $ do
+    it "Should recognize a column array as a vector" $ do
       let arr = mkArray @Int [9,1,1,1] (repeat 9)
       isVector arr `shouldBe` True
-    it "Should create a vector" $ do
+    it "Should recognize a row array as a vector" $ do
       let arr = mkArray @Int [1,9,1,1] (repeat 9)
       isVector arr `shouldBe` True
     it "Should copy an array" $ do

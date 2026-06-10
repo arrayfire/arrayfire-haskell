@@ -87,6 +87,7 @@ library
     af
   c-sources:
     cbits/wrapper.c
+    cbits/eigsh.c
   build-depends:
     base < 5, deepseq, filepath, vector
   hs-source-dirs:

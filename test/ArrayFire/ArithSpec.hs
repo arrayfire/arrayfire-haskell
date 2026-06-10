@@ -107,13 +107,13 @@ spec =
     it "Should gt Array" $ do
       2 `ArrayFire.gt` (3 :: Array Double) `shouldBe` 0
     it "Should lt Array" $ do
-      2 `ArrayFire.le` (3 :: Array Double) `shouldBe` 1
+      2 `ArrayFire.lt` (3 :: Array Double) `shouldBe` 1
     it "Should eq Array" $ do
       3 == (3 :: Array Double) `shouldBe` True
     it "Should and Array" $ do
       (mkArray @CBool [1] [0] `ArrayFire.and` mkArray [1] [1])
         `shouldBe` mkArray [1] [0]
-    it "Should and Array" $ do
+    it "Should and Array (vector)" $ do
       (mkArray @CBool [2] [0, 0] `ArrayFire.and` mkArray [2] [1, 0])
         `shouldBe` mkArray [2] [0, 0]
     it "Should or Array" $ do

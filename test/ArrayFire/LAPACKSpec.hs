@@ -31,16 +31,16 @@ spec =
       A.isLAPACKAvailable `shouldBe` True
 
     it "Should perform svd" $ do
-      let (s,v,d) = A.svd $ A.matrix @Double (4,2) [ [1,2,3,4], [5,6,7,8] ]
-      A.getDims s `shouldBe` (4,4,1,1)
-      A.getDims v `shouldBe` (2,1,1,1)
-      A.getDims d `shouldBe` (2,2,1,1)
+      let (u,sigma,vt) = A.svd $ A.matrix @Double (4,2) [ [1,2,3,4], [5,6,7,8] ]
+      A.getDims u     `shouldBe` (4,4,1,1)
+      A.getDims sigma `shouldBe` (2,1,1,1)
+      A.getDims vt    `shouldBe` (2,2,1,1)
 
     it "Should perform svd in place" $ do
-      let (s,v,d) = A.svdInPlace $ A.matrix @Double (4,2) [ [1,2,3,4], [5,6,7,8] ]
-      A.getDims s `shouldBe` (4,4,1,1)
-      A.getDims v `shouldBe` (2,1,1,1)
-      A.getDims d `shouldBe` (2,2,1,1)
+      let (u,sigma,vt) = A.svdInPlace $ A.matrix @Double (4,2) [ [1,2,3,4], [5,6,7,8] ]
+      A.getDims u     `shouldBe` (4,4,1,1)
+      A.getDims sigma `shouldBe` (2,1,1,1)
+      A.getDims vt    `shouldBe` (2,2,1,1)
 
     it "Should perform lu" $ do
       let (l,u,piv) = A.lu $ A.matrix @Double (2,2) [[3,1],[4,2]]
@@ -205,6 +205,64 @@ spec =
               a    = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
               pinvA = A.pinverse a 1e-9 A.None
           in closeList (A.toList (mm (mm pinvA a) pinvA)) (A.toList pinvA)
+
+    describe "eigSH" $ do
+      -- Works on all backends: CUDA uses cuSOLVER, others use SVD fallback.
+
+      it "returns correct eigenvalues for 2x2 symmetric matrix" $ do
+        -- A = [[3,1],[1,3]], eigenvalues 2 and 4 (ascending)
+        let a          = A.matrix @Double (2,2) [[3,1],[1,3]]
+            (evals, _) = A.eigSH a
+            evList     = A.toList evals
+        length evList `shouldBe` 2
+        evList !! 0 `shouldBeApprox` 2.0
+        evList !! 1 `shouldBeApprox` 4.0
+
+      it "returns orthonormal eigenvectors for 2x2 matrix" $ do
+        let a          = A.matrix @Double (2,2) [[3,1],[1,3]]
+            (_, evecs) = A.eigSH a
+            vtv        = A.toList $ mm (tr evecs) evecs
+            eye2       = A.toList (A.identity @Double [2,2])
+        mapM_ (uncurry shouldBeApprox) (zip vtv eye2)
+
+      it "reconstructs the original 2x2 matrix: V * diag(λ) * V^T = A" $ do
+        let a              = A.matrix @Double (2,2) [[3,1],[1,3]]
+            (evals, evecs) = A.eigSH a
+            recon          = mm (mm evecs (A.diagCreate evals 0)) (tr evecs)
+        mapM_ (uncurry shouldBeApprox) (zip (A.toList recon) (A.toList a))
+
+      it "returns eigenvalues in ascending order for 3x3 matrix" $ do
+        -- A = [[2,1,0],[1,2,1],[0,1,2]], eigenvalues 2-sqrt(2), 2, 2+sqrt(2)
+        let a          = A.matrix @Double (3,3) [[2,1,0],[1,2,1],[0,1,2]]
+            (evals, _) = A.eigSH a
+            evList     = A.toList evals
+        evList !! 0 `shouldBeApprox` (2 - sqrt 2)
+        evList !! 1 `shouldBeApprox` 2.0
+        evList !! 2 `shouldBeApprox` (2 + sqrt 2)
+
+      it "handles matrix with negative eigenvalues" $ do
+        -- A = [[0,1],[1,0]], eigenvalues -1 and +1
+        let a          = A.matrix @Double (2,2) [[0,1],[1,0]]
+            (evals, _) = A.eigSH a
+            evList     = A.toList evals
+        evList !! 0 `shouldBeApprox` (-1.0)
+        evList !! 1 `shouldBeApprox`   1.0
+
+      prop "eigSH: V * diag(λ) * V^T = A  (SPD input)" $
+        forAll (genMat 3) $ \xs ->
+          let b              = A.mkArray @Double [3,3] xs
+              a              = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
+              (evals, evecs) = A.eigSH a
+              recon          = mm (mm evecs (A.diagCreate evals 0)) (tr evecs)
+          in closeList (A.toList recon) (A.toList a)
+
+      prop "eigSH: V^T * V = I  (eigenvectors are orthonormal)" $
+        forAll (genMat 3) $ \xs ->
+          let b              = A.mkArray @Double [3,3] xs
+              a              = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
+              (_, evecs)     = A.eigSH a
+          in closeList (A.toList (mm (tr evecs) evecs))
+                       (A.toList (A.identity @Double [3,3]))
 
     describe "qrInPlace" $ do
       it "qrInPlace on a 3x3 matrix returns a tau vector of length 3" $ do

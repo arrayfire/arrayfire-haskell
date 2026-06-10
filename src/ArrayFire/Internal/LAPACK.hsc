@@ -39,3 +39,5 @@ foreign import ccall unsafe "af_norm"
     af_norm :: Ptr Double -> AFArray -> AFNormType -> Double -> Double -> IO AFErr
 foreign import ccall unsafe "af_is_lapack_available"
     af_is_lapack_available :: Ptr CBool -> IO AFErr
+foreign import ccall unsafe "af_eigsh"
+    af_eigsh :: Ptr AFArray -> Ptr AFArray -> AFArray -> IO AFErr

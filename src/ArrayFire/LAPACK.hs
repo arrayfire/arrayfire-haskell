@@ -293,6 +293,27 @@ norm
 norm arr (fromNormType -> a) b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
 
+-- | Eigendecomposition of a real symmetric (or complex Hermitian) matrix.
+--
+-- On a CUDA backend calls @cusolverDnDsyevd@ (f64) or @cusolverDnSsyevd@ (f32)
+-- directly via dlopen — zero CPU\/GPU transfers, correctly ordered with
+-- surrounding ArrayFire operations.  On CPU or OpenCL backends (or when
+-- cuSOLVER is unavailable) falls back to ArrayFire's own SVD with sign
+-- recovery, so the function works on all backends.
+--
+-- Returns @(eigenvalues, eigenvectors)@:
+--
+--   * @eigenvalues@ — length-n vector in /ascending/ order.
+--   * @eigenvectors@ — n×n matrix; column @i@ is the eigenvector for @eigenvalues[i]@.
+--
+eigSH
+  :: AFType a
+  => Array a
+  -- ^ real symmetric or complex Hermitian n×n matrix (f32 or f64)
+  -> (Array a, Array a)
+  -- ^ (eigenvalues vector, eigenvectors matrix)
+eigSH mat = mat `op2p` af_eigsh
+
 -- | Is LAPACK available
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__helper__func__available.htm)
