@@ -65,8 +65,7 @@ op3 (Array fptr1) (Array fptr2) (Array fptr3) op =
       withForeignPtr fptr2 $ \ptr2 -> do
          withForeignPtr fptr3 $ \ptr3 -> do
            ptr <-
-             alloca $ \ptrInput -> do
-               zeroOutArray ptrInput
+             calloca $ \ptrInput -> do
                throwAFError =<< op ptrInput ptr1 ptr2 ptr3
                peek ptrInput
            fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -87,8 +86,7 @@ op3Int (Array fptr1) (Array fptr2) (Array fptr3) op =
       withForeignPtr fptr2 $ \ptr2 -> do
          withForeignPtr fptr3 $ \ptr3 -> do
            ptr <-
-             alloca $ \ptrInput -> do
-               zeroOutArray ptrInput
+             calloca $ \ptrInput -> do
                throwAFError =<< op ptrInput ptr1 ptr2 ptr3
                peek ptrInput
            fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -107,8 +105,7 @@ op2 (Array fptr1) (Array fptr2) op =
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
         ptr <-
-          alloca $ \ptrInput -> do
-            zeroOutArray ptrInput
+          calloca $ \ptrInput -> do
             throwAFError =<< op ptrInput ptr1 ptr2
             peek ptrInput
         fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -127,8 +124,7 @@ op2bool (Array fptr1) (Array fptr2) op =
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 -> do
         ptr <-
-          alloca $ \ptrInput -> do
-            zeroOutArray ptrInput
+          calloca $ \ptrInput -> do
             throwAFError =<< op ptrInput ptr1 ptr2
             peek ptrInput
         fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -145,10 +141,8 @@ op2p
 op2p (Array fptr1) op =
   unsafePerformIO . mask_ $ do
     (x,y) <- withForeignPtr fptr1 $ \ptr1 -> do
-        alloca $ \ptrInput1 -> do
-          alloca $ \ptrInput2 -> do
-            zeroOutArray ptrInput1
-            zeroOutArray ptrInput2
+        calloca $ \ptrInput1 ->
+          calloca $ \ptrInput2 -> do
             throwAFError =<< op ptrInput1 ptrInput2 ptr1
             (,) <$> peek ptrInput1 <*> peek ptrInput2
     fptrA <- newForeignPtr af_release_array_finalizer x
@@ -165,12 +159,9 @@ op3p
 op3p (Array fptr1) op =
   unsafePerformIO . mask_ $ do
     (x,y,z) <- withForeignPtr fptr1 $ \ptr1 -> do
-        alloca $ \ptrInput1 -> do
-          alloca $ \ptrInput2 -> do
-            alloca $ \ptrInput3 -> do
-              zeroOutArray ptrInput1
-              zeroOutArray ptrInput2
-              zeroOutArray ptrInput3
+        calloca $ \ptrInput1 ->
+          calloca $ \ptrInput2 ->
+            calloca $ \ptrInput3 -> do
               throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptr1
               (,,) <$> peek ptrInput1 <*> peek ptrInput2 <*> peek ptrInput3
     fptrA <- newForeignPtr af_release_array_finalizer x
@@ -189,13 +180,10 @@ op3p1
 op3p1 (Array fptr1) op =
   unsafePerformIO . mask_ $ do
     (x,y,z,g) <- withForeignPtr fptr1 $ \ptr1 -> do
-        alloca $ \ptrInput1 -> do
-          alloca $ \ptrInput2 -> do
-            alloca $ \ptrInput3 -> do
+        calloca $ \ptrInput1 ->
+          calloca $ \ptrInput2 ->
+            calloca $ \ptrInput3 ->
               alloca $ \ptrInput4 -> do
-                zeroOutArray ptrInput1
-                zeroOutArray ptrInput2
-                zeroOutArray ptrInput3
                 throwAFError =<< op ptrInput1 ptrInput2 ptrInput3 ptrInput4 ptr1
                 (,,,) <$> peek ptrInput1
                       <*> peek ptrInput2
@@ -219,10 +207,8 @@ op2p2 (Array fptr1) (Array fptr2) op =
     (x,y) <-
       withForeignPtr fptr1 $ \ptr1 -> do
         withForeignPtr fptr2 $ \ptr2 -> do
-          alloca $ \ptrInput1 -> do
-            alloca $ \ptrInput2 -> do
-              zeroOutArray ptrInput1
-              zeroOutArray ptrInput2
+          calloca $ \ptrInput1 ->
+            calloca $ \ptrInput2 -> do
               throwAFError =<< op ptrInput1 ptrInput2 ptr1 ptr2
               (,) <$> peek ptrInput1 <*> peek ptrInput2
     fptrA <- newForeignPtr af_release_array_finalizer x
@@ -244,22 +230,18 @@ op2p2kv (Array fptr1) (Array fptr2) op =
     (x, y) <-
       withForeignPtr fptr1 $ \ptr1 ->
         withForeignPtr fptr2 $ \ptr2 -> do
-          castedKey <- alloca $ \p -> do
-            zeroOutArray p
+          castedKey <- calloca $ \p -> do
             throwAFError =<< af_cast p ptr1 s32
             peek p
-          alloca $ \ptrOutput1 ->
-            alloca $ \ptrOutput2 -> do
-              zeroOutArray ptrOutput1
-              zeroOutArray ptrOutput2
+          calloca $ \ptrOutput1 ->
+            calloca $ \ptrOutput2 -> do
               onException
                 (throwAFError =<< op ptrOutput1 ptrOutput2 castedKey ptr2)
                 (af_release_array_ffi castedKey)
               _ <- af_release_array_ffi castedKey
               outKey <- peek ptrOutput1
               outVal <- peek ptrOutput2
-              finalKey <- alloca $ \p -> do
-                zeroOutArray p
+              finalKey <- calloca $ \p -> do
                 onException
                   (throwAFError =<< af_cast p outKey s64)
                   (af_release_array_ffi outKey >> af_release_array_ffi outVal)
@@ -280,8 +262,7 @@ createArray'
 createArray' op =
   mask_ $ do
     ptr <-
-      alloca $ \ptrInput -> do
-        zeroOutArray ptrInput
+      calloca $ \ptrInput -> do
         throwAFError =<< op ptrInput
         peek ptrInput
     fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -297,8 +278,7 @@ createArray
 createArray op =
   unsafePerformIO . mask_ $ do
     ptr <-
-      alloca $ \ptrInput -> do
-        zeroOutArray ptrInput
+      calloca $ \ptrInput -> do
         throwAFError =<< op ptrInput
         peek ptrInput
     fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -312,8 +292,7 @@ createWindow'
 createWindow' op =
   mask_ $ do
     ptr <-
-      alloca $ \ptrInput -> do
-        zeroOutArray ptrInput
+      calloca $ \ptrInput -> do
         throwAFError =<< op ptrInput
         peek ptrInput
     fptr <- newForeignPtr af_release_window_finalizer ptr
@@ -353,8 +332,7 @@ op1 (Array fptr1) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
       ptr <-
-        alloca $ \ptrInput -> do
-          zeroOutArray ptrInput
+        calloca $ \ptrInput -> do
           throwAFError =<< op ptrInput ptr1
           peek ptrInput
       fptr <- newForeignPtr af_release_array_finalizer ptr
@@ -371,8 +349,7 @@ op1f (Features x) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr x $ \ptr1 -> do
       ptr <-
-        alloca $ \ptrInput -> do
-          zeroOutArray ptrInput
+        calloca $ \ptrInput -> do
           throwAFError =<< op ptrInput ptr1
           peek ptrInput
       fptr <- newForeignPtr af_release_features ptr
@@ -387,8 +364,7 @@ op1re
 op1re (RandomEngine x) op = mask_ $
   withForeignPtr x $ \ptr1 -> do
     ptr <-
-      alloca $ \ptrInput -> do
-        zeroOutArray ptrInput
+      calloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
         peek ptrInput
     fptr <- newForeignPtr af_release_random_engine_finalizer ptr
@@ -407,9 +383,8 @@ op1b (Array fptr1) op =
   unsafePerformIO . mask_ $
     withForeignPtr fptr1 $ \ptr1 -> do
       (y,x) <-
-        alloca $ \ptrInput1 -> do
+        calloca $ \ptrInput1 ->
           alloca $ \ptrInput2 -> do
-            zeroOutArray ptrInput1
             throwAFError =<< op ptrInput1 ptrInput2 ptr1
             (,) <$> peek ptrInput1 <*> peek ptrInput2
       fptr <- newForeignPtr af_release_array_finalizer y
@@ -432,8 +407,7 @@ loadAFImage
   -> IO (Array a)
 loadAFImage s (fromIntegral . fromEnum -> b) op = mask_ $
   withCString s $ \cstr -> do
-    p <- alloca $ \ptr -> do
-      zeroOutArray ptr
+    p <- calloca $ \ptr -> do
       throwAFError =<< op ptr cstr b
       peek ptr
     fptr <- newForeignPtr af_release_array_finalizer p
@@ -447,8 +421,7 @@ loadAFImageNative
   -> IO (Array a)
 loadAFImageNative s op = mask_ $
   withCString s $ \cstr -> do
-    p <- alloca $ \ptr -> do
-      zeroOutArray ptr
+    p <- calloca $ \ptr -> do
       throwAFError =<< op ptr cstr
       peek ptr
     fptr <- newForeignPtr af_release_array_finalizer p
@@ -498,11 +471,9 @@ featuresToArray
 featuresToArray (Features fptr1) op =
   unsafePerformIO . mask_ $ do
     withForeignPtr fptr1 $ \ptr1 -> do
-      alloca $ \ptrInput -> do
-        zeroOutArray ptrInput
+      calloca $ \ptrInput -> do
         throwAFError =<< op ptrInput ptr1
-        alloca $ \retainedArray -> do
-          zeroOutArray retainedArray
+        calloca $ \retainedArray -> do
           throwAFError =<< af_retain_array retainedArray =<< peek ptrInput
           fptr <- newForeignPtr af_release_array_finalizer =<< peek retainedArray
           pure (Array fptr)
@@ -636,5 +607,3 @@ infoFromArray4 (Array fptr1) op =
                     <*> peek ptrInput3
                     <*> peek ptrInput4
 
-foreign import ccall unsafe "zeroOutArray"
-  zeroOutArray :: Ptr AFArray -> IO ()

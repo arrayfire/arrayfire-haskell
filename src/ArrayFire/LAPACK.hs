@@ -222,6 +222,25 @@ inverse
 inverse a m =
   a `op1` (\x y  -> af_inverse x y (toMatProp m))
 
+-- | Compute the pseudo-inverse (Moore-Penrose) of a matrix.
+--
+-- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__ops__func__pinv.htm)
+--
+-- Uses SVD internally. Any singular value below @tol@ is treated as zero.
+--
+pinverse
+  :: AFType a
+  => Array a
+  -- ^ input matrix
+  -> Double
+  -- ^ tolerance for treating singular values as zero
+  -> MatProp
+  -- ^ matrix properties
+  -> Array a
+  -- ^ pseudo-inverse of the input
+pinverse a tol m =
+  a `op1` (\x y -> af_pinverse x y tol (toMatProp m))
+
 -- | Find the rank of the input matrix
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__factor__func__rank.htm)

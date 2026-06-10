@@ -176,6 +176,36 @@ spec =
             ainv2 = A.inverse ainv A.None
         in closeList (A.toList ainv2) (A.toList a)
 
+    describe "pinverse" $ do
+      it "pinverse of a full-rank square matrix matches inverse" $ do
+        -- For an invertible matrix, pinverse should equal inverse.
+        let a    = A.matrix @Double (2,2) [[4.0,7.0],[2.0,6.0]]
+            pinv = A.toList $ A.pinverse a 1e-6 A.None
+            inv  = A.toList $ A.inverse  a       A.None
+        mapM_ (uncurry shouldBeApprox) (zip pinv inv)
+
+      it "pinverse of a tall matrix satisfies pinv(A) * A ≈ I" $ do
+        -- For a full-column-rank matrix A (m x n, m >= n), pinv(A) * A = I_n.
+        let a    = A.matrix @Double (3,2) [[1,2,3],[4,5,6]]
+            pinvA = A.pinverse a 1e-9 A.None
+            prod  = mm pinvA a  -- (2x3) * (3x2) = 2x2 identity
+            eye   = A.identity @Double [2,2]
+        closeList (A.toList prod) (A.toList eye) `shouldBe` True
+
+      prop "pinverse: A * pinv(A) * A ≈ A  (full-rank square)" $
+        forAll (genMat 3) $ \xs ->
+          let b    = A.mkArray @Double [3,3] xs
+              a    = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
+              pinvA = A.pinverse a 1e-9 A.None
+          in closeList (A.toList (mm (mm a pinvA) a)) (A.toList a)
+
+      prop "pinverse: pinv(A) * A * pinv(A) ≈ pinv(A)  (full-rank square)" $
+        forAll (genMat 3) $ \xs ->
+          let b    = A.mkArray @Double [3,3] xs
+              a    = mm (tr b) b + A.mkArray @Double [3,3] [3,0,0, 0,3,0, 0,0,3]
+              pinvA = A.pinverse a 1e-9 A.None
+          in closeList (A.toList (mm (mm pinvA a) pinvA)) (A.toList pinvA)
+
     describe "qrInPlace" $ do
       it "qrInPlace on a 3x3 matrix returns a tau vector of length 3" $ do
         let a   = A.matrix @Double (3,3) [[12,6,4],[-51,167,24],[4,-68,-41]]

@@ -127,8 +127,7 @@ constant dims val =
       -> Array Double
     constant' dims' val' =
       unsafePerformIO . mask_ $ do
-        ptr <- alloca $ \ptrPtr -> do
-          zeroOutArray ptrPtr
+        ptr <- calloca $ \ptrPtr -> do
           withArray (fromIntegral <$> dims') $ \dimArray -> do
             throwAFError =<< af_constant ptrPtr val' n dimArray typ
             peek ptrPtr
@@ -154,8 +153,7 @@ constant dims val =
       -- ^ Scalar val'ue
       -> Array (Complex arr)
     constantComplex dims' ((realToFrac -> x) :+ (realToFrac -> y)) = unsafePerformIO . mask_ $ do
-      ptr <- alloca $ \ptrPtr -> do
-        zeroOutArray ptrPtr
+      ptr <- calloca $ \ptrPtr -> do
         withArray (fromIntegral <$> dims') $ \dimArray -> do
           throwAFError =<< af_constant_complex ptrPtr x y n dimArray typ
           peek ptrPtr
@@ -180,8 +178,7 @@ constant dims val =
       -- ^ Scalar val'ue
       -> Array Int
     constantLong dims' val' = unsafePerformIO . mask_ $ do
-      ptr <- alloca $ \ptrPtr -> do
-        zeroOutArray ptrPtr
+      ptr <- calloca $ \ptrPtr -> do
         withArray (fromIntegral <$> dims') $ \dimArray -> do
           throwAFError =<< af_constant_long ptrPtr (fromIntegral val') n dimArray
           peek ptrPtr
@@ -203,8 +200,7 @@ constant dims val =
       -> Word64
       -> Array Word64
     constantULong dims' val' = unsafePerformIO . mask_ $ do
-      ptr <- alloca $ \ptrPtr -> do
-        zeroOutArray ptrPtr
+      ptr <- calloca $ \ptrPtr -> do
         withArray (fromIntegral <$> dims') $ \dimArray -> do
           throwAFError =<< af_constant_ulong ptrPtr (fromIntegral val') n dimArray
           peek ptrPtr
@@ -283,8 +279,7 @@ iota
 iota dims tdims = unsafePerformIO . mask_ $ do
   let dims' = take 4 (dims ++ repeat 1)
       tdims' =  take 4 (tdims ++ repeat 1)
-  ptr <- alloca $ \ptrPtr -> do
-    zeroOutArray ptrPtr
+  ptr <- calloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims') $ \dimArray ->
       withArray (fromIntegral <$> tdims') $ \tdimArray -> do
         throwAFError =<< af_iota ptrPtr 4 dimArray 4 tdimArray typ
@@ -317,8 +312,7 @@ identity dims = unsafePerformIO . mask_ $ do
       , afExceptionMsg  = "identity: ndims must be <= 4"
       }
   let dims' = take 4 (dims ++ repeat 1)
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
-    zeroOutArray ptrPtr
+  ptr <- calloca $ \ptrPtr -> mask_ $ do
     withArray (fromIntegral <$> dims') $ \dimArray -> do
       throwAFError =<< af_identity ptrPtr n dimArray typ
       peek ptrPtr
@@ -396,8 +390,7 @@ joinMany
   -> Array a
 {-# NOINLINE joinMany #-}
 joinMany (fromIntegral -> n) (fmap (\(Array fp) -> fp) -> arrays) = unsafePerformIO . mask_ $ do
-  newPtr <- alloca $ \aPtr -> do
-    zeroOutArray aPtr
+  newPtr <- calloca $ \aPtr -> do
     (throwAFError =<<) $
       withManyForeignPtr arrays $ \(fromIntegral -> nArrays) fPtrsPtr ->
         af_join_many aPtr n nArrays fPtrsPtr
@@ -492,8 +485,7 @@ moddims
 {-# NOINLINE moddims #-}
 moddims (Array fptr) dims =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
-    newPtr <- alloca $ \aPtr -> do
-      zeroOutArray aPtr
+    newPtr <- calloca $ \aPtr -> do
       withArray (fromIntegral <$> dims) $ \dimsPtr -> do
         throwAFError =<< af_moddims aPtr ptr n dimsPtr
         peek aPtr

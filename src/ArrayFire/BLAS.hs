@@ -226,10 +226,9 @@ gemm opA opB alpha (Array fptrA) (Array fptrB) =
   unsafePerformIO . mask_ $
     withForeignPtr fptrA $ \ptrA ->
     withForeignPtr fptrB $ \ptrB ->
-    alloca $ \pOut ->
+    calloca $ \pOut ->
     alloca $ \pAlpha ->
     alloca $ \(pBeta :: Ptr a) -> do
-      zeroOutArray pOut
       poke pAlpha alpha
       fillBytes pBeta 0 (sizeOf alpha)
       throwAFError =<< af_gemm pOut (toMatProp opA) (toMatProp opB) (castPtr pAlpha) ptrA ptrB (castPtr pBeta)

@@ -263,8 +263,7 @@ rand
   -- ^ Underlying ArrayFire random function to invoke
   -> IO (Array a)
 rand dims f = mask_ $ do
-  ptr <- alloca $ \ptrPtr -> do
-    zeroOutArray ptrPtr
+  ptr <- calloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< f ptrPtr n dimArray typ
       peek ptrPtr

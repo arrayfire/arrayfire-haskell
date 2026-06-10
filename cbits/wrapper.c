@@ -6,10 +6,6 @@ af_err af_random_engine_set_seed_(af_random_engine engine, const unsigned long l
   return af_random_engine_set_seed(&engine, seed);
 }
 
-void zeroOutArray (af_array * arr) {
-  (*arr) = 0;
-}
-
 static volatile int af_shutting_down = 0;
 
 void af_notify_shutdown(void) {

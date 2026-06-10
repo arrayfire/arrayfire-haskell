@@ -194,8 +194,7 @@ mkArray
 mkArray dims xs =
   unsafePerformIO . mask_ $ do
     let ndims = fromIntegral (Prelude.length dims)
-    alloca $ \arrayPtr -> do
-      zeroOutArray arrayPtr
+    calloca $ \arrayPtr -> do
       dimsPtr <- newArray (DimT . fromIntegral <$> dims)
       if size == 0
         then onException
@@ -253,8 +252,7 @@ fromVector dims vec =
       throwIO $ AFException SizeError 203 $
         "fromVector: dimension product " <> show size <>
         " does not match vector length " <> show (V.length vec)
-    alloca $ \arrayPtr -> do
-      zeroOutArray arrayPtr
+    calloca $ \arrayPtr -> do
       dimsPtr <- newArray (DimT . fromIntegral <$> dims)
       onException
         (V.unsafeWith vec $ \ptr -> do
