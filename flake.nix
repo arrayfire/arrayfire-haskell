@@ -198,7 +198,7 @@
           ps.shellFor {
             packages = ps: if hasArrayfire then [ ps.arrayfire ] else [ ];
             withHoogle = true;
-            buildInputs = with pkgs; (if isLinux then [ ocl-icd ] else [ darwin.apple_sdk.frameworks.Security ]);
+            buildInputs = with pkgs; (if isLinux then [ ocl-icd ] else [ ]);
             nativeBuildInputs = with pkgs; with ps; [
               # Building and testing
               cabal-install

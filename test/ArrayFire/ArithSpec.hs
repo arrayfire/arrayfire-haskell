@@ -273,7 +273,11 @@ spec =
       it "factorial 5 = 120" $
         evalf (ArrayFire.factorial (scalar @Double 5)) `shouldBeApprox` 120
       it "factorial 10 = 3628800" $
-        evalf (ArrayFire.factorial (scalar @Double 10)) `shouldBeApprox` 3628800
+        -- factorial is computed via the platform libm gamma function, which is
+        -- not bit-exact: on macOS it lands ~2.3e-9 off, exceeding the default
+        -- relative tolerance (~1.6e-9 at this magnitude). Loosen it here.
+        approxWith 1e-7 1e-7 (evalf (ArrayFire.factorial (scalar @Double 10))) 3628800
+          `shouldBe` True
 
     describe "floor" $ do
       it "floor of 1.7 is 1" $
