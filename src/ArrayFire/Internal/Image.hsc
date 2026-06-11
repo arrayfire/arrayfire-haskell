@@ -93,3 +93,5 @@ foreign import ccall unsafe "af_canny"
     af_canny :: Ptr AFArray -> AFArray -> AFCannyThreshold -> Float -> Float -> CUInt -> CBool -> IO AFErr
 foreign import ccall unsafe "af_anisotropic_diffusion"
     af_anisotropic_diffusion :: Ptr AFArray -> AFArray -> Float -> Float -> CUInt -> AFFluxFunction -> AFDiffusionEq -> IO AFErr
+foreign import ccall unsafe "af_inverse_deconv"
+    af_inverse_deconv :: Ptr AFArray -> AFArray -> AFArray -> Float -> AFInverseDeconvAlgo -> IO AFErr

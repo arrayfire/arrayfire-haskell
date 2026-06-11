@@ -44,6 +44,8 @@
           openblas
           ocl-icd
           boost.out
+          cudatoolkit
+          linuxPackages.nvidia_x11
         ];
         unpackPhase = "true";
         installPhase = ''
@@ -198,7 +200,7 @@
           ps.shellFor {
             packages = ps: if hasArrayfire then [ ps.arrayfire ] else [ ];
             withHoogle = true;
-            buildInputs = with pkgs; (if isLinux then [ ocl-icd ] else [ ]);
+            buildInputs = with pkgs; (if isLinux then [ ocl-icd cudatoolkit linuxPackages.nvidia_x11 ] else [ ]);
             nativeBuildInputs = with pkgs; with ps; [
               # Building and testing
               cabal-install
@@ -217,6 +219,7 @@
 
       pkgs-for = system: import inputs.nixpkgs {
         inherit system;
+        config = { allowUnfree = true; };
         overlays = [
           arrayfire-overlay
           arrayfire-haskell-overlay

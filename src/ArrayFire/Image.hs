@@ -751,11 +751,12 @@ anisotropicDiffusion in' ts con (fromIntegral -> iter) (fromFluxFunction -> flux
 -- iterativeDeconv in1 in2 (fromIntegral -> i) f1 (fromIterativeDeconvAlgo -> algo) =
 --   op2 in1 in2 (\p a k -> af_iterative_deconv p a k i f1 algo)
 
--- inverseDeconv
---   :: Array a
---   -> Array a
---   -> Float
---   -> InverseDeconvAlgo
---   -> Array a
--- inverseDeconv in1 in2 f1 (fromInverseDeconvAlgo -> algo) =
---   op2 in1 in2 (\p a k -> af_inverse_deconv p a k f1 algo)
+-- | Applies inverse deconvolution to an image using a point spread function.
+inverseDeconv
+  :: Array a
+  -> Array a
+  -> Float
+  -> InverseDeconvAlgo
+  -> Array a
+inverseDeconv in1 in2 f1 (fromInverseDeconvAlgo -> algo) =
+  op2 in1 in2 (\p a k -> af_inverse_deconv p a k f1 algo)

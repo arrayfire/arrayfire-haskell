@@ -262,7 +262,7 @@ newtype AFID = AFID CInt
   deriving (Ord, Show, Eq, Storable)
 
 #{enum AFID, AFID
-  afID = AF_ID
+ , afID = AF_ID
 }
 
 newtype AFBinaryOp = AFBinaryOp CInt
@@ -377,8 +377,8 @@ newtype AFInverseDeconvAlgo = AFInverseDeconvAlgo CInt
   deriving (Ord, Show, Eq, Storable)
 
 #{enum AFInverseDeconvAlgo, AFInverseDeconvAlgo
-  afInverseDeconvTikhonov = AF_INVERSE_DECONV_TIKHONOV
-  afInverseDeconvDefault = AF_INVERSE_DECONV_DEFAULT
+ , afInverseDeconvTikhonov = AF_INVERSE_DECONV_TIKHONOV
+ , afInverseDeconvDefault = AF_INVERSE_DECONV_DEFAULT
  }
 
 newtype AFVarBias = AFVarBias CInt

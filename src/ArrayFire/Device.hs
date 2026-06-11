@@ -83,3 +83,7 @@ setDevice (fromIntegral -> x) = afCall (af_set_device x)
 -- 0
 getDevice :: IO Int
 getDevice = fromIntegral <$> afCall1 af_get_device
+
+-- | Runs the device garbage collector, freeing any cached memory buffers.
+deviceGC :: IO ()
+deviceGC = afCall af_device_gc

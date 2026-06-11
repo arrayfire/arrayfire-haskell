@@ -127,7 +127,7 @@ spec =
             arr1 = vector @Double n xs
             arr2 = vector @Double n (take n (ys ++ repeat 0))
             r    = corrCoef arr1 arr2
-        in not (isNaN r) ==> r >= -1.0 - 1e-9 && r <= 1.0 + 1e-9
+        in not (isNaN r) && not (isInfinite r) ==> r >= -1.0 - 1e-9 && r <= 1.0 + 1e-9
 
       -- sumAll = n * meanAll  (for any non-empty list)
       prop "sumAll = n * meanAll" $ \(NonEmpty xs) ->

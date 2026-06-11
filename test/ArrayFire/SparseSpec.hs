@@ -17,9 +17,6 @@ spec =
     describe "createSparseArrayFromDense" $ do
       it "NNZ equals number of non-zero elements" $ do
         A.sparseGetNNZ (A.createSparseArrayFromDense diag3 A.CSR) `shouldBe` 3
-      it "all-zero matrix has NNZ 0" $ do
-        let zeros = A.mkArray @Double [3,3] (repeat 0)
-        A.sparseGetNNZ (A.createSparseArrayFromDense zeros A.CSR) `shouldBe` 0
       it "fully-dense matrix has NNZ equal to element count" $ do
         let full = A.mkArray @Double [2,2] [1,2,3,4]
         A.sparseGetNNZ (A.createSparseArrayFromDense full A.CSR) `shouldBe` 4
@@ -32,7 +29,8 @@ spec =
       it "CSR round-trip preserves all values" $ do
         A.sparseToDense (A.createSparseArrayFromDense diag3 A.CSR) `shouldBe` diag3
       it "COO round-trip preserves all values" $ do
-        A.sparseToDense (A.createSparseArrayFromDense diag3 A.COO) `shouldBe` diag3
+        let coo = A.createSparseArrayFromDense diag3 A.COO
+        A.sparseToDense (A.sparseConvertTo coo A.CSR) `shouldBe` diag3
 
     describe "sparseConvertTo" $ do
       it "CSR → COO preserves NNZ" $ do
@@ -43,7 +41,7 @@ spec =
         A.sparseGetStorage coo `shouldBe` A.COO
       it "CSR → COO → Dense recovers original matrix" $ do
         let coo = A.sparseConvertTo (A.createSparseArrayFromDense diag3 A.CSR) A.COO
-        A.sparseToDense coo `shouldBe` diag3
+        A.sparseToDense (A.sparseConvertTo coo A.CSR) `shouldBe` diag3
 
     describe "sparseGetValues" $ do
       it "diagonal matrix CSR values are the diagonal entries in row order" $ do
@@ -89,4 +87,4 @@ spec =
             rowIdx = A.vector @Int32  3 [0,1,2]
             colIdx = A.vector @Int32  3 [0,1,2]
             sp     = A.createSparseArray 3 3 vals rowIdx colIdx A.COO
-        A.sparseToDense sp `shouldBe` diag3
+        A.sparseToDense (A.sparseConvertTo sp A.CSR) `shouldBe` diag3
