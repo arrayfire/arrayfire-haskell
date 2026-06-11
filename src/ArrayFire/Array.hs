@@ -1,3 +1,4 @@
+--------------------------------------------------------------------------------
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE PolyKinds           #-}
@@ -10,7 +11,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Array
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -82,6 +83,20 @@ scalar x = mkArray [1] [x]
 vector :: AFType a => Int -> [a] -> Array a
 vector n = mkArray [n] . take n
 
+-- | Construct an 'Array' from a flat list with explicit dimensions.
+--
+-- Dimensions are in column-major order (first dim varies fastest).
+-- Prefer 'fromVector' when data is already in a 'Data.Vector.Storable.Vector'
+-- to avoid the intermediate list allocation.
+--
+-- >>> fromList [2,3] [1..6 :: Double]
+-- ArrayFire Array
+-- [2 3 1 1]
+--     1.0000     3.0000     5.0000
+--     2.0000     4.0000     6.0000
+fromList :: AFType a => [Int] -> [a] -> Array a
+fromList = mkArray
+
 -- | Smart constructor for creating a matrix 'Array'
 --
 -- >>> A.matrix @Double (3,2) [[1,2,3],[4,5,6]]
@@ -95,8 +110,8 @@ matrix :: AFType a => (Int,Int) -> [[a]] -> Array a
 matrix (x,y)
   = mkArray [x,y]
   . concat
-  . take y
   . fmap (take x)
+  . take y
 
 -- | Smart constructor for creating a cubic 'Array'
 --
@@ -116,9 +131,9 @@ cube (x,y,z)
   = mkArray [x,y,z]
   . concat
   . fmap concat
-  . take z
   . fmap (take y)
   . (fmap . fmap . take) x
+  . take z
 
 -- | Smart constructor for creating a tensor 'Array'
 --
@@ -140,16 +155,16 @@ cube (x,y,z)
 --     2.0000     2.0000
 --     2.0000     2.0000
 -- @
-tensor :: AFType a => (Int, Int,Int,Int) -> [[[[a]]]] -> Array a
+tensor :: AFType a => (Int,Int,Int,Int) -> [[[[a]]]] -> Array a
 tensor (w,x,y,z)
   = mkArray [w,x,y,z]
   . concat
   . fmap concat
   . (fmap . fmap) concat
-  . take z
-  . (fmap . take) y
-  . (fmap . fmap . take) x
   . (fmap . fmap . fmap . take) w
+  . (fmap . fmap . take) x
+  . (fmap . take) y
+  . take z
 
 -- | Internal function for 'Array' construction
 --
@@ -177,28 +192,75 @@ mkArray
   -- ^ Returned array
 {-# NOINLINE mkArray #-}
 mkArray dims xs =
-  unsafePerformIO $ do
-    when (Prelude.length (take size xs) < size) $ do
-      let msg = "Invalid elements provided. "
-           <> "Expected "
-           <> show size
-           <> " elements received "
-           <> show (Prelude.length xs)
-      throwIO (AFException SizeError 203 msg)
-    dataPtr <- castPtr <$> newArray (Prelude.take size xs)
+  unsafePerformIO . mask_ $ do
     let ndims = fromIntegral (Prelude.length dims)
-    alloca $ \arrayPtr -> do
-      zeroOutArray arrayPtr
+    calloca $ \arrayPtr -> do
       dimsPtr <- newArray (DimT . fromIntegral <$> dims)
-      throwAFError =<< af_create_array arrayPtr dataPtr ndims dimsPtr dType
-      free dataPtr >> free dimsPtr
+      if size == 0
+        then onException
+               (do throwAFError =<< af_create_handle arrayPtr ndims dimsPtr dType
+                   free dimsPtr)
+               (free dimsPtr)
+        else do
+          when (Prelude.length (Prelude.take size xs) < size) $ do
+            free dimsPtr
+            let msg = "Invalid elements provided. "
+                 <> "Expected "
+                 <> show size
+                 <> " elements received "
+                 <> show (Prelude.length xs)
+            throwIO (AFException SizeError 203 msg)
+          dataPtr <- castPtr <$> newArray (Prelude.take size xs)
+          onException
+            (do throwAFError =<< af_create_array arrayPtr dataPtr ndims dimsPtr dType
+                free dataPtr >> free dimsPtr)
+            (free dataPtr >> free dimsPtr)
       arr <- peek arrayPtr
       Array <$> newForeignPtr af_release_array_finalizer arr
     where
       size  = Prelude.product dims
       dType = afType (Proxy @array)
 
--- af_err af_create_handle(af_array *arr, const unsigned ndims, const dim_t * const dims, const af_dtype type);
+-- | Constructs an 'Array' from a 'Storable' 'Vector', avoiding the intermediate list allocation of 'mkArray'.
+--
+-- The vector's contiguous buffer is handed straight to @af_create_array@, which
+-- copies it into the 'Array' (and uploads to device memory on GPU backends), so
+-- no intermediate Haskell list is built.
+-- Throws 'AFException' if the vector length does not match the product of the given dimensions.
+--
+-- >>> fromVector @Double [3] (Data.Vector.Storable.fromList [1,2,3])
+-- ArrayFire Array
+-- [3 1 1 1]
+--     1.0000
+--     2.0000
+--     3.0000
+fromVector
+  :: forall a
+   . AFType a
+  => [Int]
+  -- ^ Dimensions
+  -> Vector a
+  -- ^ Source storable vector
+  -> Array a
+{-# NOINLINE fromVector #-}
+fromVector dims vec =
+  unsafePerformIO . mask_ $ do
+    let size  = Prelude.product dims
+        ndims = fromIntegral (Prelude.length dims)
+        dType = afType (Proxy @a)
+    when (V.length vec /= size) $
+      throwIO $ AFException SizeError 203 $
+        "fromVector: dimension product " <> show size <>
+        " does not match vector length " <> show (V.length vec)
+    calloca $ \arrayPtr -> do
+      dimsPtr <- newArray (DimT . fromIntegral <$> dims)
+      onException
+        (V.unsafeWith vec $ \ptr -> do
+          throwAFError =<< af_create_array arrayPtr (castPtr ptr) ndims dimsPtr dType
+          free dimsPtr)
+        (free dimsPtr)
+      arr <- peek arrayPtr
+      Array <$> newForeignPtr af_release_array_finalizer arr
 
 -- | Copies an 'Array' to a new 'Array'
 --
@@ -213,8 +275,6 @@ copyArray
   -> Array a
     -- ^ Newly copied 'Array'
 copyArray = (`op1` af_copy_array)
--- af_err af_write_array(af_array arr, const void *data, const size_t bytes, af_source src);
--- af_err af_get_data_ptr(void *data, const af_array arr);
 
 -- | Retains an 'Array', increases reference count
 --
@@ -233,7 +293,7 @@ retainArray =
 -- | Retrieves 'Array' reference count
 --
 -- >>> initialArray = scalar @Double 10
--- >>> retainedArray = retain initialArray
+-- >>> retainedArray = retainArray initialArray
 -- >>> getDataRefCount retainedArray
 -- 2
 --
@@ -246,8 +306,17 @@ getDataRefCount
 getDataRefCount =
   fromIntegral . (`infoFromArray` af_get_data_ref_count)
 
--- af_err af_eval(af_array in);
--- af_err af_eval_multiple(const int num, af_array *arrays);
+-- | Force evaluation of a lazily-deferred 'Array', flushing any pending
+-- computation in the JIT queue and returning the same array.
+--
+-- >>> eval (vector @Double 10 [1..])
+-- ArrayFire Array
+-- ...
+--
+eval :: AFType a => Array a -> Array a
+eval arr@(Array fptr) = unsafePerformIO . mask_ $
+  withForeignPtr fptr (throwAFError <=< af_eval) >> pure arr
+{-# NOINLINE eval #-}
 
 -- | Should manual evaluation occur
 --
@@ -479,11 +548,12 @@ isSparse a = toEnum . fromIntegral $ (a `infoFromArray` af_is_sparse)
 -- >>> toVector (vector @Double 10 [1..])
 -- [1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0]
 toVector :: forall a . AFType a => Array a -> Vector a
-toVector arr@(Array fptr) = do
+{-# NOINLINE toVector #-}
+toVector arr@(Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     let len = getElements arr
         size = len * getSizeOf (Proxy @a)
-    ptr <- mallocBytes (len * size)
+    ptr <- mallocBytes size
     throwAFError =<< af_get_data_ptr (castPtr ptr) arrPtr
     newFptr <- newForeignPtr finalizerFree ptr
     pure $ unsafeFromForeignPtr0 newFptr len
@@ -500,6 +570,7 @@ toList = V.toList . toVector
 -- >>> getScalar (scalar @Double 22.0) :: Double
 -- 22.0
 getScalar :: forall a b . (Storable a, AFType b) => Array b -> a
+{-# NOINLINE getScalar #-}
 getScalar (Array fptr) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \arrPtr -> do
     alloca $ \ptr -> do

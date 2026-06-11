@@ -1,9 +1,11 @@
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE ViewPatterns        #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports    #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Statistics
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -33,6 +35,9 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Statistics where
 
+import Data.Word (Word32)
+import Foreign.Ptr (nullPtr)
+
 import ArrayFire.Array
 import ArrayFire.FFI
 import ArrayFire.Internal.Statistics
@@ -40,7 +45,7 @@ import ArrayFire.Internal.Types
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
--- >>> mean ( vector @Int 10 [1..] ) 0
+-- >>> mean (vector @Int 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
@@ -78,15 +83,15 @@ meanWeighted x y (fromIntegral -> n) =
 
 -- | Calculates /variance/ of 'Array' along user-specified dimension.
 --
--- >>> var (vector @Double 8 [1..8]) False 0
+-- >>> var (vector @Double 8 [1..8]) Population 0
 -- ArrayFire Array
 --   [1 1 1 1]
---      6.0000
+--      5.2500
 var
   :: AFType a
   => Array a
   -- ^ Input 'Array'
-  -> Bool
+  -> VarianceType
   -- ^ boolean denoting Population variance (false) or Sample Variance (true)
   -> Int
   -- ^ The dimension along which the variance is extracted
@@ -96,12 +101,16 @@ var arr (fromIntegral . fromEnum -> b) d =
   arr `op1` (\p x ->
     af_var p x b (fromIntegral d))
 
+-- | Data type used to express variance type in the 'var' function
+data VarianceType = Population | Sample
+  deriving (Show, Eq, Enum)
+
 -- | Calculates 'varWeighted' of 'Array' along user-specified dimension.
 --
--- >>> varWeighted ( vector @Double 10 [1..] ) ( vector @Double 10 [1..] ) 0
+-- >>> varWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
---      6.0000
+--      1.9091
 varWeighted
   :: AFType a
   => Array a
@@ -156,7 +165,7 @@ cov x y (fromIntegral . fromEnum -> n) =
 
 -- | Calculates 'median' of 'Array' along user-specified dimension.
 --
--- >>> median ( vector @Double 10 [1..] ) 0
+-- >>> median (vector @Double 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
@@ -175,100 +184,100 @@ median a n =
 -- | Calculates 'mean' of all elements in an 'Array'
 --
 -- >>> meanAll $ matrix @Double (2,2) [[1,2],[4,5]]
--- (3.0,2.232709401e-314)
+-- 3.0
 meanAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Mean result (real and imaginary part)
-meanAll = (`infoFromArray2` af_mean_all)
+  -> Scalar a
+  -- ^ Mean of all elements
+meanAll arr = toAFResult @a (arr `infoFromArray2` af_mean_all)
 
 -- | Calculates weighted mean of all elements in an 'Array'
 --
 -- >>> meanAllWeighted (matrix @Double (2,2) [[1,2],[3,4]]) (matrix @Double (2,2) [[1,2],[3,4]])
--- (3.0,1.400743288453e-312)
+-- 2.8181818181818183
 meanAllWeighted
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
   -> Array a
   -- ^ 'Array' of weights
-  -> (Double, Double)
-  -- ^ Weighted mean (real and imaginary part)
+  -> Scalar a
+  -- ^ Weighted mean
 meanAllWeighted a b =
-  infoFromArray22 a b af_mean_all_weighted
+  toAFResult @a (infoFromArray22 a b af_mean_all_weighted)
 
 -- | Calculates variance of all elements in an 'Array'
 --
--- >>> varAll (vector @Double 10 (repeat 10)) False
--- (0.0,1.4013073623e-312)
+-- >>> varAll (vector @Double 10 (repeat 10)) Population
+-- 0.0
 varAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> Bool
-  -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Variance (real and imaginary part)
+  -> VarianceType
+  -- ^ 'Population' variance (÷N) or 'Sample' variance (÷N-1)
+  -> Scalar a
+  -- ^ Variance of all elements
 varAll a (fromIntegral . fromEnum -> b) =
-  infoFromArray2 a $ \x y z ->
-    af_var_all x y z b
+  toAFResult @a (infoFromArray2 a $ \x y z ->
+    af_var_all x y z b)
 
 -- | Calculates weighted variance of all elements in an 'Array'
 --
 -- >>> varAllWeighted ( vector @Double 10 [1..] ) ( vector @Double 10 [1..] )
--- (6.0,2.1941097984e-314)
+-- 6.011479591836735
 varAllWeighted
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
   -> Array a
   -- ^ 'Array' of weights
-  -> (Double, Double)
-  -- ^ Variance weighted result, (real and imaginary part)
+  -> Scalar a
+  -- ^ Weighted variance of all elements
 varAllWeighted a b =
-  infoFromArray22 a b af_var_all_weighted
+  toAFResult @a (infoFromArray22 a b af_var_all_weighted)
 
 -- | Calculates standard deviation of all elements in an 'Array'
 --
 -- >>> stdevAll (vector @Double 10 (repeat 10))
--- (0.0,2.190573324e-314)
+-- 0.0
 stdevAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Standard deviation result, (real and imaginary part)
-stdevAll = (`infoFromArray2` af_stdev_all)
+  -> Scalar a
+  -- ^ Standard deviation of all elements
+stdevAll arr = toAFResult @a (arr `infoFromArray2` af_stdev_all)
 
 -- | Calculates median of all elements in an 'Array'
 --
 -- >>> medianAll (vector @Double 10 (repeat 10))
--- (10.0,2.1961564713e-314)
+-- 10.0
 medianAll
-  :: (AFType a, Fractional a)
+  :: forall a . AFResult a
   => Array a
   -- ^ Input 'Array'
-  -> (Double, Double)
-  -- ^ Median result, real and imaginary part
-medianAll = (`infoFromArray2` af_median_all)
+  -> Scalar a
+  -- ^ Median of all elements
+medianAll arr = toAFResult @a (arr `infoFromArray2` af_median_all)
 
 -- | This algorithm returns Pearson product-moment correlation coefficient.
 -- <https://en.wikipedia.org/wiki/Pearson_correlation_coefficient>
 --
 -- >>> corrCoef ( vector @Int 10 [1..] ) ( vector @Int 10 [10,9..] )
--- (-1.0,2.1904819737e-314)
+-- -1.0
 corrCoef
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ First input 'Array'
   -> Array a
   -- ^ Second input 'Array'
-  -> (Double, Double)
-  -- ^ Correlation coefficient result, real and imaginary part
+  -> Scalar a
+  -- ^ Correlation coefficient
 corrCoef a b =
-  infoFromArray22 a b af_corrcoef
+  toAFResult @a (infoFromArray22 a b af_corrcoef)
 
 -- | This function returns the top k values along a given dimension of the input array.
 --
@@ -303,8 +312,58 @@ topk
   -- ^ The number of elements to be retrieved along the dim dimension
   -> TopK
   -- ^  If descending, the highest values are returned. Otherwise, the lowest values are returned
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ Returns The values of the top k elements along the dim dimension
   -- along with the indices of the top k elements along the dim dimension
 topk a (fromIntegral -> x) (fromTopK -> f)
   = a `op2p` (\b c d -> af_topk b c d x 0 f)
+
+-- | Simultaneously compute the mean and variance of an 'Array' along a dimension.
+--
+-- More efficient than calling 'mean' and 'var' separately.
+--
+-- >>> let (m, v) = meanVar (vector @Double 4 [1,2,3,4]) VariancePopulation 0
+-- >>> m
+-- ArrayFire Array
+-- [1 1 1 1]
+--    2.5000
+-- >>> v
+-- ArrayFire Array
+-- [1 1 1 1]
+--    1.2500
+meanVar
+  :: AFType a
+  => Array a
+  -- ^ Input 'Array'
+  -> VarBias
+  -- ^ Variance bias correction: 'VariancePopulation' (÷N) or 'VarianceSample' (÷N-1)
+  -> Int
+  -- ^ Dimension along which to compute
+  -> (Array a, Array a)
+  -- ^ (mean, variance)
+meanVar arr bias (fromIntegral -> dim) =
+  arr `op2p` (\pMean pVar aPtr ->
+    af_meanvar pMean pVar aPtr nullPtr (fromVarBias bias) dim)
+
+-- | Simultaneously compute the weighted mean and variance of an 'Array' along a dimension.
+--
+-- >>> let (m, v) = meanVarWeighted (vector @Double 4 [1,2,3,4]) (vector @Double 4 [1,1,1,1]) VariancePopulation 0
+-- >>> m
+-- ArrayFire Array
+-- [1 1 1 1]
+--    2.5000
+meanVarWeighted
+  :: AFType a
+  => Array a
+  -- ^ Input 'Array'
+  -> Array a
+  -- ^ Weights 'Array'
+  -> VarBias
+  -- ^ Variance bias correction
+  -> Int
+  -- ^ Dimension along which to compute
+  -> (Array a, Array a)
+  -- ^ (mean, variance)
+meanVarWeighted arr weights bias (fromIntegral -> dim) =
+  op2p2 arr weights $ \pMean pVar aPtr wPtr ->
+    af_meanvar pMean pVar aPtr wPtr (fromVarBias bias) dim

@@ -4,37 +4,37 @@ module ArrayFire.ArraySpec where
 
 import Control.Exception
 import Data.Complex
+import qualified Data.Vector.Storable as V
 import Data.Word
 import Foreign.C.Types
 import GHC.Int
 import Test.Hspec
+import Test.Hspec.QuickCheck (prop)
+import Test.QuickCheck       ((==>))
 
-import ArrayFire
+import ArrayFire hiding (not)
 
 spec :: Spec
 spec =
   describe "Array tests" $ do
-    it "Should perform Array tests" $ do
-      (1 + 1) `shouldBe` 2
-    it "Should fail to create 0 dimension arrays" $ do
-      let arr = mkArray @Int [0,0,0,0] [1..]
-      evaluate arr `shouldThrow` anyException
-    it "Should fail to create 0 length arrays" $ do
-      let arr = mkArray @Int [0,0,0,1] []
-      evaluate arr `shouldThrow` anyException
-    it "Should fail to create 0 length arrays w/ 0 dimensions" $ do
-      let arr = mkArray @Int [0,0,0,0] []
-      evaluate arr `shouldThrow` anyException
+    it "Should add two scalar arrays" $ do
+      (scalar @Int 1 + scalar @Int 1) `shouldBe` scalar @Int 2
+    it "Should create a 0 dimension array" $ do
+      getElements (mkArray @Int [3,0,1,1] []) `shouldBe` 0
+    it "Should create a 0 length array" $ do
+      getElements (mkArray @Int [0,0,0,1] []) `shouldBe` 0
+    it "Should create a 0 length array w/ 0 dimensions" $ do
+      getElements (mkArray @Int [0,0,0,0] []) `shouldBe` 0
     it "Should create a column vector" $ do
       let arr = mkArray @Int [9,1,1,1] (repeat 9)
       isColumn arr `shouldBe` True
     it "Should create a row vector" $ do
       let arr = mkArray @Int [1,9,1,1] (repeat 9)
       isRow arr `shouldBe` True
-    it "Should create a vector" $ do
+    it "Should recognize a column array as a vector" $ do
       let arr = mkArray @Int [9,1,1,1] (repeat 9)
       isVector arr `shouldBe` True
-    it "Should create a vector" $ do
+    it "Should recognize a row array as a vector" $ do
       let arr = mkArray @Int [1,9,1,1] (repeat 9)
       isVector arr `shouldBe` True
     it "Should copy an array" $ do
@@ -47,10 +47,10 @@ spec =
     it "Should return the number of elements" $ do
       let arr = mkArray @Int [9,9,1,1] [1..]
       getElements arr `shouldBe` 81
---    it "Should give an empty array" $ do
---      let arr = mkArray @Int [-1,1,1,1] []
---      getElements arr `shouldBe` 0
---      isEmpty arr `shouldBe` True
+    it "Should give an empty array" $ do
+      let arr = mkArray @Int [0,1,1,1] []
+      getElements arr `shouldBe` 0
+      isEmpty arr `shouldBe` True
     it "Should create a scalar array" $ do
       let arr = mkArray @Int [1] [1]
       isScalar arr `shouldBe` True
@@ -154,3 +154,85 @@ spec =
 
       let arr = mkArray @Word [10] [1..10]
       toList arr `shouldBe` [1..10]
+
+    -- Regression: toVector previously allocated len*size bytes instead of size,
+    -- causing quadratic memory use. These round-trips verify correct element count
+    -- and values at sizes where the bug was most wasteful.
+    describe "toVector round-trip" $ do
+      it "preserves all elements for a 1000-element Double array" $ do
+        let xs  = [1..1000] :: [Double]
+            arr = mkArray @Double [1000] xs
+        V.toList (toVector arr) `shouldBe` xs
+      it "preserves all elements for a 500-element Int array" $ do
+        let xs  = [1..500] :: [Int]
+            arr = mkArray @Int [500] xs
+        V.toList (toVector arr) `shouldBe` xs
+      it "length of toVector matches getElements" $ do
+        let arr = mkArray @Double [7, 13] (repeat 0)
+        V.length (toVector arr) `shouldBe` getElements arr
+
+    describe "fromVector" $ do
+      it "round-trips a Double vector" $ do
+        let xs  = V.fromList [1..10 :: Double]
+            arr = fromVector @Double [10] xs
+        toVector arr `shouldBe` xs
+      it "round-trips an Int vector" $ do
+        let xs  = V.fromList [1..100 :: Int]
+            arr = fromVector @Int [100] xs
+        toVector arr `shouldBe` xs
+      it "round-trips a Complex Double vector" $ do
+        let xs  = V.fromList [1 :+ 2, 3 :+ 4 :: Complex Double]
+            arr = fromVector @(Complex Double) [2] xs
+        toVector arr `shouldBe` xs
+      it "produces the same result as mkArray" $ do
+        let xs  = [1..25 :: Double]
+            arr1 = mkArray @Double [5,5] xs
+            arr2 = fromVector @Double [5,5] (V.fromList xs)
+        arr2 `shouldBe` arr1
+      it "throws on dimension mismatch" $ do
+        let xs = V.fromList [1,2,3 :: Double]
+        evaluate (fromVector @Double [4] xs) `shouldThrow` anyException
+      -- Round-trip is data-preserving (no arithmetic), so equality is exact.
+      -- This also guards the toVector allocation fix against host over-reads.
+      prop "toVector . fromVector == id (Double)" $ \(xs :: [Double]) ->
+        not (null xs) ==>
+          let v = V.fromList xs
+          in V.toList (toVector (fromVector @Double [length xs] v)) == xs
+      prop "toVector . fromVector == id (Int)" $ \(xs :: [Int]) ->
+        not (null xs) ==>
+          let v = V.fromList xs
+          in V.toList (toVector (fromVector @Int [length xs] v)) == xs
+
+    describe "cube" $ do
+      it "creates a 2x2x2 cube with correct dims" $ do
+        let c = cube @Double (2,2,2)
+                  [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+        getDims c `shouldBe` (2,2,2,1)
+      it "creates a 2x2x2 cube with correct element count" $ do
+        let c = cube @Double (2,2,2)
+                  [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+        getElements c `shouldBe` 8
+      it "all-constant cube equals constant array" $ do
+        let c = cube @Double (2,2,2)
+                  [ [[3,3],[3,3]], [[3,3],[3,3]] ]
+        c `shouldBe` mkArray @Double [2,2,2] (replicate 8 3)
+
+    describe "tensor" $ do
+      it "creates a 2x2x2x2 tensor with correct dims" $ do
+        let t = tensor @Double (2,2,2,2)
+                  [ [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  , [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  ]
+        getDims t `shouldBe` (2,2,2,2)
+      it "creates a 2x2x2x2 tensor with correct element count" $ do
+        let t = tensor @Double (2,2,2,2)
+                  [ [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  , [ [[1,2],[3,4]], [[5,6],[7,8]] ]
+                  ]
+        getElements t `shouldBe` 16
+      it "all-constant tensor equals constant array" $ do
+        let t = tensor @Double (2,2,2,2)
+                  [ [ [[5,5],[5,5]], [[5,5],[5,5]] ]
+                  , [ [[5,5],[5,5]], [[5,5],[5,5]] ]
+                  ]
+        t `shouldBe` mkArray @Double [2,2,2,2] (replicate 16 5)

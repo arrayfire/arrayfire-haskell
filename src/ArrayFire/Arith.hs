@@ -5,7 +5,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Arith
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -28,7 +28,7 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFrac)
+import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFloat)
 
 import Data.Coerce
 import Data.Proxy
@@ -512,7 +512,7 @@ not
   -- ^ Input 'Array'
   -> Array CBool
   -- ^ Result of 'not' on an 'Array'
-not = flip op1d af_not
+not = flip op1 af_not
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
 --
@@ -526,10 +526,10 @@ bitAnd
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
+  -> Array a
   -- ^ Result of bitwise and
 bitAnd x y =
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 1
 
 -- | Bitwise and the values in one 'Array' against another 'Array'
@@ -546,10 +546,10 @@ bitAndBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
+  -> Array a
   -- ^ Result of bitwise and
 bitAndBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitand arr arr1 arr2 batch
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
@@ -564,10 +564,10 @@ bitOr
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
-  -- ^ Result of bit or
+  -> Array a
+  -- ^ Result of bitwise or
 bitOr x y = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 1
 
 -- | Bitwise or the values in one 'Array' against another 'Array'
@@ -584,10 +584,10 @@ bitOrBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
-  -- ^ Result of bit or
+  -> Array a
+  -- ^ Result of bitwise or
 bitOrBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitor arr arr1 arr2 batch
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
@@ -602,10 +602,10 @@ bitXor
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
-  -- ^ Result of bit xor
+  -> Array a
+  -- ^ Result of bitwise xor
 bitXor x y = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 1
 
 -- | Bitwise xor the values in one 'Array' against another 'Array'
@@ -622,10 +622,10 @@ bitXorBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
-  -- ^ Result of bit xor
+  -> Array a
+  -- ^ Result of bitwise xor
 bitXorBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitxor arr arr1 arr2 batch
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
@@ -640,10 +640,10 @@ bitShiftL
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
+  -> Array a
   -- ^ Result of bit shift left
 bitShiftL x y =
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 1
 
 -- | Left bit shift the values in one 'Array' against another 'Array'
@@ -660,10 +660,10 @@ bitShiftLBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
+  -> Array a
   -- ^ Result of bit shift left
 bitShiftLBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftl arr arr1 arr2 batch
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
@@ -678,10 +678,10 @@ bitShiftR
   -- ^ First input
   -> Array a
   -- ^ Second input
-  -> Array CBool
+  -> Array a
   -- ^ Result of bit shift right
 bitShiftR x y =
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 1
 
 -- | Right bit shift the values in one 'Array' against another 'Array'
@@ -698,10 +698,10 @@ bitShiftRBatched
   -- ^ Second input
   -> Bool
   -- ^ Use batch
-  -> Array CBool
-  -- ^ Result of bit shift left
+  -> Array a
+  -- ^ Result of bit shift right
 bitShiftRBatched x y (fromIntegral . fromEnum -> batch) = do
-  x `op2bool` y $ \arr arr1 arr2 ->
+  x `op2` y $ \arr arr1 arr2 ->
     af_bitshiftr arr arr1 arr2 batch
 
 -- | Cast one 'Array' into another
@@ -717,7 +717,7 @@ cast
   -> Array b
     -- ^ Result of cast
 cast afArr =
-  coerce $ afArr `op1` (\x y -> af_cast x y dtyp)
+  coerce $ afArr `op1` (\x y -> ArrayFire.Internal.Arith.af_cast x y dtyp)
     where
       dtyp = afType (Proxy @b)
 
@@ -1299,7 +1299,8 @@ atan2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_atan2 arr arr1 arr2 batch
 
--- | Take the cplx2 of all values in an 'Array'
+-- | Construct a complex 'Array' from two real 'Array's, taking the first as the
+-- real part and the second as the imaginary part.
 --
 -- >>> A.cplx2 (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..])
 -- ArrayFire Array
@@ -1315,18 +1316,19 @@ atan2Batched x y (fromIntegral . fromEnum -> batch) = do
 --          (9.0000,9.0000)
 --          (10.0000,10.0000)
 cplx2
-  :: AFType a
+  :: (RealFloat a, AFType a, AFType (Complex a))
   => Array a
-  -- ^ First input
+  -- ^ First input (real part)
   -> Array a
-  -- ^ Second input
-  -> Array a
-  -- ^ Result of cplx2
+  -- ^ Second input (imaginary part)
+  -> Array (Complex a)
+  -- ^ Complex result with the inputs as real and imaginary parts
 cplx2 x y =
   x `op2` y $ \arr arr1 arr2 ->
     af_cplx2 arr arr1 arr2 1
 
--- | Take the cplx2Batched of all values in an 'Array'
+-- | Construct a complex 'Array' from two real 'Array's (real and imaginary
+-- parts), with explicit control over batched broadcasting of the inputs.
 --
 -- >>> A.cplx2Batched (A.vector @Int 10 [1..]) (A.vector @Int 10 [1..]) True
 -- ArrayFire Array
@@ -1342,15 +1344,15 @@ cplx2 x y =
 --          (9.0000,9.0000)
 --          (10.0000,10.0000)
 cplx2Batched
-  :: AFType a
+  :: (RealFloat a, AFType a, AFType (Complex a))
   => Array a
-  -- ^ First input
+  -- ^ First input (real part)
   -> Array a
-  -- ^ Second input
+  -- ^ Second input (imaginary part)
   -> Bool
-  -- ^ Use batch
-  -> Array a
-  -- ^ Result of cplx2
+  -- ^ Whether to enable batched broadcasting of the inputs
+  -> Array (Complex a)
+  -- ^ Complex result with the inputs as real and imaginary parts
 cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_cplx2 arr arr1 arr2 batch
@@ -1371,11 +1373,11 @@ cplx2Batched x y (fromIntegral . fromEnum -> batch) = do
 --          (9.0000,0.0000)
 --          (10.0000,0.0000)
 cplx
-  :: AFType a
+  :: (RealFloat a, AFType a, AFType (Complex a))
   => Array a
   -- ^ Input array
-  -> Array a
-  -- ^ Result of calling 'atan'
+  -> Array (Complex a)
+  -- ^ Complex array with input as real part and zero imaginary part
 cplx = flip op1 af_cplx
 
 -- | Execute real
@@ -1385,12 +1387,12 @@ cplx = flip op1 af_cplx
 -- [1 1 1 1]
 --    10.0000
 real
-  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
-  => Array (Complex b)
+  :: (RealFloat a, AFType a, AFType (Complex a))
+  => Array (Complex a)
   -- ^ Input array
   -> Array a
-  -- ^ Result of calling 'real'
-real = flip op1d af_real
+  -- ^ Real part of each element
+real = flip op1 af_real
 
 -- | Execute imag
 --
@@ -1399,12 +1401,12 @@ real = flip op1d af_real
 -- [1 1 1 1]
 --    11.0000
 imag
-  :: (AFType a, AFType (Complex b), RealFrac a, RealFrac b)
-  => Array (Complex b)
+  :: (RealFloat a, AFType a, AFType (Complex a))
+  => Array (Complex a)
   -- ^ Input array
   -> Array a
-  -- ^ Result of calling 'imag'
-imag = flip op1d af_imag
+  -- ^ Imaginary part of each element
+imag = flip op1 af_imag
 
 -- | Execute conjg
 --
@@ -1567,32 +1569,24 @@ atanh
   -- ^ Result of calling 'tanh'
 atanh = flip op1 af_atanh
 
--- | Execute root
+-- | Execute root: compute the nth root of each element.
+-- @root base n@ computes @base^(1\/n)@.
 --
--- >>> A.root (A.vector @Double 10 [1..]) (A.vector @Double 10 [1..])
+-- >>> A.root (A.scalar @Double 1 8) (A.scalar @Double 1 3)
 -- ArrayFire Array
--- [10 1 1 1]
---     1.0000
---     1.4142
---     1.4422
---     1.4142
---     1.3797
---     1.3480
---     1.3205
---     1.2968
---     1.2765
---     1.2589
+-- [1 1 1 1]
+--     2.0000
 root
   :: AFType a
   => Array a
-  -- ^ First input
+  -- ^ The input data (base)
   -> Array a
-  -- ^ Second input
+  -- ^ The root degree (n)
   -> Array a
-  -- ^ Result of root
+  -- ^ Result: base^(1\/n)
 root x y =
   x `op2` y $ \arr arr1 arr2 ->
-    af_root arr arr1 arr2 1
+    af_root arr arr2 arr1 1
 
 -- | Execute rootBatched
 --
@@ -1619,9 +1613,9 @@ rootBatched
   -- ^ Use batch
   -> Array a
   -- ^ Result of root
-rootBatched x y (fromIntegral . fromEnum -> batch) = do
+rootBatched x y (fromIntegral . fromEnum -> batch) =
   x `op2` y $ \arr arr1 arr2 ->
-    af_root arr arr1 arr2 batch
+    af_root arr arr2 arr1 batch
 
 -- | Execute pow
 --
@@ -1911,19 +1905,19 @@ log2 = flip op1 af_log2
 
 -- | Execute sqrt
 --
--- >>> A.sqrt (A.vector @Int 10 [1..])
+-- >>> A.sqrt (A.vector @Int 10 [ x * x | x <- [ 1 .. 10 ]])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
---     1.4142
---     1.7321
 --     2.0000
---     2.2361
---     2.4495
---     2.6458
---     2.8284
 --     3.0000
---     3.1623
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 sqrt
   :: AFType a
   => Array a
@@ -1934,19 +1928,19 @@ sqrt = flip op1 af_sqrt
 
 -- | Execute cbrt
 --
--- >>> A.cbrt (A.vector @Int 10 [1..])
+-- >>> A.cbrt (A.vector @Int 10 [ x * x * x | x <- [ 1 .. 10 ]])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
---     1.2599
---     1.4422
---     1.5874
---     1.7100
---     1.8171
---     1.9129
 --     2.0000
---     2.0801
---     2.1544
+--     3.0000
+--     4.0000
+--     5.0000
+--     6.0000
+--     7.0000
+--     8.0000
+--     9.0000
+--    10.0000
 cbrt
   :: AFType a
   => Array a
@@ -2043,7 +2037,7 @@ isZero
   :: AFType a
   => Array a
   -- ^ Input array
-  -> Array a
+  -> Array CBool
   -- ^ Result of calling 'isZero'
 isZero = (`op1` af_iszero)
 
@@ -2066,7 +2060,7 @@ isInf
   :: (Real a, AFType a)
   => Array a
   -- ^ Input array
-  -> Array a
+  -> Array CBool
   -- ^ will contain 1's where input is Inf or -Inf, and 0 otherwise.
 isInf = (`op1` af_isinf)
 
@@ -2086,9 +2080,9 @@ isInf = (`op1` af_isinf)
 --          1
 --          1
 isNaN
-  :: forall a. (AFType a, Real a)
+  :: (AFType a, Real a)
   => Array a
   -- ^ Input array
-  -> Array a
+  -> Array CBool
   -- ^ Will contain 1's where input is NaN, and 0 otherwise.
 isNaN = (`op1` af_isnan)

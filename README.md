@@ -55,25 +55,25 @@ cd arrayfire-haskell
 To build and run all tests in response to file changes
 
 ```bash
-nix-shell --run test-runner
+nix develop --command cabal test
 ```
 
 To perform interactive development w/ `ghcid`
 
 ```bash
-nix-shell --run ghcid
+nix develop --command cabal repl
 ```
 
 To interactively evaluate code in the `repl`
 
 ```bash
-nix-shell --run repl
+nix develop --command cabal repl
 ```
 
 To produce the haddocks and open them in a browser
 
 ```bash
-nix-shell --run docs
+nix develop --command cabal haddock
 ```
 
 
@@ -86,9 +86,12 @@ import qualified ArrayFire as A
 import           Control.Exception (catch)
 
 main :: IO ()
-main = print newArray `catch` (\(e :: A.AFException) -> print e)
-  where
-    newArray = A.matrix @Double (2,2) [ [1..], [1..] ] * A.matrix @Double (2,2) [ [2..], [2..] ]
+main = withArrayFire $ do
+  print newArray `catch` (\(e :: A.AFException) -> print e)
+    where
+      newArray =
+        A.matrix @Double (2,2) [ [1..], [1..] ] *
+          A.matrix @Double (2,2) [ [2..], [2..] ]
 
 {-|
 

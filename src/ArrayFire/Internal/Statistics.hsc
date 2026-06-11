@@ -36,3 +36,5 @@ foreign import ccall unsafe "af_corrcoef"
     af_corrcoef :: Ptr Double -> Ptr Double -> AFArray -> AFArray -> IO AFErr
 foreign import ccall unsafe "af_topk"
     af_topk :: Ptr AFArray -> Ptr AFArray -> AFArray -> CInt -> CInt -> AFTopkFunction -> IO AFErr
+foreign import ccall unsafe "af_meanvar"
+    af_meanvar :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> AFVarBias -> DimT -> IO AFErr

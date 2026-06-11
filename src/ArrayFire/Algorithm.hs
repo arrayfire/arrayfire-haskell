@@ -4,7 +4,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Algorithm
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -25,6 +25,9 @@
 -- @
 --------------------------------------------------------------------------------
 module ArrayFire.Algorithm where
+
+import Data.Word (Word32)
+import Foreign.C.Types (CBool)
 
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
@@ -63,7 +66,7 @@ sum x (fromIntegral -> n) = (x `op1` (\p a -> af_sum p a n))
 
 -- | Sum all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
--- >>> A.sumNaN (A.vector @Double 10 [1..]) 0 0.0
+-- >>> let nan = 0/0 in A.sumNaN (A.vector @Double 10 (nan : [1..])) 0 10.0
 -- ArrayFire Array
 -- [1 1 1 1]
 --   55.0000
@@ -97,7 +100,7 @@ product x (fromIntegral -> n) = (x `op1` (\p a -> af_product p a n))
 
 -- | Product all of the elements in 'Array' along the specified dimension, using a default value for NaN
 --
--- >>> A.productNaN (A.vector @Double 10 [1..]) 0 0.0
+-- >>> let nan = 0/0 in A.productNaN (A.vector @Double 10 (nan : [1..])) 0 2.0
 -- ArrayFire Array
 -- [1 1 1 1]
 -- 3628800.0000
@@ -147,18 +150,18 @@ max x (fromIntegral -> n) = x `op1` (\p a -> af_max p a n)
 
 -- | Find if all elements in an 'Array' are 'True' along a dimension
 --
--- >>> A.allTrue (A.vector @CBool 10 (repeat 0)) 0
+-- >>> A.allTrue (A.vector @CBool 10 (repeat 1)) 0
 -- ArrayFire Array
 -- [1 1 1 1]
---         0
+--         1
 allTrue
-  :: forall a. AFType a
+  :: AFType a
   => Array a
   -- ^ Array input
   -> Int
   -- ^ Dimension along which to see if all elements are True
-  -> Array a
-  -- ^ Will contain the maximum of all values in the input array along dim
+  -> Array CBool
+  -- ^ Will contain 1 where all elements along dim are true, 0 otherwise
 allTrue x (fromIntegral -> n) =
   x `op1` (\p a -> af_all_true p a n)
 
@@ -169,13 +172,13 @@ allTrue x (fromIntegral -> n) =
 -- [1 1 1 1]
 --         0
 anyTrue
-  :: forall a . AFType a
+  :: AFType a
   => Array a
   -- ^ Array input
   -> Int
-  -- ^ Dimension along which to see if all elements are True
-  -> Array a
-  -- ^ Returns if all elements are true
+  -- ^ Dimension along which to see if any elements are True
+  -> Array CBool
+  -- ^ Will contain 1 where any element along dim is true, 0 otherwise
 anyTrue x (fromIntegral -> n) =
   (x `op1` (\p a -> af_any_true p a n))
 
@@ -193,119 +196,119 @@ count
   -- ^ Dimension along which to count
   -> Array Int
   -- ^ Count of all elements along dimension
-count x (fromIntegral -> n) = x `op1d` (\p a -> af_count p a n)
+count x (fromIntegral -> n) = x `op1` (\p a -> af_count p a n)
 
 -- | Sum all elements in an 'Array' along all dimensions
 --
 -- >>> A.sumAll (A.vector @Double 10 [1..])
 -- (55.0,0.0)
 sumAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-sumAll = (`infoFromArray2` af_sum_all)
+sumAll = toAFResult @a . (`infoFromArray2` af_sum_all)
 
 -- | Sum all elements in an 'Array' along all dimensions, using a default value for NaN
 --
--- >>> A.sumNaNAll (A.vector @Double 10 [1..]) 0.0
+-- >>> let nan = 0/0 in A.sumNaNAll (A.vector @Double 10 (nan : [1..])) 0.0
 -- (55.0,0.0)
 sumNaNAll
-  :: (AFType a, Fractional a)
+  :: forall a . (AFResult a, Fractional a)
   => Array a
   -- ^ Input array
   -> Double
   -- ^ NaN substitute
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-sumNaNAll a d = infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
+sumNaNAll a d = toAFResult @a $ infoFromArray2 a (\p g x -> af_sum_nan_all p g x d)
 
 -- | Product all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- >>> A.productAll (A.vector @Double 10 [1..])
 -- (3628800.0,0.0)
 productAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-productAll = (`infoFromArray2` af_product_all)
+productAll = toAFResult @a . (`infoFromArray2` af_product_all)
 
 -- | Product all elements in an 'Array' along all dimensions, using a default value for NaN
 --
 -- >>> A.productNaNAll (A.vector @Double 10 [1..]) 1.0
 -- (3628800.0,0.0)
 productNaNAll
-  :: (AFType a, Fractional a)
+  :: forall a . (AFResult a, Fractional a)
   => Array a
   -- ^ Input array
   -> Double
   -- ^ NaN substitute
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-productNaNAll a d = infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
+productNaNAll a d = toAFResult @a $ infoFromArray2 a (\p x y -> af_product_nan_all p x y d)
 
 -- | Take the minimum across all elements along all dimensions in 'Array'
 --
 -- >>> A.minAll (A.vector @Double 10 [1..])
 -- (1.0,0.0)
 minAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-minAll = (`infoFromArray2` af_min_all)
+minAll = toAFResult @a . (`infoFromArray2` af_min_all)
 
 -- | Take the maximum across all elements along all dimensions in 'Array'
 --
 -- >>> A.maxAll (A.vector @Double 10 [1..])
 -- (10.0,0.0)
 maxAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-maxAll = (`infoFromArray2` af_max_all)
+maxAll = toAFResult @a . (`infoFromArray2` af_max_all)
 
 -- | Decide if all elements along all dimensions in 'Array' are True
 --
 -- >>> A.allTrueAll (A.vector @CBool 10 (repeat 1))
 -- (1.0, 0.0)
 allTrueAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-allTrueAll = (`infoFromArray2` af_all_true_all)
+allTrueAll = toAFResult @a . (`infoFromArray2` af_all_true_all)
 
 -- | Decide if any elements along all dimensions in 'Array' are True
 --
 -- >>> A.anyTrueAll $ A.vector @CBool 10 (repeat 0)
 -- (0.0,0.0)
 anyTrueAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-anyTrueAll = (`infoFromArray2` af_any_true_all)
+anyTrueAll = toAFResult @a . (`infoFromArray2` af_any_true_all)
 
 -- | Count all elements along all dimensions in 'Array'
 --
 -- >>> A.countAll (A.matrix @Double (100,100) (replicate 100 [1..]))
 -- (10000.0,0.0)
 countAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double)
+  -> Scalar a
   -- ^ imaginary and real part
-countAll = (`infoFromArray2` af_count_all)
+countAll = toAFResult @a . (`infoFromArray2` af_count_all)
 
 -- | Find the minimum element along a specified dimension in 'Array'
 --
@@ -323,7 +326,7 @@ imin
   -- ^ Input array
   -> Int
   -- ^ The dimension along which the minimum value is extracted
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ will contain the minimum of all values along dim, will also contain the location of minimum of all values in in along dim
 imin a (fromIntegral -> n) = op2p a (\x y z -> af_imin x y z n)
 
@@ -343,7 +346,7 @@ imax
   -- ^ Input array
   -> Int
   -- ^ The dimension along which the minimum value is extracted
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ will contain the maximum of all values in in along dim, will also contain the location of maximum of all values in in along dim
 imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 
@@ -352,28 +355,28 @@ imax a (fromIntegral -> n) = op2p a (\x y z -> af_imax x y z n)
 -- >>> A.iminAll (A.vector @Double 10 [1..])
 -- (1.0,0.0,0)
 iminAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double, Int)
+  -> (Scalar a, Int)
   -- ^ will contain the real part of minimum value of all elements in input in, also will contain the imaginary part of minimum value of all elements in input in, will contain the location of minimum of all values in
 iminAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imin_all
-  (x,y,z)
+  (toAFResult @a (x,y), z)
 
 -- | Find the maximum element along all dimensions in 'Array'
 --
 -- >>> A.imaxAll (A.vector @Double 10 [1..])
 -- (10.0,0.0,9)
 imaxAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Input array
-  -> (Double, Double, Int)
+  -> (Scalar a, Int)
   -- ^ will contain the real part of maximum value of all elements in input in, also will contain the imaginary part of maximum value of all elements in input in, will contain the location of maximum of all values in
 imaxAll a = do
   let (x,y,fromIntegral -> z) = a `infoFromArray3` af_imax_all
-  (x,y,z)
+  (toAFResult @a (x,y), z)
 
 -- | Calculate sum of 'Array' across specified dimension
 --
@@ -471,8 +474,8 @@ where'
   :: AFType a
   => Array a
   -- ^ Is the input array.
-  -> Array a
-  -- ^ will contain indices where input array is non-zero
+  -> Array Word32
+  -- ^ Indices where input array is non-zero
 where' = (`op1` af_where)
 
 -- | First order numerical difference along specified dimension.
@@ -513,7 +516,7 @@ diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 
 -- | Sort an Array along a specified dimension, specifying ordering of results (ascending / descending)
 --
--- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 True
+-- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 Asc
 -- ArrayFire Array
 -- [4 1 1 1]
 --     1.0000
@@ -521,7 +524,7 @@ diff2 a (fromIntegral -> n) = a `op1` (\p x -> af_diff2 p x n)
 --     3.0000
 --     4.0000
 --
--- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 False
+-- >>> A.sort (A.vector @Double 4 [ 2,4,3,1 ]) 0 Desc
 -- ArrayFire Array
 -- [4 1 1 1]
 --     4.0000
@@ -534,7 +537,7 @@ sort
   -- ^ Input array
   -> Int
   -- ^ Dimension along `sort` is performed
-  -> Bool
+  -> Order
   -- ^ Return results in ascending order
   -> Array a
   -- ^ Will contain sorted input
@@ -543,7 +546,7 @@ sort a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
 
 -- | Sort an 'Array' along a specified dimension, specifying ordering of results (ascending / descending), returns indices of sorted results
 --
--- >>> A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 True
+-- >>> A.sortIndex (A.vector @Double 4 [3,2,1,4]) 0 Asc
 -- (ArrayFire Array
 -- [4 1 1 1]
 --     1.0000
@@ -563,12 +566,17 @@ sortIndex
   -- ^ Input array
   -> Int
   -- ^ Dimension along `sortIndex` is performed
-  -> Bool
+  -> Order
   -- ^ Return results in ascending order
-  -> (Array a, Array a)
+  -> (Array a, Array Word32)
   -- ^ Contains the sorted, contains indices for original input
 sortIndex a (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
   a `op2p` (\p1 p2 p3 -> af_sort_index p1 p2 p3 n b)
+
+
+-- | Data type for expressing sort order
+data Order = Desc | Asc
+  deriving (Enum, Show, Eq)
 
 -- | Sort an 'Array' along a specified dimension by keys, specifying ordering of results (ascending / descending)
 --
@@ -594,7 +602,7 @@ sortByKey
   -- ^ Values input array
   -> Int
   -- ^ Dimension along which to perform the operation
-  -> Bool
+  -> Order
   -- ^ Return results in ascending order
   -> (Array a, Array a)
 sortByKey a1 a2 (fromIntegral -> n) (fromIntegral . fromEnum -> b) =
@@ -657,3 +665,143 @@ setIntersect
   -- ^ Intersection of first and second array
 setIntersect a1 a2 (fromIntegral . fromEnum -> b) =
   op2 a1 a2 (\x y z -> af_set_intersect x y z b)
+
+-- | Sum values in 'Array' grouped by keys along a dimension.
+--
+-- Each contiguous run of equal keys in @keys@ produces one output element.
+-- Returns @(keys_out, vals_out)@.
+--
+-- >>> sumByKey (vector @Int 5 [1,1,2,2,2]) (vector @Double 5 [10,20,1,2,3]) 0
+-- (ArrayFire Array
+-- [2 1 1 1]
+--    1   2,
+-- ArrayFire Array
+-- [2 1 1 1]
+--    30.0000   6.0000)
+sumByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array (contiguous equal keys form a group)
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension along which to reduce
+  -> (Array Int, Array a)
+  -- ^ (reduced keys, reduced values)
+sumByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_sum_by_key ko vo k v dim)
+
+-- | 'sumByKey' replacing NaN values with a substitute before summing.
+sumByKeyNaN
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> Double
+  -- ^ Substitute for NaN values
+  -> (Array Int, Array a)
+  -- ^ (reduced keys, reduced values)
+sumByKeyNaN keys vals (fromIntegral -> dim) nanval =
+  op2p2kv keys vals (\ko vo k v -> af_sum_by_key_nan ko vo k v dim nanval)
+
+-- | Product of values in 'Array' grouped by keys along a dimension.
+productByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+productByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_product_by_key ko vo k v dim)
+
+-- | 'productByKey' replacing NaN values with a substitute before multiplying.
+productByKeyNaN
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> Double
+  -- ^ Substitute for NaN values
+  -> (Array Int, Array a)
+productByKeyNaN keys vals (fromIntegral -> dim) nanval =
+  op2p2kv keys vals (\ko vo k v -> af_product_by_key_nan ko vo k v dim nanval)
+
+-- | Minimum of values in 'Array' grouped by keys along a dimension.
+minByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+minByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_min_by_key ko vo k v dim)
+
+-- | Maximum of values in 'Array' grouped by keys along a dimension.
+maxByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array a)
+maxByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_max_by_key ko vo k v dim)
+
+-- | True if all values are true within each key group.
+--
+-- The value output is always boolean (@b8@) regardless of the input value type.
+allTrueByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array (treated as boolean)
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array CBool)
+allTrueByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_all_true_by_key ko vo k v dim)
+
+-- | True if any value is true within each key group.
+--
+-- The value output is always boolean (@b8@) regardless of the input value type.
+anyTrueByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array (treated as boolean)
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array CBool)
+anyTrueByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_any_true_by_key ko vo k v dim)
+
+-- | Count non-zero values within each key group.
+--
+-- The value output is always @u32@ regardless of the input value type.
+countByKey
+  :: AFType a
+  => Array Int
+  -- ^ Keys array
+  -> Array a
+  -- ^ Values array
+  -> Int
+  -- ^ Dimension
+  -> (Array Int, Array Word32)
+countByKey keys vals (fromIntegral -> dim) =
+  op2p2kv keys vals (\ko vo k v -> af_count_by_key ko vo k v dim)

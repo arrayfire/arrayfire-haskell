@@ -11,7 +11,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Random
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -178,10 +178,14 @@ getDefaultRandomEngine =
       alloca $ \ptrInput -> do
         throwAFError =<< af_get_default_random_engine ptrInput
         peek ptrInput
-    fptr <- newForeignPtr af_release_random_engine_finalizer ptr
+    retained <-
+      alloca $ \ptrRetained -> do
+        throwAFError =<< af_retain_random_engine ptrRetained ptr
+        peek ptrRetained
+    fptr <- newForeignPtr af_release_random_engine_finalizer retained
     pure (RandomEngine fptr)
 
--- | Set defualt 'RandomEngine' type
+-- | Set default 'RandomEngine' type
 --
 -- @
 -- >>> setDefaultRandomEngineType Philox
@@ -222,11 +226,17 @@ setSeed = afCall . af_set_seed . fromIntegral
 getSeed :: IO Int
 getSeed = fromIntegral <$> afCall1 af_get_seed
 
+-- | Internal helper that runs a random-generation FFI call which draws from a
+-- given 'RandomEngine'. Builds an 'Array' of the requested dimensions, passing
+-- the dimensions, element type and engine through to the supplied C function.
 randEng
   :: forall a . AFType a
   => [Int]
+  -- ^ Dimensions of the 'Array' to generate
   -> (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> AFRandomEngine -> IO AFErr)
+  -- ^ Underlying ArrayFire random function to invoke
   -> RandomEngine
+  -- ^ Engine to draw random numbers from
   -> IO (Array a)
 randEng dims f (RandomEngine fptr) = mask_ $
   withForeignPtr fptr $ \rptr -> do
@@ -242,15 +252,18 @@ randEng dims f (RandomEngine fptr) = mask_ $
     n = fromIntegral (length dims)
     typ = afType (Proxy @a)
 
+-- | Internal helper that runs a random-generation FFI call using the default
+-- random engine. Builds an 'Array' of the requested dimensions, passing the
+-- dimensions and element type through to the supplied C function.
 rand
   :: forall a . AFType a
   => [Int]
   -- ^ Dimensions
   -> (Ptr AFArray -> CUInt -> Ptr DimT -> AFDtype -> IO AFErr)
+  -- ^ Underlying ArrayFire random function to invoke
   -> IO (Array a)
 rand dims f = mask_ $ do
-  ptr <- alloca $ \ptrPtr -> do
-    zeroOutArray ptrPtr
+  ptr <- calloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< f ptrPtr n dimArray typ
       peek ptrPtr

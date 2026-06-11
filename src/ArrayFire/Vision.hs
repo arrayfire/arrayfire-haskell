@@ -4,7 +4,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Vision
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -50,6 +50,7 @@ fast
   -- ^ Is the length of the edges in the image to be discarded by FAST (minimum is 3, as the radius of the circle)
   -> Features
   -- ^ Struct containing arrays for x and y coordinates and score, while array orientation is set to 0 as FAST does not compute orientation, and size is set to 1 as FAST does not compute multiple scales
+{-# NOINLINE fast #-}
 fast (Array fptr) thr (fromIntegral -> arc) (fromIntegral . fromEnum -> non) ratio (fromIntegral -> edge)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
       do feat <- alloca $ \ptr -> do
@@ -78,6 +79,7 @@ harris
   -> Float
   -- ^ struct containing arrays for x and y coordinates and score (Harris response), while arrays orientation and size are set to 0 and 1, respectively, because Harris does not compute that information
   -> Features
+{-# NOINLINE harris #-}
 harris (Array fptr) (fromIntegral -> maxc) minresp sigma (fromIntegral -> bs) thr
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
       do feat <- alloca $ \ptr -> do
@@ -107,6 +109,7 @@ orb
   -- ^ blur image with a Gaussian filter with sigma=2 before computing descriptors to increase robustness against noise if true
   -> (Features, Array a)
   -- ^ 'Features' struct composed of arrays for x and y coordinates, score, orientation and size of selected features
+{-# NOINLINE orb #-}
 orb (Array fptr) thr (fromIntegral -> feat) scl (fromIntegral -> levels) (fromIntegral . fromEnum -> blur)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do (feature, arr) <-
@@ -144,6 +147,7 @@ sift
   -> (Features, Array a)
   -- ^ Features object composed of arrays for x and y coordinates, score, orientation and size of selected features
   -- Nx128 array containing extracted descriptors, where N is the number of features found by SIFT
+{-# NOINLINE sift #-}
 sift (Array fptr) (fromIntegral -> a) b c d (fromIntegral . fromEnum -> e) f g
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do (feat, arr) <-
@@ -181,6 +185,7 @@ gloh
   -> (Features, Array a)
   -- ^ 'Features' object composed of arrays for x and y coordinates, score, orientation and size of selected features
   -- ^ Nx272 array containing extracted GLOH descriptors, where N is the number of features found by SIFT
+{-# NOINLINE gloh #-}
 gloh (Array fptr) (fromIntegral -> a) b c d (fromIntegral . fromEnum -> e) f g
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do (feat, arr) <-
@@ -274,6 +279,7 @@ susan
   -> Int
   -- ^ indicates how many pixels width area should be skipped for corner detection
   -> Features
+{-# NOINLINE susan #-}
 susan (Array fptr) (fromIntegral -> a) b c d (fromIntegral -> e)
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \inptr ->
       do feat <-
@@ -329,6 +335,7 @@ homography
  -> (Int, Array a)
  -- ^ is a 3x3 array containing the estimated homography.
  -- is the number of inliers that the homography was estimated to comprise, in the case that htype is AF_HOMOGRAPHY_RANSAC, a higher inlier_thr value will increase the estimated inliers. Note that if the number of inliers is too low, it is likely that a bad homography will be returned.
+{-# NOINLINE homography #-}
 homography
   (Array a)
   (Array b)

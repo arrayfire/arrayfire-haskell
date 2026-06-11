@@ -1,7 +1,9 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ViewPatterns      #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE CPP               #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE ViewPatterns        #-}
+{-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE CPP                 #-}
 module ArrayFire.Internal.Types where
 
 #include "af/seq.h"
@@ -17,6 +19,7 @@ import Data.Word
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.ForeignPtr
+import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
 import Foreign.Storable
 import GHC.Int
 
@@ -55,8 +58,8 @@ instance Storable AFIndex where
     afIsBatch <- #{peek af_index_t, isBatch} ptr
     afIdx <-
       if afIsSeq
-        then Left <$> #{peek af_index_t, idx.arr} ptr
-        else Right <$> #{peek af_index_t, idx.seq} ptr
+        then Right <$> #{peek af_index_t, idx.seq} ptr
+        else Left <$> #{peek af_index_t, idx.arr} ptr
     pure AFIndex{..}
   poke ptr AFIndex{..} = do
     case afIdx of
@@ -163,12 +166,81 @@ instance AFType Word64 where
 instance AFType Word where
   afType Proxy = u64
 
+-- | Maps an ArrayFire element type to the scalar type returned by whole-array
+-- reductions (e.g. 'meanAll', 'det').  Real and integral element types yield
+-- 'Double'; complex element types yield 'Complex Double'.
+class AFType a => AFResult a where
+  type Scalar a
+  -- | Convert the raw @(real, imag)@ pair returned by the C API to the
+  -- appropriate Haskell scalar.
+  toAFResult :: (Double, Double) -> Scalar a
+
+instance AFResult Double where
+  type Scalar Double = Double
+  toAFResult (r, _) = r
+
+instance AFResult Float where
+  type Scalar Float = Double
+  toAFResult (r, _) = r
+
+instance AFResult (Complex Double) where
+  type Scalar (Complex Double) = Complex Double
+  toAFResult (r, i) = r :+ i
+
+instance AFResult (Complex Float) where
+  type Scalar (Complex Float) = Complex Double
+  toAFResult (r, i) = r :+ i
+
+instance AFResult CBool where
+  type Scalar CBool = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int32 where
+  type Scalar Int32 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word32 where
+  type Scalar Word32 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word8 where
+  type Scalar Word8 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int64 where
+  type Scalar Int64 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int where
+  type Scalar Int = Double
+  toAFResult (r, _) = r
+
+instance AFResult Int16 where
+  type Scalar Int16 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word16 where
+  type Scalar Word16 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word64 where
+  type Scalar Word64 = Double
+  toAFResult (r, _) = r
+
+instance AFResult Word where
+  type Scalar Word = Double
+  toAFResult (r, _) = r
+
 -- | ArrayFire backends
 data Backend
   = Default
+  -- ^ Use the default backend (determined by ArrayFire)
   | CPU
+  -- ^ CPU backend (always available)
   | CUDA
+  -- ^ NVIDIA CUDA GPU backend
   | OpenCL
+  -- ^ OpenCL backend (AMD, Intel, NVIDIA)
   deriving (Show, Eq, Ord)
 
 -- | Low-level to high-level Backend conversion
@@ -200,17 +272,29 @@ toBackends _ = []
 -- | Matrix properties
 data MatProp
   = None
+  -- ^ No property
   | Trans
+  -- ^ Data needs to be transposed
   | CTrans
+  -- ^ Data needs to be conjugate transposed
   | Conj
+  -- ^ Data needs to be conjugated
   | Upper
+  -- ^ Matrix is upper triangular
   | Lower
+  -- ^ Matrix is lower triangular
   | DiagUnit
+  -- ^ Diagonal contains units; used with triangular solvers
   | Sym
+  -- ^ Matrix is symmetric
   | PosDef
+  -- ^ Matrix is positive definite
   | Orthog
+  -- ^ Matrix is orthogonal
   | TriDiag
+  -- ^ Matrix is tri-diagonal
   | BlockDiag
+  -- ^ Matrix is block diagonal
   deriving (Show, Eq, Ord)
 
 -- | Low-level to High-level 'MatProp' conversion
@@ -248,12 +332,16 @@ toMatProp Orthog = (AFMatProp 2048)
 toMatProp TriDiag = (AFMatProp 4096)
 toMatProp BlockDiag = (AFMatProp 8192)
 
--- | Binary operation support
+-- | Binary operation support (used with scan-by-key and similar operations)
 data BinaryOp
   = Add
+  -- ^ Addition
   | Mul
+  -- ^ Multiplication
   | Min
+  -- ^ Minimum
   | Max
+  -- ^ Maximum
   deriving (Show, Eq, Ord)
 
 -- | High-level to low-level 'MatProp' conversion
@@ -274,9 +362,13 @@ fromBinaryOp x = error ("Invalid Binary Op: " <> show x)
 -- | Storage type used for Sparse arrays
 data Storage
   = Dense
+  -- ^ Dense storage (not sparse)
   | CSR
+  -- ^ Compressed Sparse Row format
   | CSC
+  -- ^ Compressed Sparse Column format
   | COO
+  -- ^ Coordinate list (COO) format
   deriving (Show, Eq, Ord, Enum)
 
 toStorage :: Storage -> AFStorage
@@ -309,15 +401,25 @@ fromRandomEngine Mersenne = (AFRandomEngineType 300)
 -- | Interpolation type
 data InterpType
   = Nearest
+  -- ^ Nearest-neighbor interpolation
   | Linear
+  -- ^ Linear interpolation
   | Bilinear
+  -- ^ Bilinear interpolation
   | Cubic
+  -- ^ Cubic interpolation
   | LowerInterp
+  -- ^ Floor interpolation (rounds down to nearest integer)
   | LinearCosine
+  -- ^ Cosine-windowed linear interpolation
   | BilinearCosine
+  -- ^ Cosine-windowed bilinear interpolation
   | Bicubic
+  -- ^ Bicubic interpolation
   | CubicSpline
+  -- ^ Cubic spline interpolation
   | BicubicSpline
+  -- ^ Bicubic spline interpolation
   deriving (Show, Eq, Ord, Enum)
 
 toInterpType :: AFInterpType -> InterpType
@@ -346,7 +448,7 @@ data Connectivity
 
 toConnectivity :: AFConnectivity -> Connectivity
 toConnectivity (AFConnectivity 4) = Conn4
-toConnectivity (AFConnectivity 8) = Conn4
+toConnectivity (AFConnectivity 8) = Conn8
 toConnectivity (AFConnectivity x) = error ("Unknown connectivity option: " <> show x)
 
 fromConnectivity :: Connectivity -> AFConnectivity
@@ -356,9 +458,13 @@ fromConnectivity Conn8 = AFConnectivity 8
 -- | Color Space type
 data CSpace
   = Gray
+  -- ^ Grayscale
   | RGB
+  -- ^ Red-Green-Blue
   | HSV
+  -- ^ Hue-Saturation-Value
   | YCBCR
+  -- ^ Luminance + chroma (blue-difference, red-difference)
   deriving (Show, Eq, Ord, Enum)
 
 toCSpace :: AFCSpace -> CSpace
@@ -367,11 +473,14 @@ toCSpace (AFCSpace (fromIntegral -> x)) = toEnum x
 fromCSpace :: CSpace -> AFCSpace
 fromCSpace = AFCSpace . fromIntegral . fromEnum
 
--- | YccStd type
+-- | YCbCr standard
 data YccStd
   = Ycc601
+  -- ^ ITU-R BT.601 (standard definition)
   | Ycc709
+  -- ^ ITU-R BT.709 (high definition)
   | Ycc2020
+  -- ^ ITU-R BT.2020 (ultra high definition)
   deriving (Show, Eq, Ord)
 
 toAFYccStd :: AFYccStd -> YccStd
@@ -385,13 +494,18 @@ fromAFYccStd Ycc601 = afYcc601
 fromAFYccStd Ycc709 = afYcc709
 fromAFYccStd Ycc2020 = afYcc2020
 
--- | Moment types
+-- | Image moment types
 data MomentType
   = M00
+  -- ^ Zeroth-order moment (image area / mass)
   | M01
+  -- ^ First-order moment about x-axis
   | M10
+  -- ^ First-order moment about y-axis
   | M11
+  -- ^ Mixed first-order moment
   | FirstOrder
+  -- ^ All first-order moments (M00, M01, M10, M11)
   deriving (Show, Eq, Ord)
 
 toMomentType :: AFMomentType -> MomentType
@@ -410,10 +524,12 @@ fromMomentType M10 = afMomentM10
 fromMomentType M11 = afMomentM11
 fromMomentType FirstOrder = afMomentFirstOrder
 
--- | Canny Theshold type
+-- | Threshold mode for Canny edge detection
 data CannyThreshold
   = Manual
+  -- ^ User-supplied low and high threshold values
   | AutoOtsu
+  -- ^ Thresholds computed automatically via Otsu's method
   deriving (Show, Eq, Ord, Enum)
 
 toCannyThreshold :: AFCannyThreshold -> CannyThreshold
@@ -422,11 +538,14 @@ toCannyThreshold (AFCannyThreshold (fromIntegral -> x)) = toEnum x
 fromCannyThreshold :: CannyThreshold -> AFCannyThreshold
 fromCannyThreshold = AFCannyThreshold . fromIntegral . fromEnum
 
--- | Flux function type
+-- | Flux function for anisotropic diffusion
 data FluxFunction
   = FluxDefault
+  -- ^ Default flux function (same as 'FluxQuadratic')
   | FluxQuadratic
+  -- ^ Quadratic flux function (Perona-Malik)
   | FluxExponential
+  -- ^ Exponential flux function (Perona-Malik)
   deriving (Show, Eq, Ord, Enum)
 
 toFluxFunction :: AFFluxFunction -> FluxFunction
@@ -435,11 +554,14 @@ toFluxFunction (AFFluxFunction (fromIntegral -> x)) = toEnum x
 fromFluxFunction :: FluxFunction -> AFFluxFunction
 fromFluxFunction = AFFluxFunction . fromIntegral . fromEnum
 
--- | Diffusion type
+-- | Diffusion equation type for anisotropic smoothing
 data DiffusionEq
   = DiffusionDefault
+  -- ^ Default (same as 'DiffusionGrad')
   | DiffusionGrad
+  -- ^ Gradient-based diffusion (Perona-Malik)
   | DiffusionMCDE
+  -- ^ Mean curvature diffusion equation
   deriving (Show, Eq, Ord, Enum)
 
 toDiffusionEq :: AFDiffusionEq -> DiffusionEq
@@ -448,11 +570,14 @@ toDiffusionEq (AFDiffusionEq (fromIntegral -> x)) = toEnum x
 fromDiffusionEq :: DiffusionEq -> AFDiffusionEq
 fromDiffusionEq = AFDiffusionEq . fromIntegral . fromEnum
 
--- | Iterative deconvolution algo type
+-- | Iterative deconvolution algorithm
 data IterativeDeconvAlgo
   = DeconvDefault
+  -- ^ Default algorithm (same as 'DeconvLandweber')
   | DeconvLandweber
+  -- ^ Landweber iteration (gradient descent on least squares)
   | DeconvRichardsonLucy
+  -- ^ Richardson-Lucy algorithm (maximum likelihood for Poisson noise)
   deriving (Show, Eq, Ord, Enum)
 
 toIterativeDeconvAlgo :: AFIterativeDeconvAlgo -> IterativeDeconvAlgo
@@ -461,10 +586,12 @@ toIterativeDeconvAlgo (AFIterativeDeconvAlgo (fromIntegral -> x)) = toEnum x
 fromIterativeDeconvAlgo :: IterativeDeconvAlgo -> AFIterativeDeconvAlgo
 fromIterativeDeconvAlgo = AFIterativeDeconvAlgo . fromIntegral . fromEnum
 
--- | Inverse deconvolution algo type
+-- | Inverse (non-iterative) deconvolution algorithm
 data InverseDeconvAlgo
   = InverseDeconvDefault
+  -- ^ Default algorithm (same as 'InverseDeconvTikhonov')
   | InverseDeconvTikhonov
+  -- ^ Tikhonov regularized Wiener filter
   deriving (Show, Eq, Ord, Enum)
 
 toInverseDeconvAlgo :: AFInverseDeconvAlgo -> InverseDeconvAlgo
@@ -473,13 +600,17 @@ toInverseDeconvAlgo (AFInverseDeconvAlgo (fromIntegral -> x)) = toEnum x
 fromInverseDeconvAlgo :: InverseDeconvAlgo -> AFInverseDeconvAlgo
 fromInverseDeconvAlgo = AFInverseDeconvAlgo . fromIntegral . fromEnum
 
--- | Cell type, used in Graphics module
+-- | Cell type, used in Graphics module to describe a subplot position
 data Cell
   = Cell
   { cellRow :: Int
+  -- ^ Row index of the subplot (0-based)
   , cellCol :: Int
+  -- ^ Column index of the subplot (0-based)
   , cellTitle :: String
+  -- ^ Title string displayed above the plot
   , cellColorMap :: ColorMap
+  -- ^ Color map used for rendering
   } deriving (Show, Eq)
 
 cellToAFCell :: Cell -> IO AFCell
@@ -491,19 +622,30 @@ cellToAFCell Cell {..} =
                 , afCellColorMap = fromColorMap cellColorMap
                 }
 
--- | ColorMap type
+-- | Color map for rendering
 data ColorMap
   = ColorMapDefault
+  -- ^ Default grayscale color map
   | ColorMapSpectrum
+  -- ^ Rainbow spectrum (violet to red)
   | ColorMapColors
+  -- ^ Distinct colors
   | ColorMapRed
+  -- ^ Red gradient
   | ColorMapMood
+  -- ^ Mood color map (cool tones)
   | ColorMapHeat
+  -- ^ Heat map (black to red to yellow to white)
   | ColorMapBlue
+  -- ^ Blue gradient
   | ColorMapInferno
+  -- ^ Perceptually uniform: black-purple-orange-yellow
   | ColorMapMagma
+  -- ^ Perceptually uniform: black-purple-pink-white
   | ColorMapPlasma
+  -- ^ Perceptually uniform: blue-purple-yellow
   | ColorMapViridis
+  -- ^ Perceptually uniform: purple-teal-yellow
   deriving (Show, Eq, Ord, Enum)
 
 fromColorMap :: ColorMap -> AFColorMap
@@ -512,16 +654,24 @@ fromColorMap = AFColorMap . fromIntegral . fromEnum
 toColorMap :: AFColorMap -> ColorMap
 toColorMap (AFColorMap (fromIntegral -> x)) = toEnum x
 
--- | Marker type
+-- | Marker shape for scatter plots
 data MarkerType
   = MarkerTypeNone
+  -- ^ No marker
   | MarkerTypePoint
+  -- ^ Single pixel point
   | MarkerTypeCircle
+  -- ^ Circle
   | MarkerTypeSquare
+  -- ^ Square
   | MarkerTypeTriangle
+  -- ^ Triangle
   | MarkerTypeCross
+  -- ^ X cross
   | MarkerTypePlus
+  -- ^ Plus sign
   | MarkerTypeStar
+  -- ^ Star
   deriving (Show, Eq, Ord, Enum)
 
 fromMarkerType :: MarkerType -> AFMarkerType
@@ -530,17 +680,26 @@ fromMarkerType = AFMarkerType . fromIntegral . fromEnum
 toMarkerType :: AFMarkerType -> MarkerType
 toMarkerType (AFMarkerType (fromIntegral -> x)) = toEnum x
 
--- | Match type
+-- | Template matching metric type
 data MatchType
   = MatchTypeSAD
+  -- ^ Sum of Absolute Differences
   | MatchTypeZSAD
+  -- ^ Zero-mean Sum of Absolute Differences
   | MatchTypeLSAD
+  -- ^ Locally scaled Sum of Absolute Differences
   | MatchTypeSSD
+  -- ^ Sum of Squared Differences
   | MatchTypeZSSD
+  -- ^ Zero-mean Sum of Squared Differences
   | MatchTypeLSSD
+  -- ^ Locally scaled Sum of Squared Differences
   | MatchTypeNCC
+  -- ^ Normalized Cross Correlation
   | MatchTypeZNCC
+  -- ^ Zero-mean Normalized Cross Correlation
   | MatchTypeSHD
+  -- ^ Sum of Hamming Distances
   deriving (Show, Eq, Ord, Enum)
 
 fromMatchType :: MatchType -> AFMatchType
@@ -549,11 +708,14 @@ fromMatchType = AFMatchType . fromIntegral . fromEnum
 toMatchType :: AFMatchType -> MatchType
 toMatchType (AFMatchType (fromIntegral -> x)) = toEnum x
 
--- | TopK type
+-- | Order for @topk@ results
 data TopK
   = TopKDefault
+  -- ^ Default order (same as 'TopKMax')
   | TopKMin
+  -- ^ Return the k smallest values
   | TopKMax
+  -- ^ Return the k largest values
   deriving (Show, Eq, Ord, Enum)
 
 fromTopK :: TopK -> AFTopkFunction
@@ -562,10 +724,25 @@ fromTopK = AFTopkFunction . fromIntegral . fromEnum
 toTopK :: AFTopkFunction -> TopK
 toTopK (AFTopkFunction (fromIntegral -> x)) = toEnum x
 
--- | Homography Type
+-- | Variance bias correction method
+data VarBias
+  = VarianceDefault
+  -- ^ Default (same as 'VariancePopulation')
+  | VarianceSample
+  -- ^ Sample variance (divides by N-1; Bessel's correction)
+  | VariancePopulation
+  -- ^ Population variance (divides by N)
+  deriving (Show, Eq, Ord, Enum)
+
+fromVarBias :: VarBias -> AFVarBias
+fromVarBias = AFVarBias . fromIntegral . fromEnum
+
+-- | Homography estimation method
 data HomographyType
   = RANSAC
+  -- ^ Random Sample Consensus — robust to outliers
   | LMEDS
+  -- ^ Least Median of Squares — robust to up to 50% outliers
   deriving (Show, Eq, Ord, Enum)
 
 fromHomographyType :: HomographyType -> AFHomographyType
@@ -586,26 +763,33 @@ toAFSeq :: Seq -> AFSeq
 toAFSeq (Seq x y z) = (AFSeq x y z)
 
 -- | Index Type
-data Index a
-  = Index
-  { idx :: Either (Array a) Seq
-  , isSeq :: !Bool
-  , isBatch :: !Bool
-  }
+data Index
+  = SeqIndex Bool Seq
+  | ArrIndex Bool (Array Int)
 
-seqIdx :: Seq -> Bool -> Index a
-seqIdx s = Index (Right s) True
+seqIdx :: Seq -> Bool -> Index
+seqIdx s batch = SeqIndex batch s
 
-arrIdx :: Array a -> Bool -> Index a
-arrIdx a = Index (Left a) False
+arrIdx :: Array Int -> Bool -> Index
+arrIdx a batch = ArrIndex batch a
 
-toAFIndex :: Index a -> IO AFIndex
-toAFIndex (Index a b c) = do
-  case a of
-    Right s -> pure $ AFIndex (Right (toAFSeq s)) b c
-    Left (Array fptr) -> do
-      withForeignPtr fptr $ \ptr ->
-        pure $ AFIndex (Left ptr) b c
+-- | Index a contiguous range [begin..end] with step 1.
+range :: Int -> Int -> Index
+range b e = SeqIndex False (Seq (fromIntegral b) (fromIntegral e) 1)
+
+-- | Index a range [begin..end] with an explicit step.
+rangeStep :: Int -> Int -> Int -> Index
+rangeStep b e s = SeqIndex False (Seq (fromIntegral b) (fromIntegral e) (fromIntegral s))
+
+-- | Index a single element.
+at :: Int -> Index
+at n = let d = fromIntegral n in SeqIndex False (Seq d d 1)
+
+toAFIndex :: Index -> IO AFIndex
+toAFIndex (SeqIndex batch s) =
+  pure $ AFIndex (Right (toAFSeq s)) True batch
+toAFIndex (ArrIndex batch (Array fptr)) =
+  pure $ AFIndex (Left (unsafeForeignPtrToPtr fptr)) False batch
 
 
 -- | Type alias for ArrayFire API version
@@ -669,20 +853,32 @@ fromConvMode (AFConvMode (fromIntegral -> x)) = toEnum x
 toConvMode :: ConvMode -> AFConvMode
 toConvMode = AFConvMode . fromIntegral . fromEnum
 
--- | Array Fire types
+-- | ArrayFire element types (mirrors @af_dtype@)
 data AFDType
   = F32
+  -- ^ 32-bit IEEE 754 float
   | C32
+  -- ^ Complex number of two 32-bit floats
   | F64
+  -- ^ 64-bit IEEE 754 double
   | C64
+  -- ^ Complex number of two 64-bit doubles
   | B8
+  -- ^ 8-bit boolean
   | S32
+  -- ^ 32-bit signed integer
   | U32
+  -- ^ 32-bit unsigned integer
   | U8
+  -- ^ 8-bit unsigned integer
   | S64
+  -- ^ 64-bit signed integer
   | U64
+  -- ^ 64-bit unsigned integer
   | S16
+  -- ^ 16-bit signed integer
   | U16
+  -- ^ 16-bit unsigned integer
   deriving (Show, Eq, Enum)
 
 fromAFType :: AFDtype -> AFDType

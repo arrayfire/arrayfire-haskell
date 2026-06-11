@@ -75,3 +75,21 @@ foreign import ccall unsafe "af_set_union"
     af_set_union :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_set_intersect"
     af_set_intersect :: Ptr AFArray -> AFArray -> AFArray -> CBool -> IO AFErr
+foreign import ccall unsafe "af_sum_by_key"
+    af_sum_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr
+foreign import ccall unsafe "af_sum_by_key_nan"
+    af_sum_by_key_nan :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> Double -> IO AFErr
+foreign import ccall unsafe "af_product_by_key"
+    af_product_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr
+foreign import ccall unsafe "af_product_by_key_nan"
+    af_product_by_key_nan :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> Double -> IO AFErr
+foreign import ccall unsafe "af_min_by_key"
+    af_min_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr
+foreign import ccall unsafe "af_max_by_key"
+    af_max_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr
+foreign import ccall unsafe "af_all_true_by_key"
+    af_all_true_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr
+foreign import ccall unsafe "af_any_true_by_key"
+    af_any_true_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr
+foreign import ccall unsafe "af_count_by_key"
+    af_count_by_key :: Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> CInt -> IO AFErr

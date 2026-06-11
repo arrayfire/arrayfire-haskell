@@ -1,6 +1,6 @@
 cabal-version:       3.0
 name:                arrayfire
-version:             0.7.1.0
+version:             0.8.0.0
 synopsis:            Haskell bindings to the ArrayFire general-purpose GPU library
 homepage:            https://github.com/arrayfire/arrayfire-haskell
 license:             BSD-3-Clause
@@ -41,6 +41,8 @@ library
     ArrayFire.Backend
     ArrayFire.BLAS
     ArrayFire.Data
+    ArrayFire.Exception
+    ArrayFire.Internal.Defines
     ArrayFire.Device
     ArrayFire.Features
     ArrayFire.Graphics
@@ -56,7 +58,6 @@ library
     ArrayFire.Vision
   other-modules:
     ArrayFire.FFI
-    ArrayFire.Exception
     ArrayFire.Orphans
     ArrayFire.Internal.Algorithm
     ArrayFire.Internal.Arith
@@ -64,7 +65,6 @@ library
     ArrayFire.Internal.Backend
     ArrayFire.Internal.BLAS
     ArrayFire.Internal.Data
-    ArrayFire.Internal.Defines
     ArrayFire.Internal.Device
     ArrayFire.Internal.Exception
     ArrayFire.Internal.Features
@@ -87,6 +87,7 @@ library
     af
   c-sources:
     cbits/wrapper.c
+    cbits/eigsh.c
   build-depends:
     base < 5, deepseq, filepath, vector
   hs-source-dirs:
@@ -156,6 +157,7 @@ test-suite test
     HUnit,
     QuickCheck,
     quickcheck-classes,
+    semirings,
     vector,
     call-stack >=0.4 && <0.5
   if !flag(disable-build-tool-depends)
@@ -172,11 +174,13 @@ test-suite test
     ArrayFire.BackendSpec
     ArrayFire.DataSpec
     ArrayFire.DeviceSpec
+    ArrayFire.ExceptionSpec
     ArrayFire.FeaturesSpec
     ArrayFire.GraphicsSpec
     ArrayFire.ImageSpec
     ArrayFire.IndexSpec
     ArrayFire.LAPACKSpec
+    ArrayFire.NumericalSpec
     ArrayFire.RandomSpec
     ArrayFire.SignalSpec
     ArrayFire.SparseSpec

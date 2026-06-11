@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Sparse
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -149,6 +149,10 @@ createSparseArrayFromDense a s =
 --          1
 --          1
 --
+
+-- | Converts a sparse 'Array' from one storage format ('Storage') to another
+--
+-- [ArrayFire Docs](http://arrayfire.org/docs/group__sparse__func__convert__to.htm)
 sparseConvertTo
   :: (AFType a, Fractional a)
   => Array a

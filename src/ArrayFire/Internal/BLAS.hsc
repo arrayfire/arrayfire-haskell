@@ -17,3 +17,5 @@ foreign import ccall unsafe "af_transpose"
     af_transpose :: Ptr AFArray -> AFArray -> CBool -> IO AFErr
 foreign import ccall unsafe "af_transpose_inplace"
     af_transpose_inplace :: AFArray -> CBool -> IO AFErr
+foreign import ccall unsafe "af_gemm"
+    af_gemm :: Ptr AFArray -> AFMatProp -> AFMatProp -> Ptr () -> AFArray -> AFArray -> Ptr () -> IO AFErr

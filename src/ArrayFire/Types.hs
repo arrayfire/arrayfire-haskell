@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Types
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -31,7 +31,9 @@ module ArrayFire.Types
   , RandomEngine
   , Features
   , AFType              (..)
+  , AFResult            (..)
   , TopK                (..)
+  , VarBias             (..)
   , Backend             (..)
   , MatchType           (..)
   , BinaryOp            (..)
@@ -52,6 +54,11 @@ module ArrayFire.Types
   , InverseDeconvAlgo   (..)
   , Seq                 (..)
   , Index               (..)
+  , seqIdx
+  , arrIdx
+  , range
+  , rangeStep
+  , at
   , NormType            (..)
   , ConvMode            (..)
   , ConvDomain          (..)

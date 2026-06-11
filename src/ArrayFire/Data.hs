@@ -10,7 +10,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Data
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -30,6 +30,7 @@
 module ArrayFire.Data where
 
 import Control.Exception
+import Control.Monad (when)
 import Data.Complex
 import Data.Int
 import Data.Proxy
@@ -42,12 +43,36 @@ import Foreign.Storable
 import System.IO.Unsafe
 import Unsafe.Coerce
 
+import Data.Bits
+
 import ArrayFire.Exception
 import ArrayFire.FFI
+import ArrayFire.Internal.Array (af_get_dims)
 import ArrayFire.Internal.Data
 import ArrayFire.Internal.Defines
 import ArrayFire.Internal.Types
 import ArrayFire.Arith
+
+-- | Bitwise complement of every element in an 'Array'
+--
+-- >>> A.bitNot (A.scalar @Int32 0)
+-- ArrayFire Array
+-- [1 1 1 1]
+--        -1
+bitNot
+  :: (AFType a, Bits a)
+  => Array a
+  -> Array a
+bitNot arr = arr `bitXor` ones
+  where
+    (d0, d1, d2, d3) = arr `infoFromArray4` af_get_dims
+    ones = constant
+      [ fromIntegral d0
+      , fromIntegral d1
+      , fromIntegral d2
+      , fromIntegral d3
+      ]
+      (complement zeroBits)
 
 -- | Creates an 'Array' from a scalar value from given dimensions
 --
@@ -63,6 +88,7 @@ constant
   -> a
   -- ^ Scalar value
   -> Array a
+{-# NOINLINE constant #-}
 constant dims val =
   case dtyp of
     x | x == c64 ->
@@ -101,8 +127,7 @@ constant dims val =
       -> Array Double
     constant' dims' val' =
       unsafePerformIO . mask_ $ do
-        ptr <- alloca $ \ptrPtr -> do
-          zeroOutArray ptrPtr
+        ptr <- calloca $ \ptrPtr -> do
           withArray (fromIntegral <$> dims') $ \dimArray -> do
             throwAFError =<< af_constant ptrPtr val' n dimArray typ
             peek ptrPtr
@@ -128,8 +153,7 @@ constant dims val =
       -- ^ Scalar val'ue
       -> Array (Complex arr)
     constantComplex dims' ((realToFrac -> x) :+ (realToFrac -> y)) = unsafePerformIO . mask_ $ do
-      ptr <- alloca $ \ptrPtr -> do
-        zeroOutArray ptrPtr
+      ptr <- calloca $ \ptrPtr -> do
         withArray (fromIntegral <$> dims') $ \dimArray -> do
           throwAFError =<< af_constant_complex ptrPtr x y n dimArray typ
           peek ptrPtr
@@ -154,8 +178,7 @@ constant dims val =
       -- ^ Scalar val'ue
       -> Array Int
     constantLong dims' val' = unsafePerformIO . mask_ $ do
-      ptr <- alloca $ \ptrPtr -> do
-        zeroOutArray ptrPtr
+      ptr <- calloca $ \ptrPtr -> do
         withArray (fromIntegral <$> dims') $ \dimArray -> do
           throwAFError =<< af_constant_long ptrPtr (fromIntegral val') n dimArray
           peek ptrPtr
@@ -177,8 +200,7 @@ constant dims val =
       -> Word64
       -> Array Word64
     constantULong dims' val' = unsafePerformIO . mask_ $ do
-      ptr <- alloca $ \ptrPtr -> do
-        zeroOutArray ptrPtr
+      ptr <- calloca $ \ptrPtr -> do
         withArray (fromIntegral <$> dims') $ \dimArray -> do
           throwAFError =<< af_constant_ulong ptrPtr (fromIntegral val') n dimArray
           peek ptrPtr
@@ -191,7 +213,7 @@ constant dims val =
 
 -- | Creates a range of values in an Array
 --
--- >>> range @Double [10] (-1)
+-- >>> arange @Double [10] (-1)
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -204,14 +226,15 @@ constant dims val =
 --     7.0000
 --     8.0000
 --     9.0000
-range
+arange
   :: forall a
    . AFType a
   => [Int]
   -> Int
   -> Array a
-range dims (fromIntegral -> k) = unsafePerformIO $ do
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
+{-# NOINLINE arange #-}
+arange dims (fromIntegral -> k) = unsafePerformIO . mask_ $ do
+  ptr <- alloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims) $ \dimArray -> do
       throwAFError =<< af_range ptrPtr n dimArray k typ
       peek ptrPtr
@@ -252,11 +275,11 @@ iota
   -- ^ is array containing the number of repetitions of the unit dimensions
   -> Array a
   -- ^ is the generated array
-iota dims tdims = unsafePerformIO $ do
+{-# NOINLINE iota #-}
+iota dims tdims = unsafePerformIO . mask_ $ do
   let dims' = take 4 (dims ++ repeat 1)
       tdims' =  take 4 (tdims ++ repeat 1)
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
-    zeroOutArray ptrPtr
+  ptr <- calloca $ \ptrPtr -> do
     withArray (fromIntegral <$> dims') $ \dimArray ->
       withArray (fromIntegral <$> tdims') $ \tdimArray -> do
         throwAFError =<< af_iota ptrPtr 4 dimArray 4 tdimArray typ
@@ -280,10 +303,16 @@ identity
   => [Int]
   -- ^ Dimensions
   -> Array a
+{-# NOINLINE identity #-}
 identity dims = unsafePerformIO . mask_ $ do
+  when (length dims > 4) $
+    throwIO AFException
+      { afExceptionType = ArgError
+      , afExceptionCode = 202
+      , afExceptionMsg  = "identity: ndims must be <= 4"
+      }
   let dims' = take 4 (dims ++ repeat 1)
-  ptr <- alloca $ \ptrPtr -> mask_ $ do
-    zeroOutArray ptrPtr
+  ptr <- calloca $ \ptrPtr -> mask_ $ do
     withArray (fromIntegral <$> dims') $ \dimArray -> do
       throwAFError =<< af_identity ptrPtr n dimArray typ
       peek ptrPtr
@@ -303,7 +332,7 @@ identity dims = unsafePerformIO . mask_ $ do
 --    1.0000     0.0000
 --    0.0000     2.0000
 diagCreate
-  :: AFType (a :: *)
+  :: AFType a
   => Array a
   -- ^	is the input array which is the diagonal
   -> Int
@@ -320,7 +349,7 @@ diagCreate x (fromIntegral -> n) =
 --     1.0000
 --     4.0000
 diagExtract
-  :: AFType (a :: *)
+  :: AFType a
   => Array a
   -> Int
   -> Array a
@@ -339,27 +368,29 @@ diagExtract x (fromIntegral -> n) =
 --
 join
   :: Int
-  -> Array (a :: *)
+  -> Array a
   -> Array a
   -> Array a
 join (fromIntegral -> n) arr1 arr2 = op2 arr1 arr2 (\p a b -> af_join p n a b)
 
 -- | Join many Arrays together along a specified dimension
 --
--- *FIX ME*
---
--- >>> joinMany 0 [1,2,3]
+-- >>> joinMany 0 [vector @Int 3 [1..], vector @Int 3 [1..]]
 -- ArrayFire Array
--- [3 1 1 1]
---    1.0000     2.0000     3.0000
---
+-- [6 1 1 1]
+--          1
+--          2
+--          3
+--          1
+--          2
+--          3
 joinMany
   :: Int
   -> [Array a]
   -> Array a
+{-# NOINLINE joinMany #-}
 joinMany (fromIntegral -> n) (fmap (\(Array fp) -> fp) -> arrays) = unsafePerformIO . mask_ $ do
-  newPtr <- alloca $ \aPtr -> do
-    zeroOutArray aPtr
+  newPtr <- calloca $ \aPtr -> do
     (throwAFError =<<) $
       withManyForeignPtr arrays $ \(fromIntegral -> nArrays) fPtrsPtr ->
         af_join_many aPtr n nArrays fPtrsPtr
@@ -367,6 +398,10 @@ joinMany (fromIntegral -> n) (fmap (\(Array fp) -> fp) -> arrays) = unsafePerfor
   Array <$>
     newForeignPtr af_release_array_finalizer newPtr
 
+-- | Marshals a list of 'ForeignPtr' into a temporary, contiguous C array of
+-- raw pointers, keeping every 'ForeignPtr' alive for the duration of the
+-- action. The continuation receives the number of pointers and a pointer to
+-- the array.
 withManyForeignPtr :: [ForeignPtr a] -> (Int -> Ptr (Ptr a) -> IO b) -> IO b
 withManyForeignPtr fptrs action = go [] fptrs
   where
@@ -385,7 +420,7 @@ withManyForeignPtr fptrs action = go [] fptrs
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 --
 tile
-  :: Array (a :: *)
+  :: Array a
   -> [Int]
   -> Array a
 tile a (take 4 . (++repeat 1) -> [x,y,z,w]) =
@@ -406,12 +441,15 @@ tile _ _ = error "impossible"
 -- 22.0000    22.0000    22.0000    22.0000    22.0000
 --
 reorder
-  :: Array (a :: *)
+  :: Array a
   -> [Int]
   -> Array a
-reorder a (take 4 . (++ repeat 0) -> [x,y,z,w]) =
-  a `op1` (\p k -> af_reorder p k (fromIntegral x) (fromIntegral y) (fromIntegral z) (fromIntegral w))
-reorder _ _ = error "impossible"
+reorder a dims =
+  let base    = take 4 dims
+      padding = filter (`notElem` base) [0..3]
+  in case take 4 (base ++ padding) of
+    [x,y,z,w] -> a `op1` (\p k -> af_reorder p k (fromIntegral x) (fromIntegral y) (fromIntegral z) (fromIntegral w))
+    _          -> error "impossible"
 
 -- | Shift elements in an Array along a specified dimension (elements will wrap).
 --
@@ -424,7 +462,7 @@ reorder _ _ = error "impossible"
 --     2.0000
 --
 shift
-  :: Array (a :: *)
+  :: Array a
   -> Int
   -> Int
   -> Int
@@ -441,14 +479,13 @@ shift a (fromIntegral -> x) (fromIntegral -> y) (fromIntegral -> z) (fromIntegra
 --     1.0000     2.0000     3.0000
 --
 moddims
-  :: forall a
-   . Array (a :: *)
+  :: Array a
   -> [Int]
   -> Array a
+{-# NOINLINE moddims #-}
 moddims (Array fptr) dims =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \ptr -> do
-    newPtr <- alloca $ \aPtr -> do
-      zeroOutArray aPtr
+    newPtr <- calloca $ \aPtr -> do
       withArray (fromIntegral <$> dims) $ \dimsPtr -> do
         throwAFError =<< af_moddims aPtr ptr n dimsPtr
         peek aPtr

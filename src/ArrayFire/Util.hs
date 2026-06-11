@@ -4,7 +4,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Util
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -258,6 +258,7 @@ arrayToString
   -- ^ If 'True', performs takes the transpose before rendering to 'String'
   -> String
   -- ^ 'Array' rendered to 'String'
+{-# NOINLINE arrayToString #-}
 arrayToString expr (Array fptr) (fromIntegral -> prec) (fromIntegral . fromEnum -> trans) =
   unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
     withCString expr $ \expCstr ->
@@ -279,6 +280,7 @@ getSizeOf
   -- ^ Witness of Haskell type that mirrors ArrayFire type.
   -> Int
   -- ^ Size of ArrayFire type
+{-# NOINLINE getSizeOf #-}
 getSizeOf proxy =
   unsafePerformIO . mask_ . alloca $ \csize -> do
     throwAFError =<< af_get_size_of csize (afType proxy)

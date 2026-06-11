@@ -7,7 +7,7 @@ import           Test.Hspec
 
 spec :: Spec
 spec =
-  describe "Algorithm tests" $ do
+  describe "Device tests" $ do
     it "Should show device info" $ do
       A.info `shouldReturn` ()
     it "Should show device init" $ do
@@ -18,4 +18,6 @@ spec =
       A.getDevice >>= (`shouldSatisfy` (>= 0))
     it "Should get and set device" $ do
       (A.getDevice >>= A.setDevice) `shouldReturn` ()
+    it "Should get device count >= 1" $ do
+      A.getDeviceCount >>= (`shouldSatisfy` (>= 1))
 

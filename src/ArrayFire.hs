@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -298,9 +298,14 @@ import Data.Word
 --
 
 -- $conversion
--- Any 'Array' can be exported into Haskell using `toVector'. This will create a Storable vector suitable for use in other C programs.
+-- Any 'Array' can be exported into Haskell using 'toVector'. This will create a 'Storable' vector suitable for use in other C programs. 'fromVector' can be used
 --
 -- >>> vector :: Vector Double <- toVector <$> randu @Double [10,10]
+-- >>> let array :: Array Double = fromVector @Double [10,10] vector
+--
+-- >>> original <- randu @Double [10,10]
+-- >>> original == fromVector [10,10] (toVector og :: Vector Double)
+-- >>> True
 --
 
 -- $serialization
@@ -328,7 +333,7 @@ import Data.Word
 -- $device
 -- The ArrayFire API is able to see which devices are present, and will by default use the GPU if available.
 --
--- >>> afInfo
+-- >>> info
 -- ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)
 -- [0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB <-- brackets [] signify device being used.
 -- -1- APPLE: Intel(R) UHD Graphics 630, 1536 MB

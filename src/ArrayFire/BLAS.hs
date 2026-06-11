@@ -1,8 +1,10 @@
+--------------------------------------------------------------------------------
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.BLAS
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -31,8 +33,16 @@
 --------------------------------------------------------------------------------
 module ArrayFire.BLAS where
 
+import Control.Exception (mask_)
 import Data.Complex
+import Foreign.ForeignPtr (newForeignPtr, withForeignPtr)
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Marshal.Utils (fillBytes)
+import Foreign.Ptr (Ptr, castPtr)
+import Foreign.Storable (peek, poke, sizeOf)
+import System.IO.Unsafe (unsafePerformIO)
 
+import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Internal.BLAS
 import ArrayFire.Internal.Types
@@ -68,6 +78,16 @@ matmul
   -- ^ Output of 'matmul'
 matmul arr1 arr2 prop1 prop2 = do
   op2 arr1 arr2 (\p a b -> af_matmul p a b (toMatProp prop1) (toMatProp prop2))
+
+-- | Plain matrix multiplication — shorthand for @'matmul' a b 'None' 'None'@.
+--
+-- >>> mm (matrix @Double (2,2) [[1,0],[0,1]]) (matrix @Double (2,2) [[3,4],[5,6]])
+-- ArrayFire Array
+-- [2 2 1 1]
+--     3.0000     5.0000
+--     4.0000     6.0000
+mm :: AFType a => Array a -> Array a -> Array a
+mm a b = matmul a b None None
 
 -- | Scalar dot product between two vectors. Also referred to as the inner product.
 --
@@ -139,6 +159,16 @@ transpose
 transpose arr1 (fromIntegral . fromEnum -> b) =
   arr1 `op1` (\x y -> af_transpose x y b)
 
+-- | Real (non-conjugate) transpose — shorthand for @'transpose' a False@.
+--
+-- >>> tr (matrix @Double (2,3) [[1,2],[3,4],[5,6]])
+-- ArrayFire Array
+-- [3 2 1 1]
+--     1.0000     3.0000     5.0000
+--     2.0000     4.0000     6.0000
+tr :: AFType a => Array a -> Array a
+tr a = transpose a False
+
 -- | Transposes a matrix.
 --
 -- * Warning: This function mutates an array in-place, all subsequent references will be changed. Use carefully.
@@ -167,3 +197,40 @@ transposeInPlace
   -> IO ()
 transposeInPlace arr (fromIntegral . fromEnum -> b) =
   arr `inPlace` (`af_transpose_inplace` b)
+
+-- | General Matrix Multiply: C = alpha * op(A) * op(B)
+--
+-- More general than 'matmul': supports per-element scaling and optional
+-- transposition via 'MatProp'.
+--
+-- >>> gemm None None 1.0 (matrix @Double (2,2) [[1,0],[0,1]]) (matrix @Double (2,2) [[3,4],[5,6]])
+-- ArrayFire Array
+-- [2 2 1 1]
+--     3.0000     5.0000
+--     4.0000     6.0000
+gemm
+  :: forall a . AFType a
+  => MatProp
+  -- ^ Transformation applied to A ('None', 'Trans', or 'CTrans')
+  -> MatProp
+  -- ^ Transformation applied to B ('None', 'Trans', or 'CTrans')
+  -> a
+  -- ^ Scalar alpha
+  -> Array a
+  -- ^ Matrix A
+  -> Array a
+  -- ^ Matrix B
+  -> Array a
+  -- ^ Result C = alpha * op(A) * op(B)
+gemm opA opB alpha (Array fptrA) (Array fptrB) =
+  unsafePerformIO . mask_ $
+    withForeignPtr fptrA $ \ptrA ->
+    withForeignPtr fptrB $ \ptrB ->
+    calloca $ \pOut ->
+    alloca $ \pAlpha ->
+    alloca $ \(pBeta :: Ptr a) -> do
+      poke pAlpha alpha
+      fillBytes pBeta 0 (sizeOf alpha)
+      throwAFError =<< af_gemm pOut (toMatProp opA) (toMatProp opB) (castPtr pAlpha) ptrA ptrB (castPtr pBeta)
+      Array <$> (newForeignPtr af_release_array_finalizer =<< peek pOut)
+{-# NOINLINE gemm #-}

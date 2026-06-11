@@ -4,7 +4,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Image
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -25,7 +25,6 @@ import Data.Word
 import ArrayFire.Internal.Types
 import ArrayFire.Internal.Image
 import ArrayFire.FFI
-import ArrayFire.Arith
 
 -- | Calculates the gradient of an image
 --
@@ -260,7 +259,7 @@ histogram
   -> Array Word32
   -- ^ (type u32) is the histogram for input array in
 histogram a (fromIntegral -> b) c d =
-  cast (a `op1` (\ptr x -> af_histogram ptr x b c d))
+  a `op1` (\ptr x -> af_histogram ptr x b c d)
 
 -- | Dilation(morphological operator) for images.
 --
@@ -752,11 +751,12 @@ anisotropicDiffusion in' ts con (fromIntegral -> iter) (fromFluxFunction -> flux
 -- iterativeDeconv in1 in2 (fromIntegral -> i) f1 (fromIterativeDeconvAlgo -> algo) =
 --   op2 in1 in2 (\p a k -> af_iterative_deconv p a k i f1 algo)
 
--- inverseDeconv
---   :: Array a
---   -> Array a
---   -> Float
---   -> InverseDeconvAlgo
---   -> Array a
--- inverseDeconv in1 in2 f1 (fromInverseDeconvAlgo -> algo) =
---   op2 in1 in2 (\p a k -> af_inverse_deconv p a k f1 algo)
+-- | Applies inverse deconvolution to an image using a point spread function.
+inverseDeconv
+  :: Array a
+  -> Array a
+  -> Float
+  -> InverseDeconvAlgo
+  -> Array a
+inverseDeconv in1 in2 f1 (fromInverseDeconvAlgo -> algo) =
+  op2 in1 in2 (\p a k -> af_inverse_deconv p a k f1 algo)

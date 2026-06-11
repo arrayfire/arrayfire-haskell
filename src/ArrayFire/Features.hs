@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.Features
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -17,6 +17,7 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Features where
 
+import Control.Exception (mask_)
 import Foreign.Marshal
 import Foreign.Storable
 import Foreign.ForeignPtr
@@ -34,8 +35,9 @@ import ArrayFire.Exception
 createFeatures
   :: Int
   -> Features
+{-# NOINLINE createFeatures #-}
 createFeatures (fromIntegral -> n) =
-  unsafePerformIO $ do
+  unsafePerformIO . mask_ $ do
     ptr <-
       alloca $ \ptrInput -> do
         throwAFError =<< ptrInput `af_create_features` n

@@ -253,7 +253,7 @@ newtype AFBackend = AFBackend CInt
 
 #{enum AFBackend, AFBackend
  , afBackendDefault = AF_BACKEND_DEFAULT
- , afBackendCpu     = AF_BACKEND_DEFAULT
+ , afBackendCpu     = AF_BACKEND_CPU
  , afBackendCuda    = AF_BACKEND_CUDA
  , afBackendOpencl  = AF_BACKEND_OPENCL
 }
@@ -262,7 +262,7 @@ newtype AFID = AFID CInt
   deriving (Ord, Show, Eq, Storable)
 
 #{enum AFID, AFID
-  afID = AF_ID
+ , afID = AF_ID
 }
 
 newtype AFBinaryOp = AFBinaryOp CInt
@@ -377,18 +377,18 @@ newtype AFInverseDeconvAlgo = AFInverseDeconvAlgo CInt
   deriving (Ord, Show, Eq, Storable)
 
 #{enum AFInverseDeconvAlgo, AFInverseDeconvAlgo
-  afInverseDeconvTikhonov = AF_INVERSE_DECONV_TIKHONOV
-  afInverseDeconvDefault = AF_INVERSE_DECONV_DEFAULT
+ , afInverseDeconvTikhonov = AF_INVERSE_DECONV_TIKHONOV
+ , afInverseDeconvDefault = AF_INVERSE_DECONV_DEFAULT
  }
 
--- newtype AFVarBias = AFVarBias Int
---   deriving (Ord, Show, Eq)
+newtype AFVarBias = AFVarBias CInt
+  deriving (Ord, Show, Eq, Storable)
 
--- #{enum AFVarBias, AFVarBias
---  , afVarianceDefault = AF_VARIANCE_DEFAULT
---  , afVarianceSample = AF_VARIANCE_SAMPLE
---  , afVariancePopulation = AF_VARIANCE_POPULATION
--- }
+#{enum AFVarBias, AFVarBias
+ , afVarianceDefault    = AF_VARIANCE_DEFAULT
+ , afVarianceSample     = AF_VARIANCE_SAMPLE
+ , afVariancePopulation = AF_VARIANCE_POPULATION
+ }
 
 newtype DimT = DimT CLLong
   deriving (Show, Eq, Storable, Num, Integral, Real, Enum, Ord)

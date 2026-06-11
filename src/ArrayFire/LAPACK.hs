@@ -1,8 +1,10 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      : ArrayFire.LAPACK
--- Copyright   : David Johnson (c) 2019-2020
+-- Copyright   : David Johnson (c) 2019-2026
 -- License     : BSD 3
 -- Maintainer  : David Johnson <code@dmj.io>
 -- Stability   : Experimental
@@ -220,6 +222,25 @@ inverse
 inverse a m =
   a `op1` (\x y  -> af_inverse x y (toMatProp m))
 
+-- | Compute the pseudo-inverse (Moore-Penrose) of a matrix.
+--
+-- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__ops__func__pinv.htm)
+--
+-- Uses SVD internally. Any singular value below @tol@ is treated as zero.
+--
+pinverse
+  :: AFType a
+  => Array a
+  -- ^ input matrix
+  -> Double
+  -- ^ tolerance for treating singular values as zero
+  -> MatProp
+  -- ^ matrix properties
+  -> Array a
+  -- ^ pseudo-inverse of the input
+pinverse a tol m =
+  a `op1` (\x y -> af_pinverse x y tol (toMatProp m))
+
 -- | Find the rank of the input matrix
 --
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__lapack__factor__func__rank.htm)
@@ -244,12 +265,12 @@ rank a b =
 -- C Interface for finding the determinant of a matrix.
 --
 det
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
-  -- ^ is input matrix
-  -> (Double,Double)
-  -- ^ will contain the real and imaginary part of the determinant of in
-det = (`infoFromArray2` af_det)
+  -- ^ Input matrix
+  -> Scalar a
+  -- ^ Determinant ('Double' for real matrices, 'Complex Double' for complex)
+det arr = toAFResult @a (arr `infoFromArray2` af_det)
 
 -- | Find the norm of the input matrix.
 --
@@ -271,6 +292,27 @@ norm
   -- ^ will contain the norm of in
 norm arr (fromNormType -> a) b c =
   arr `infoFromArray` (\w y -> af_norm w y a b c)
+
+-- | Eigendecomposition of a real symmetric (or complex Hermitian) matrix.
+--
+-- On a CUDA backend calls @cusolverDnDsyevd@ (f64) or @cusolverDnSsyevd@ (f32)
+-- directly via dlopen — zero CPU\/GPU transfers, correctly ordered with
+-- surrounding ArrayFire operations.  On CPU or OpenCL backends (or when
+-- cuSOLVER is unavailable) falls back to ArrayFire's own SVD with sign
+-- recovery, so the function works on all backends.
+--
+-- Returns @(eigenvalues, eigenvectors)@:
+--
+--   * @eigenvalues@ — length-n vector in /ascending/ order.
+--   * @eigenvectors@ — n×n matrix; column @i@ is the eigenvector for @eigenvalues[i]@.
+--
+eigSH
+  :: AFType a
+  => Array a
+  -- ^ real symmetric or complex Hermitian n×n matrix (f32 or f64)
+  -> (Array a, Array a)
+  -- ^ (eigenvalues vector, eigenvectors matrix)
+eigSH mat = mat `op2p` af_eigsh
 
 -- | Is LAPACK available
 --
