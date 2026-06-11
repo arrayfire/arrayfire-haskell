@@ -10,7 +10,6 @@ import           Data.Proxy
 import           Data.Semiring           (Semiring (..), Ring (..))
 import           Spec                    (spec)
 import           System.Exit             (exitFailure)
-import           System.Mem              (performMajorGC)
 import           Test.Hspec              (hspec, after_)
 import           Test.QuickCheck
 import           Test.QuickCheck.Classes
@@ -107,7 +106,7 @@ main = A.withArrayFire $ do
   intChecks ref (Proxy :: Proxy A.Word64)
   intChecks ref (Proxy :: Proxy Word)
   intChecks ref (Proxy :: Proxy A.CBool)
-  hspec (after_ (performMajorGC >> A.deviceGC) spec)
+  hspec (after_ A.deviceGC spec)
   ok <- readIORef ref
   unless ok exitFailure
 

@@ -32,10 +32,10 @@ instance NFData (Array a) where
 
 -- | Structural equality on 'Array': equal shapes and elementwise-equal values.
 --
--- 'A.allTrueAll' reads back a @(real, imaginary)@ pair; for the boolean
--- reduction produced by 'A.eqBatched' the imaginary component is reliably
--- @0@, so comparing the full tuple against @(1.0, 0.0)@ is safe. '/=' is the
--- negation of '==', which keeps the two operators consistent by construction.
+-- Both inputs are 'A.eval'-ed before the comparison to flush each array's JIT
+-- queue; skipping either eval can produce stale results. 'A.allTrueAll' reads
+-- back a @(real, imaginary)@ pair; the imaginary component is reliably @0@ for
+-- boolean reductions, so comparing only the real part against @1.0@ is safe.
 instance (AFType a, Eq a) => Eq (Array a) where
   x == y = A.getDims x == A.getDims y
         && A.allTrueAll (A.eqBatched (A.eval x) (A.eval y) False) == 1.0

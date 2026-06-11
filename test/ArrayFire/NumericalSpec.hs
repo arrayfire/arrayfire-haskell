@@ -40,9 +40,9 @@ spec = describe "Numerical algorithms" $ do
           v0      = A.matrix @Double (2,1) [[1,1]]
           norm2 v = sqrt @Double (A.sumAll (v * v))
           norm v  = v / A.scalar (norm2 v)
-          step v  = norm (A.matmul a v A.None A.None)
+          step v  = norm (A.mm a v)
           vFinal  = iterate step (norm v0) !! 30
-          av      = A.matmul a vFinal A.None A.None
+          av      = A.mm a vFinal
           -- Rayleigh quotient: v^T A v
           lambda  = A.sumAll (vFinal * av)
       lambda `shouldBeApprox` 3.0
