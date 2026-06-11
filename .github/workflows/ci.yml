@@ -31,27 +31,3 @@ jobs:
       - name: Build and run tests (macOS, x86_64 via Rosetta)
         if: runner.os == 'macOS'
         run: nix build -L .#packages.x86_64-darwin.default
-
-  docs:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ners/simply-nix@main
-        with:
-          reclaim_space: true
-
-      - name: Build (produces Haddock docs via cabal)
-        run: nix build -L
-
-      - name: Collect Haddock output
-        run: |
-          html=$(find -L result/share/doc -type d -name html | head -1)
-          echo "HADDOCK_DIR=$html" >> "$GITHUB_ENV"
-
-      - name: Build and run tests
-        run: nix develop --command bash -c 'cabal install && cabal test'
