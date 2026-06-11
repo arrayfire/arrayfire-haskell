@@ -306,6 +306,18 @@ getDataRefCount
 getDataRefCount =
   fromIntegral . (`infoFromArray` af_get_data_ref_count)
 
+-- | Force evaluation of a lazily-deferred 'Array', flushing any pending
+-- computation in the JIT queue and returning the same array.
+--
+-- >>> eval (vector @Double 10 [1..])
+-- ArrayFire Array
+-- ...
+--
+eval :: AFType a => Array a -> Array a
+eval arr@(Array fptr) = unsafePerformIO . mask_ $
+  withForeignPtr fptr (throwAFError <=< af_eval) >> pure arr
+{-# NOINLINE eval #-}
+
 -- | Should manual evaluation occur
 --
 -- >>> setManualEvalFlag True

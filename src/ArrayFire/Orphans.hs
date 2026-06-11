@@ -38,10 +38,10 @@ instance NFData (Array a) where
 -- negation of '==', which keeps the two operators consistent by construction.
 instance (AFType a, Eq a) => Eq (Array a) where
   x == y = A.getDims x == A.getDims y
-        && A.allTrueAll (A.eqBatched x y False) == 1.0
+        && A.allTrueAll (A.eqBatched (A.eval x) (A.eval y) False) == 1.0
 
   x /= y = A.getDims x /= A.getDims y
-        || A.anyTrueAll (A.neqBatched x y False) /= 0.0
+        || A.anyTrueAll (A.neqBatched (A.eval x) (A.eval y) False) /= 0.0
 
 
 -- | Elementwise 'Num' instance for 'Array'.
