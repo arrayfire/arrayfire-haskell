@@ -21,8 +21,6 @@ See hosted [Haddock documentation](https://dmjio.github.io/arrayfire-haddocks/).
 Install `ArrayFire` via the download page.
   - https://arrayfire.com/download/
 
-`ArrayFire` can also be fetched from [nixpkgs](https://github.com/nixos/nixpkgs) `master`.
-
 ### Haskell Installation
 
 `arrayfire` can be installed w/ `cabal`, `stack` or `nix`.
@@ -33,6 +31,10 @@ cabal install arrayfire
 
 ```
 stack install arrayfire
+```
+
+```
+nix build -L # requires flakes
 ```
 
 
