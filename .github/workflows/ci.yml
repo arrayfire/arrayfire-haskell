@@ -5,9 +5,6 @@ on:
       - master
   pull_request:
 
-env:
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-
 jobs:
   build:
     strategy:
@@ -17,19 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # macos-latest is Apple Silicon, but ArrayFire only ships an x86_64 macOS
-      # binary, so the flake's darwin output is x86_64-darwin. Build it under
-      # Rosetta 2: ensure Rosetta is present and let Nix build x86_64-darwin
-      # derivations via `extra-platforms` below.
+      # macos-latest is Apple Silicon; ArrayFire only ships x86_64-darwin, so
+      # we build under Rosetta 2 targeting .#packages.x86_64-darwin.default.
       - name: Install Rosetta 2
         if: runner.os == 'macOS'
         run: softwareupdate --install-rosetta --agree-to-license
 
-      - uses: cachix/install-nix-action@v31
+      - uses: ners/simply-nix@main
         with:
-          nix_path: nixpkgs=channel:nixpkgs-unstable
-          extra_nix_config: |
-            extra-platforms = x86_64-darwin
+          reclaim_space: true
 
       - name: Build and run tests (Linux)
         if: runner.os == 'Linux'
@@ -48,9 +41,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: cachix/install-nix-action@v31
+      - uses: ners/simply-nix@main
         with:
-          nix_path: nixpkgs=channel:nixpkgs-unstable
+          reclaim_space: true
 
       - name: Build (produces Haddock docs via cabal)
         run: nix build -L
