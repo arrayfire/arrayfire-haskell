@@ -39,9 +39,11 @@ import Data.Proxy
 import Foreign.C.String
 import Foreign.ForeignPtr
 import Foreign.Marshal         hiding (void)
+import Foreign.Ptr             (castPtr)
 import Foreign.Storable
 import System.IO.Unsafe
 
+import ArrayFire.Internal.Device (af_free_host)
 import ArrayFire.Internal.Types
 import ArrayFire.Internal.Util
 
@@ -264,7 +266,12 @@ arrayToString expr (Array fptr) (fromIntegral -> prec) (fromIntegral . fromEnum 
     withCString expr $ \expCstr ->
       alloca $ \ocstr -> do
         throwAFError =<< af_array_to_string ocstr expCstr aptr prec trans
-        peekCString =<< peek ocstr
+        strPtr <- peek ocstr
+        str <- peekCString strPtr
+        -- the string is allocated by ArrayFire with af_alloc_host; free it
+        -- to avoid leaking on every Show
+        _ <- af_free_host (castPtr strPtr)
+        pure str
 
 -- | Retrieve size of ArrayFire data type
 --

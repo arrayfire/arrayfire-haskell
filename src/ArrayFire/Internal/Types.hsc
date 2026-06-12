@@ -20,6 +20,8 @@ import Foreign.C.String
 import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Ptr (Ptr)
 import Foreign.Storable
 import GHC.Int
 
@@ -613,14 +615,21 @@ data Cell
   -- ^ Color map used for rendering
   } deriving (Show, Eq)
 
-cellToAFCell :: Cell -> IO AFCell
-cellToAFCell Cell {..} =
+-- | Marshals a 'Cell' into a temporary 'AFCell' and hands a pointer to it to
+-- the continuation. The title 'CString' is only valid for the duration of the
+-- continuation, so the C call consuming the cell must happen inside it —
+-- returning the 'AFCell' from under 'withCString' would leave a dangling
+-- title pointer.
+withAFCell :: Cell -> (Ptr AFCell -> IO a) -> IO a
+withAFCell Cell {..} f =
   withCString cellTitle $ \cstr ->
-    pure AFCell { afCellRow = cellRow
-                , afCellCol = cellCol
-                , afCellTitle = cstr
-                , afCellColorMap = fromColorMap cellColorMap
-                }
+    alloca $ \cellPtr -> do
+      poke cellPtr AFCell { afCellRow = cellRow
+                          , afCellCol = cellCol
+                          , afCellTitle = cstr
+                          , afCellColorMap = fromColorMap cellColorMap
+                          }
+      f cellPtr
 
 -- | Color map for rendering
 data ColorMap
@@ -817,11 +826,24 @@ data NormType
   -- ^ The default. Same as AF_NORM_VECTOR_2
   deriving (Show, Eq, Enum)
 
+-- | Note: this cannot be derived via 'fromEnum' because in @af\/defines.h@
+-- @AF_NORM_EUCLID@ is an alias for @AF_NORM_VECTOR_2@ (value 2), not a
+-- distinct enum value following @AF_NORM_MATRIX_L_PQ@.
 fromNormType :: NormType -> AFNormType
-fromNormType = AFNormType . fromIntegral . fromEnum
+fromNormType NormVectorOne  = AFNormType 0
+fromNormType NormVectorInf  = AFNormType 1
+fromNormType NormVector2    = AFNormType 2
+fromNormType NormVectorP    = AFNormType 3
+fromNormType NormMatrix1    = AFNormType 4
+fromNormType NormMatrixInf  = AFNormType 5
+fromNormType NormMatrix2    = AFNormType 6
+fromNormType NormMatrixLPQ  = AFNormType 7
+fromNormType NormEuclid     = AFNormType 2
 
 toNormType :: AFNormType -> NormType
-toNormType (AFNormType (fromIntegral -> x)) = toEnum x
+toNormType (AFNormType (fromIntegral -> x))
+  | x >= 0 && x <= 7 = toEnum x
+  | otherwise = error ("Invalid AFNormType value: " <> show x)
 
 -- | Convolution Domain
 data ConvDomain

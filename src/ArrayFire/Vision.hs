@@ -22,6 +22,8 @@ import Foreign.Marshal
 import Foreign.Storable
 import System.IO.Unsafe
 
+import Data.Word (Word32)
+
 import ArrayFire.Exception
 import ArrayFire.FFI
 import ArrayFire.Internal.Features
@@ -77,8 +79,9 @@ harris
   -> Int
   -- ^ square window size, the covariation matrix will be calculated to a square neighborhood of this size (must be >= 3 and <= 31)
   -> Float
-  -- ^ struct containing arrays for x and y coordinates and score (Harris response), while arrays orientation and size are set to 0 and 1, respectively, because Harris does not compute that information
+  -- ^ Harris constant k, the sensitivity factor used in the corner response formula (usually 0.04)
   -> Features
+  -- ^ struct containing arrays for x and y coordinates and score (Harris response), while arrays orientation and size are set to 0 and 1, respectively, because Harris does not compute that information
 {-# NOINLINE harris #-}
 harris (Array fptr) (fromIntegral -> maxc) minresp sigma (fromIntegral -> bs) thr
   = unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
@@ -212,9 +215,9 @@ hammingMatcher
  -- ^ indicates the dimension to analyze for distance (the dimension indicated here must be of equal length for both query and train arrays)
  -> Int
  -- ^ is the number of smallest distances to return (currently, only 1 is supported)
- -> (Array a, Array a)
- -- ^ is an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the index of the Jth smallest distance to the Ith query value in the train data array. the index of the Ith smallest distance of the Mth query.
- -- is an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the Hamming distance of the Jth smallest distance to the Ith query value in the train data array.
+ -> (Array Word32, Array a)
+ -- ^ first component: an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the index (@u32@) of the Jth smallest distance to the Ith query value in the train data array.
+ -- second component: an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the Hamming distance of the Jth smallest distance to the Ith query value in the train data array.
 hammingMatcher a b (fromIntegral -> x) (fromIntegral -> y)
   = op2p2 a b (\p c d e -> af_hamming_matcher p c d e x y)
 
@@ -235,9 +238,9 @@ nearestNeighbor
  -- ^ is the number of smallest distances to return (currently, only values <= 256 are supported)
  -> MatchType
  -- ^ is the distance computation type. Currently AF_SAD (sum of absolute differences), AF_SSD (sum of squared differences), and AF_SHD (hamming distances) are supported.
- -> (Array a, Array a)
- -- ^ is an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the index of the Jth smallest distance to the Ith query value in the train data array. the index of the Ith smallest distance of the Mth query.
- -- is an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the distance of the Jth smallest distance to the Ith query value in the train data array based on the dist_type chosen.
+ -> (Array Word32, Array a)
+ -- ^ first component: an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the index (@u32@) of the Jth smallest distance to the Ith query value in the train data array.
+ -- second component: an array of MxN size, where M is equal to the number of query features and N is equal to n_dist. The value at position IxJ indicates the distance of the Jth smallest distance to the Ith query value in the train data array based on the dist_type chosen.
 nearestNeighbor a b (fromIntegral -> x) (fromIntegral -> y) (fromMatchType -> match)
   = op2p2 a b (\p c d e -> af_nearest_neighbour p c d e x y match)
 

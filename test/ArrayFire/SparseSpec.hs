@@ -2,6 +2,7 @@
 module ArrayFire.SparseSpec where
 
 import qualified ArrayFire as A
+import           Control.Exception (evaluate)
 import           Data.Int
 import           Test.Hspec
 
@@ -11,10 +12,6 @@ diag3 :: A.Array Double
 diag3 = A.mkArray @Double [3,3] [1,0,0, 0,2,0, 0,0,3]
 
 spec :: Spec
-spec = pure ()
-
-{--
-
 spec =
   describe "Sparse" $ do
 
@@ -25,6 +22,10 @@ spec =
         A.sparseGetNNZ (A.createSparseArrayFromDense (A.mkArray @Double [2,2] [1,2,3,4]) A.CSR) `shouldBe` 4
       it "storage format is preserved" $
         A.sparseGetStorage (A.createSparseArrayFromDense diag3 A.CSR) `shouldBe` A.CSR
+      it "all-zero matrix throws instead of segfaulting" $ do
+        let z = A.mkArray @Double [3,3] (replicate 9 0)
+        evaluate (A.sparseGetNNZ (A.createSparseArrayFromDense z A.CSR))
+          `shouldThrow` anyException
 
     describe "sparseToDense" $
       it "CSR round-trip preserves all values" $ do
@@ -47,5 +48,3 @@ spec =
         A.sparseGetNNZ sp `shouldBe` 3
         A.sparseGetStorage sp `shouldBe` A.COO
         A.sparseToDense (A.sparseConvertTo sp A.CSR) `shouldBe` diag3
-
---}

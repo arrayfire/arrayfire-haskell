@@ -100,36 +100,41 @@ constant dims val =
       | x == u64 ->
         cast $ constantULong dims (unsafeCoerce val :: Word64)
       | x == s32 ->
-        cast $ constant' dims (fromIntegral (unsafeCoerce val :: Int32) :: Double)
+        constant' dims (fromIntegral (unsafeCoerce val :: Int32) :: Double)
       | x == s16 ->
-        cast $ constant' dims (fromIntegral (unsafeCoerce val :: Int16) :: Double)
+        constant' dims (fromIntegral (unsafeCoerce val :: Int16) :: Double)
       | x == u32 ->
-        cast $ constant' dims (fromIntegral (unsafeCoerce val :: Word32) :: Double)
+        constant' dims (fromIntegral (unsafeCoerce val :: Word32) :: Double)
       | x == u8 ->
-        cast $ constant' dims (fromIntegral (unsafeCoerce val :: Word8) :: Double)
+        constant' dims (fromIntegral (unsafeCoerce val :: Word8) :: Double)
       | x == u16 ->
-        cast $ constant' dims (fromIntegral (unsafeCoerce val :: Word16) :: Double)
+        constant' dims (fromIntegral (unsafeCoerce val :: Word16) :: Double)
       | x == f64 ->
-        cast $ constant' dims (unsafeCoerce val :: Double)
+        constant' dims (unsafeCoerce val :: Double)
       | x == b8  ->
-        cast $ constant' dims (fromIntegral (unsafeCoerce val :: CBool) :: Double)
+        constant' dims (fromIntegral (unsafeCoerce val :: CBool) :: Double)
       | x == f32 ->
-        cast $ constant' dims (realToFrac (unsafeCoerce val :: Float))
+        constant' dims (realToFrac (unsafeCoerce val :: Float))
       | otherwise -> error "constant: Invalid array fire type"
   where
     dtyp = afType (Proxy @a)
 
+    -- Creates the array directly with the target dtype: @af_constant@ takes
+    -- the value as a C double for every non-complex, non-64-bit-integral
+    -- dtype. Routing through an f64 array and casting (as this used to do)
+    -- fails with AF_ERR_NO_DBL on OpenCL devices without fp64 support and
+    -- changes b8 semantics (the cast normalises non-zero values to 1).
     constant'
       :: [Int]
       -- ^ Dimensions
       -> Double
       -- ^ Scalar value
-      -> Array Double
+      -> Array a
     constant' dims' val' =
       unsafePerformIO . mask_ $ do
         ptr <- calloca $ \ptrPtr -> do
           withArray (fromIntegral <$> dims') $ \dimArray -> do
-            throwAFError =<< af_constant ptrPtr val' n dimArray typ
+            throwAFError =<< af_constant ptrPtr val' n dimArray dtyp
             peek ptrPtr
         Array <$>
           newForeignPtr
@@ -137,7 +142,6 @@ constant dims val =
               ptr
           where
             n = fromIntegral (length dims')
-            typ = afType (Proxy @Double)
 
     -- | Creates an 'Array (Complex Double)' from a scalar val'ue
     --

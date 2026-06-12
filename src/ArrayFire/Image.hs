@@ -19,9 +19,17 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Image where
 
+import Control.Exception        (mask_)
+import Data.Bits                (popCount)
 import Data.Proxy
 import Data.Word
+import Foreign.C.Types          (CBool)
+import Foreign.ForeignPtr       (withForeignPtr)
+import Foreign.Marshal.Array    (allocaArray, peekArray)
+import System.IO.Unsafe         (unsafePerformIO)
 
+import ArrayFire.Exception      (throwAFError)
+import ArrayFire.Internal.Defines (AFMomentType(..))
 import ArrayFire.Internal.Types
 import ArrayFire.Internal.Image
 import ArrayFire.FFI
@@ -232,9 +240,9 @@ skew
   -> Int
   -- ^ is the second output dimension
   -> InterpType
-  -- ^ if true applies inverse transform, if false applies forward transoform
-  -> Bool
   -- ^ is the interpolation type (Nearest by default)
+  -> Bool
+  -- ^ if true applies inverse transform, if false applies forward transform
   -> Array a
   -- ^ will contain the skewed image
 skew a trans0 trans1 (fromIntegral -> odim0) (fromIntegral -> odim1) (fromInterpType -> interp) (fromIntegral . fromEnum -> b) =
@@ -688,10 +696,21 @@ momentsAll
   -- ^ is the input image
   -> MomentType
   -- ^ is moment(s) to calculate
-  -> Double
-  -- ^ is a pointer to a pre-allocated array where the calculated moment(s) will be placed. User is responsible for ensuring enough space to hold all requested moments
-momentsAll in' m =
-  in' `infoFromArray` (\p a -> af_moments_all p a (fromMomentType m))
+  -> [Double]
+  -- ^ the calculated moment(s); one element per requested moment
+  -- (so 'FirstOrder' yields four values, the single moments one)
+{-# NOINLINE momentsAll #-}
+momentsAll (Array fptr) m =
+  -- af_moments_all writes one double per moment selected in the bitmask, so
+  -- the output buffer must be sized accordingly: passing a single-double
+  -- buffer for FirstOrder (four moments) would smash the stack.
+  unsafePerformIO . mask_ . withForeignPtr fptr $ \aptr ->
+    allocaArray n $ \outPtr -> do
+      throwAFError =<< af_moments_all outPtr aptr afm
+      peekArray n outPtr
+  where
+    afm@(AFMomentType raw) = fromMomentType m
+    n = popCount raw
 
 -- | Canny Edge Detector
 --
@@ -712,8 +731,8 @@ canny
   -- ^ is the window size of sobel kernel for computing gradient direction and magnitude
   -> Bool
   -- ^ indicates if L1 norm(faster but less accurate) is used to compute image gradient magnitude instead of L2 norm.
-  -> Array a
-  -- ^ is an binary array containing edges
+  -> Array CBool
+  -- ^ is a binary (@b8@) array containing edges
 canny in' (fromCannyThreshold -> canny') low high (fromIntegral -> window) (fromIntegral . fromEnum -> fast) =
   in' `op1` (\p a -> af_canny p a canny' low high window fast)
 

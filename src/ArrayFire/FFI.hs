@@ -195,12 +195,14 @@ op3p1 (Array fptr1) op =
     pure (Array fptrA, Array fptrB, Array fptrC, g)
 
 -- | Applies a C function that takes two input 'Array's and produces a pair of
--- output 'Array's.
+-- output 'Array's. The element types of the outputs are free so callers can
+-- pin them to whatever the C function actually produces (e.g. @u32@ index
+-- arrays from the matcher functions).
 op2p2
   :: Array a
-  -> Array a
+  -> Array b
   -> (Ptr AFArray -> Ptr AFArray -> AFArray -> AFArray -> IO AFErr)
-  -> (Array a, Array a)
+  -> (Array c, Array d)
 {-# NOINLINE op2p2 #-}
 op2p2 (Array fptr1) (Array fptr2) op =
   unsafePerformIO . mask_ $ do
@@ -461,8 +463,11 @@ afCall1' op =
       throwAFError =<< op ptrInput
       peek ptrInput
 
--- | Note: We don't add a finalizer to 'Array' since the 'Features' finalizer frees 'Array'
--- under the hood.
+-- | Extracts one of the component 'Array's of a 'Features' handle. The C
+-- getters return the raw handle stored inside the features struct without
+-- retaining it, so we retain it here before attaching the release finalizer;
+-- otherwise the 'Features' finalizer and the 'Array' finalizer would double
+-- free.
 featuresToArray
   :: Features
   -> (Ptr AFArray -> AFFeatures -> IO AFErr)

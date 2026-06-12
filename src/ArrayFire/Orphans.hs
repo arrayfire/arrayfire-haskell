@@ -36,6 +36,11 @@ instance NFData (Array a) where
 -- queue; skipping either eval can produce stale results. 'A.allTrueAll' reads
 -- back a @(real, imaginary)@ pair; the imaginary component is reliably @0@ for
 -- boolean reductions, so comparing only the real part against @1.0@ is safe.
+--
+-- /Caveat/: comparisons follow IEEE semantics elementwise, so an array
+-- containing @NaN@ is not equal to itself (@x == x@ is 'False'), violating
+-- 'Eq' reflexivity exactly as 'Double' itself does. @(\/=)@ remains the exact
+-- negation of @(==)@ in all cases, including @NaN@.
 instance (AFType a, Eq a) => Eq (Array a) where
   x == y = A.getDims x == A.getDims y
         && A.allTrueAll (A.eqBatched (A.eval x) (A.eval y) False) == 1.0

@@ -94,9 +94,13 @@ spec = describe "Image spec" $ do
       -- column-major: last element is the integral over the whole image
       last (A.toList (A.sat gray)) `shouldBeApprox` (16.0 :: Float)
 
-  describe "moments" $
+  describe "moments" $ do
     it "M00 of a constant image equals its total intensity (area)" $
-      A.momentsAll gray A.M00 `shouldBeApprox` (16.0 :: Double)
+      case A.momentsAll gray A.M00 of
+        [m00] -> m00 `shouldBeApprox` (16.0 :: Double)
+        ms    -> expectationFailure ("expected one moment, got " <> show ms)
+    it "FirstOrder returns all four moments without corrupting memory" $
+      length (A.momentsAll gray A.FirstOrder) `shouldBe` 4
 
   describe "Image I/O" $ do
     it "saveImage/loadImage round-trips a grayscale image" $ do
