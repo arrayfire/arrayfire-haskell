@@ -6,6 +6,7 @@
 module ArrayFire.NumericalSpec where
 
 import qualified ArrayFire as A
+import           ArrayFire.TestHelper  (skipOnBrokenOpenCL)
 import           Data.Function ((&))
 import           Test.Hspec
 import           Test.Hspec.QuickCheck (prop)
@@ -35,7 +36,8 @@ spec = describe "Numerical algorithms" $ do
   -- Exact dominant eigenvalue = 3, eigenvector = [1,1]/√2
   -- Exercises: matrix, matmul, sumAll, *, /, scalar, sqrt, Haskell iterate
   describe "Power iteration" $ do
-    it "converges to dominant eigenvalue 3 of [[2,1],[1,2]]" $ do
+    it "converges to dominant eigenvalue 3 of [[2,1],[1,2]]" $
+      skipOnBrokenOpenCL "af_matmul output not synced on AF 3.8.2 OpenCL" $ do
       let a       = A.matrix @Double (2,2) [[2,1],[1,2]]
           v0      = A.matrix @Double (2,1) [[1,1]]
           norm2 v = sqrt @Double (A.sumAll (v * v))
@@ -106,7 +108,8 @@ spec = describe "Numerical algorithms" $ do
   -- Uses a complex Dirac delta: |x|² = 1, FFT is a flat spectrum |X[k]|² = 1 each.
   -- Exercises: mkArray, fft, conjg, real, sumAll, *
   describe "Parseval's theorem" $ do
-    it "time-domain and frequency-domain energies agree" $ do
+    it "time-domain and frequency-domain energies agree" $
+      skipOnBrokenOpenCL "af_fft unreliable on AF 3.8.2 OpenCL" $ do
       let n       = 64 :: Int
           -- Dirac delta: all energy in first sample
           xs      = A.mkArray @(A.Complex Double) [n] (1 : repeat 0)

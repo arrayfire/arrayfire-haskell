@@ -3,23 +3,13 @@
 module ArrayFire.VisionSpec where
 
 import qualified ArrayFire as A
+import           ArrayFire.TestHelper  (skipOnBrokenOpenCL)
 import           Control.Exception (SomeException, evaluate, try)
 import           Control.Monad     (when)
-import           System.IO.Unsafe  (unsafePerformIO)
 import           Test.Hspec
 
--- | The AF 3.8.2 OpenCL backend (the only OpenCL build available on macOS)
--- has broken FAST/Harris/ORB/SUSAN kernels: thresholds are ignored, feature
--- coordinates come back as garbage, and af_orb can abort the process. Gate
--- the detector tests so they still run on CPU/CUDA backends.
-brokenVisionBackend :: Bool
-brokenVisionBackend = unsafePerformIO ((== A.OpenCL) <$> A.getActiveBackend)
-{-# NOINLINE brokenVisionBackend #-}
-
 skipOnBrokenBackend :: Expectation -> Expectation
-skipOnBrokenBackend action
-  | brokenVisionBackend = pendingWith "Vision detectors broken on AF 3.8.2 OpenCL"
-  | otherwise = action
+skipOnBrokenBackend = skipOnBrokenOpenCL "Vision detectors broken on AF 3.8.2 OpenCL"
 
 -- | 32×32 constant-intensity Float image. No edges or corners.
 -- FAST / Harris / SUSAN must produce 0 features on this image.
