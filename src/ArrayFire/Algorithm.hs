@@ -29,6 +29,7 @@ module ArrayFire.Algorithm where
 import Data.Word (Word32)
 import Foreign.C.Types (CBool)
 
+import ArrayFire.Arith (cast)
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm
 import ArrayFire.Internal.Types
@@ -196,7 +197,11 @@ count
   -- ^ Dimension along which to count
   -> Array Int
   -- ^ Count of all elements along dimension
-count x (fromIntegral -> n) = x `op1` (\p a -> af_count p a n)
+count x (fromIntegral -> n) =
+  -- af_count produces a u32 array; cast to s64 so the data matches the
+  -- declared element type (otherwise host reads via toVector/toList would
+  -- read 8 bytes per element from a 4-byte-per-element buffer).
+  cast (x `op1` (\p a -> af_count p a n) :: Array Word32)
 
 -- | Sum all elements in an 'Array' along all dimensions
 --

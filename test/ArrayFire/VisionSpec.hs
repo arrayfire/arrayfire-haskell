@@ -3,11 +3,15 @@
 module ArrayFire.VisionSpec where
 
 import qualified ArrayFire as A
+import           ArrayFire.TestHelper  (skipOnBrokenOpenCL)
 import           Control.Exception (SomeException, evaluate, try)
 import           Control.Monad     (when)
 import           Test.Hspec
 
--- | 100×100 constant-intensity Float image. No edges or corners.
+skipOnBrokenBackend :: Expectation -> Expectation
+skipOnBrokenBackend = skipOnBrokenOpenCL "Vision detectors broken on AF 3.8.2 OpenCL"
+
+-- | 32×32 constant-intensity Float image. No edges or corners.
 -- FAST / Harris / SUSAN must produce 0 features on this image.
 flatImg :: A.Array Float
 flatImg = A.constant @Float [32, 32] 0.5
@@ -22,17 +26,26 @@ quadrantImg =
       br = A.constant @Float [16, 16] 0.0
   in A.join 0 (A.join 1 tl tr) (A.join 1 bl br)
 
+-- | 128×128 quadrant image for ORB tests.
+-- ORB requires min(h,w) / scl_fctr >= REF_PAT_SIZE (31), i.e. the image must
+-- be at least 47px on each side for scl_fctr=1.5.  32×32 triggers an
+-- unchecked underflow in the pyramid-sizing loop (max_levels stays 0, then
+-- lvl_best[UINT_MAX] is written → process abort).  128×128 is well above
+-- the threshold and gives ORB enough room to find features at multiple levels.
+orbImg :: A.Array Float
+orbImg =
+  let tl = A.constant @Float [64, 64] 0.0
+      tr = A.constant @Float [64, 64] 1.0
+      bl = A.constant @Float [64, 64] 1.0
+      br = A.constant @Float [64, 64] 0.0
+  in A.join 0 (A.join 1 tl tr) (A.join 1 bl br)
+
 xpos, ypos, score, orient, size_ :: A.Features -> A.Array Float
 xpos   = A.getFeaturesXPos
 ypos   = A.getFeaturesYPos
 score  = A.getFeaturesScore
 orient = A.getFeaturesOrientation
 size_  = A.getFeaturesSize
-
-spec :: Spec
-spec = pure ()
-
-{--
 
 spec :: Spec
 spec = describe "Vision spec" $ do
@@ -58,15 +71,15 @@ spec = describe "Vision spec" $ do
       A.getElements (orient feats) `shouldBe` n
       A.getElements (size_  feats) `shouldBe` n
 
-    it "detected x-coordinates lie in [0, 32)" $ do
+    it "detected x-coordinates lie in [0, 32)" $ skipOnBrokenBackend $ do
       let feats = A.fast quadrantImg 0.1 9 False 1.0 3
       A.toList (xpos feats) `shouldSatisfy` all (\x -> x >= (0 :: Float) && x < 32)
 
-    it "detected y-coordinates lie in [0, 32)" $ do
+    it "detected y-coordinates lie in [0, 32)" $ skipOnBrokenBackend $ do
       let feats = A.fast quadrantImg 0.1 9 False 1.0 3
       A.toList (ypos feats) `shouldSatisfy` all (\y -> y >= (0 :: Float) && y < 32)
 
-    it "all feature scores are non-negative" $ do
+    it "all feature scores are non-negative" $ skipOnBrokenBackend $ do
       let feats = A.fast quadrantImg 0.1 9 False 1.0 3
       A.toList (score feats) `shouldSatisfy` all (>= (0 :: Float))
 
@@ -74,21 +87,21 @@ spec = describe "Vision spec" $ do
   --  Harris
   -- ------------------------------------------------------------------ --
   describe "harris" $ do
-    it "detects 0 corners on a flat image" $ do
+    it "detects 0 corners on a flat image" $ skipOnBrokenBackend $ do
       A.getFeaturesNum (A.harris flatImg 500 1e-3 1.0 0 0.04) `shouldBe` 0
 
-    it "all accessor arrays are consistent with getFeaturesNum" $ do
+    it "all accessor arrays are consistent with getFeaturesNum" $ skipOnBrokenBackend $ do
       let feats = A.harris quadrantImg 500 1e-3 1.0 0 0.04
           n     = A.getFeaturesNum feats
       A.getElements (xpos  feats) `shouldBe` n
       A.getElements (ypos  feats) `shouldBe` n
       A.getElements (score feats) `shouldBe` n
 
-    it "detected x-coordinates lie in [0, 32)" $ do
+    it "detected x-coordinates lie in [0, 32)" $ skipOnBrokenBackend $ do
       A.toList (xpos (A.harris quadrantImg 500 1e-3 1.0 0 0.04))
         `shouldSatisfy` all (\x -> x >= 0 && x < 32)
 
-    it "detected y-coordinates lie in [0, 32)" $ do
+    it "detected y-coordinates lie in [0, 32)" $ skipOnBrokenBackend $ do
       A.toList (ypos (A.harris quadrantImg 500 1e-3 1.0 0 0.04))
         `shouldSatisfy` all (\y -> y >= 0 && y < 32)
 
@@ -96,14 +109,14 @@ spec = describe "Vision spec" $ do
   --  ORB
   -- ------------------------------------------------------------------ --
   describe "orb" $ do
-    it "descriptor row count equals getFeaturesNum" $ do
-      let (feats, descs) = A.orb quadrantImg 0.1 500 1.5 4 False
+    it "descriptor column count equals getFeaturesNum" $ skipOnBrokenBackend $ do
+      let (feats, descs) = A.orb orbImg 0.1 500 1.5 4 False
           n              = A.getFeaturesNum feats
-          (d0, _, _, _)  = A.getDims (descs :: A.Array Float)
-      d0 `shouldBe` n
+          (_, d1, _, _)  = A.getDims (descs :: A.Array Float)
+      d1 `shouldBe` n
 
-    it "all coordinate arrays are consistent with getFeaturesNum" $ do
-      let (feats, _) = A.orb quadrantImg 0.1 500 1.5 4 False
+    it "all coordinate arrays are consistent with getFeaturesNum" $ skipOnBrokenBackend $ do
+      let (feats, _) = A.orb orbImg 0.1 500 1.5 4 False
           n          = A.getFeaturesNum feats
       A.getElements (xpos   feats) `shouldBe` n
       A.getElements (ypos   feats) `shouldBe` n
@@ -123,14 +136,14 @@ spec = describe "Vision spec" $ do
         then pendingWith "susan threshold ignored on this platform (AF 3.8.2 OpenCL)"
         else n `shouldBe` 0
 
-    it "all accessor arrays are consistent with getFeaturesNum" $ do
+    it "all accessor arrays are consistent with getFeaturesNum" $ skipOnBrokenBackend $ do
       let feats = A.susan quadrantImg 3 0.1 0.5 0.05 3
           n     = A.getFeaturesNum feats
       A.getElements (xpos  feats) `shouldBe` n
       A.getElements (ypos  feats) `shouldBe` n
       A.getElements (score feats) `shouldBe` n
 
-    it "detected x-coordinates lie in [0, 32)" $ do
+    it "detected x-coordinates lie in [0, 32)" $ skipOnBrokenBackend $ do
       A.toList (xpos (A.susan quadrantImg 3 0.1 0.5 0.05 3))
         `shouldSatisfy` all (\x -> x >= (0 :: Float) && x < 32)
 
@@ -215,14 +228,14 @@ spec = describe "Vision spec" $ do
       let query         = A.mkArray @Float [4, 3] (replicate 12 0.0)
           train         = A.mkArray @Float [4, 5] (replicate 20 1.0)
           (idxs, dists) = A.nearestNeighbor query train 0 1 A.MatchTypeSAD
-      A.getElements @Float idxs  `shouldBe` 3
+      A.getElements @A.Word32 idxs  `shouldBe` 3
       A.getElements @Float dists `shouldBe` 3
 
     it "returned indices are within training-set bounds" $ do
       let query     = A.mkArray @Float [4, 3] (replicate 12 0.0)
           train     = A.mkArray @Float [4, 5] (replicate 20 1.0)
           (idxs, _) = A.nearestNeighbor query train 0 1 A.MatchTypeSAD
-      A.toList @Float idxs `shouldSatisfy` all (< 5)
+      A.toList @A.Word32 idxs `shouldSatisfy` all (< 5)
 
   -- ------------------------------------------------------------------ --
   --  homography
@@ -280,4 +293,3 @@ spec = describe "Vision spec" $ do
               (d0, d1, _, _) = A.getDims descs
           d0 `shouldBe` n
           when (n > 0) $ d1 `shouldBe` 272
---}

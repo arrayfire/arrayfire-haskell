@@ -28,7 +28,7 @@
 --------------------------------------------------------------------------------
 module ArrayFire.Arith where
 
-import Prelude                  (Bool(..), ($), (.), flip, fromEnum, fromIntegral, Real, RealFloat)
+import Prelude                  (Bool(..), Fractional, IO, ($), (.), flip, fromEnum, fromIntegral, Real, RealFloat)
 
 import Data.Coerce
 import Data.Proxy
@@ -36,9 +36,23 @@ import Data.Complex
 
 import ArrayFire.FFI
 import ArrayFire.Internal.Arith
+import ArrayFire.Internal.Defines (AFArray, AFErr)
 import ArrayFire.Internal.Types
 
 import Foreign.C.Types
+import Foreign.Ptr              (Ptr)
+
+-- | Applies a unary ArrayFire function and casts the result back to the
+-- element type of the input. Several ArrayFire unary functions (@af_abs@,
+-- @af_sign@, @af_round@, @af_trunc@, @af_floor@, @af_ceil@, @af_arg@)
+-- internally promote integral inputs to @f32@\/@f64@ (and produce real
+-- outputs for complex inputs); without casting back, the returned handle's
+-- dtype would no longer match the phantom type @a@ and later host reads
+-- ('ArrayFire.Array.toVector', 'ArrayFire.Array.toList',
+-- 'ArrayFire.Array.getScalar') would reinterpret raw bytes at the wrong
+-- type. When the dtype already matches, the cast is a cheap retain.
+op1ReType :: forall a. AFType a => Array a -> (Ptr AFArray -> AFArray -> IO AFErr) -> Array a
+op1ReType a f = cast (op1 a f :: Array a)
 
 -- | Adds two 'Array' objects
 --
@@ -953,10 +967,16 @@ modBatched x y (fromIntegral . fromEnum -> batch) = do
 
 -- | Take the absolute value of an array
 --
+-- For complex arrays the result is the magnitude @|z|@ with a zero imaginary
+-- part (matching @Prelude.abs@ for 'Data.Complex.Complex'). For integral
+-- arrays with magnitudes at or above @2^53@ the value may lose precision,
+-- because ArrayFire computes the absolute value in double precision
+-- internally.
+--
 -- >>> A.abs (A.scalar @Int (-1))
 -- ArrayFire Array
 -- [1 1 1 1]
---    1.0000
+--          1
 --
 abs
   :: AFType a
@@ -964,7 +984,7 @@ abs
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'abs'
-abs = flip op1 af_abs
+abs = flip op1ReType af_abs
 
 -- | Find the arg of an array
 --
@@ -987,30 +1007,30 @@ arg
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'arg'
-arg = flip op1 af_arg
+arg = flip op1ReType af_arg
 
 -- | Find the sign of two 'Array's
 --
 -- >>> A.sign (vector @Int 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
---     0.0000
---     0.0000
---     0.0000
---     0.0000
---     0.0000
---     0.0000
---     0.0000
---     0.0000
---     0.0000
---     0.0000
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
+--          0
 sign
   :: AFType a
   => Array a
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'sign'
-sign = flip op1 af_sign
+sign = flip op1ReType af_sign
 
 -- | Round the values in an 'Array'
 --
@@ -1033,7 +1053,7 @@ round
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'round'
-round = flip op1 af_round
+round = flip op1ReType af_round
 
 -- | Truncate the values of an 'Array'
 --
@@ -1056,7 +1076,7 @@ trunc
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'trunc'
-trunc = flip op1 af_trunc
+trunc = flip op1ReType af_trunc
 
 -- | Take the floor of all values in an 'Array'
 --
@@ -1079,7 +1099,7 @@ floor
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'floor'
-floor = flip op1 af_floor
+floor = flip op1ReType af_floor
 
 -- | Take the ceil of all values in an 'Array'
 --
@@ -1102,11 +1122,11 @@ ceil
   -- ^ Input array
   -> Array a
   -- ^ Result of calling 'ceil'
-ceil = flip op1 af_ceil
+ceil = flip op1ReType af_ceil
 
 -- | Take the sin of all values in an 'Array'
 --
--- >>> A.sin (A.vector @Int 10 [1..])
+-- >>> A.sin (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.8415
@@ -1120,7 +1140,7 @@ ceil = flip op1 af_ceil
 --     0.4121
 --    -0.5440
 sin
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1129,7 +1149,7 @@ sin = flip op1 af_sin
 
 -- | Take the cos of all values in an 'Array'
 --
--- >>> A.cos (A.vector @Int 10 [1..])
+-- >>> A.cos (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.5403
@@ -1143,7 +1163,7 @@ sin = flip op1 af_sin
 --    -0.9111
 --    -0.8391
 cos
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1152,7 +1172,7 @@ cos = flip op1 af_cos
 
 -- | Take the tan of all values in an 'Array'
 --
--- >>> A.tan (A.vector @Int 10 [1..])
+-- >>> A.tan (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.5574
@@ -1166,7 +1186,7 @@ cos = flip op1 af_cos
 --    -0.4523
 --     0.6484
 tan
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1175,7 +1195,7 @@ tan = flip op1 af_tan
 
 -- | Take the asin of all values in an 'Array'
 --
--- >>> A.asin (A.vector @Int 10 [1..])
+-- >>> A.asin (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.5708
@@ -1190,7 +1210,7 @@ tan = flip op1 af_tan
 --        nan
 --
 asin
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1199,7 +1219,7 @@ asin = flip op1 af_asin
 
 -- | Take the acos of all values in an 'Array'
 --
--- >>> A.acos (A.vector @Int 10 [1..])
+-- >>> A.acos (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -1213,7 +1233,7 @@ asin = flip op1 af_asin
 --        nan
 --        nan
 acos
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1222,7 +1242,7 @@ acos = flip op1 af_acos
 
 -- | Take the atan of all values in an 'Array'
 --
--- >>> A.atan (A.vector @Int 10 [1..])
+-- >>> A.atan (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.7854
@@ -1236,7 +1256,7 @@ acos = flip op1 af_acos
 --     1.4601
 --     1.4711
 atan
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1259,7 +1279,7 @@ atan = flip op1 af_atan
 --     0.7328
 --     0.7378
 atan2
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ First input
   -> Array a
@@ -1286,7 +1306,7 @@ atan2 x y =
 --     0.7328
 --     0.7378
 atan2Batched
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ First input
   -> Array a
@@ -1433,7 +1453,7 @@ conjg = flip op1 af_conjg
 
 -- | Execute sinh
 --
--- >>> A.sinh (A.vector @Int 10 [1..])
+-- >>> A.sinh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.1752
@@ -1447,7 +1467,7 @@ conjg = flip op1 af_conjg
 --  4051.5420
 -- 11013.2324
 sinh
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1470,7 +1490,7 @@ sinh = flip op1 af_sinh
 --  4051.5420
 -- 11013.2329
 cosh
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1479,7 +1499,7 @@ cosh = flip op1 af_cosh
 
 -- | Execute tanh
 --
--- >>> A.tanh (A.vector @Int 10 [1..])
+-- >>> A.tanh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.7616
@@ -1493,7 +1513,7 @@ cosh = flip op1 af_cosh
 --     1.0000
 --     1.0000
 tanh
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1502,7 +1522,7 @@ tanh = flip op1 af_tanh
 
 -- | Execute asinh
 --
--- >>> A.asinh (A.vector @Int 10 [1..])
+-- >>> A.asinh (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.8814
@@ -1516,7 +1536,7 @@ tanh = flip op1 af_tanh
 --     2.8934
 --     2.9982
 asinh
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1539,7 +1559,7 @@ asinh = flip op1 af_asinh
 --     2.8873
 --     2.9932
 acosh
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1562,7 +1582,7 @@ acosh = flip op1 af_acosh
 --        nan
 --        nan
 atanh
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1572,12 +1592,12 @@ atanh = flip op1 af_atanh
 -- | Execute root: compute the nth root of each element.
 -- @root base n@ computes @base^(1\/n)@.
 --
--- >>> A.root (A.scalar @Double 1 8) (A.scalar @Double 1 3)
+-- >>> A.root (A.scalar @Double 8) (A.scalar @Double 3)
 -- ArrayFire Array
 -- [1 1 1 1]
 --     2.0000
 root
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ The input data (base)
   -> Array a
@@ -1604,7 +1624,7 @@ root x y =
 --     1.2765
 --     1.2589
 rootBatched
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ First input
   -> Array a
@@ -1673,7 +1693,7 @@ powBatched x y (fromIntegral . fromEnum -> batch) = do
   x `op2` y $ \arr arr1 arr2 ->
     af_pow arr arr1 arr2 batch
 
--- | Raise an 'Array' to the second power
+-- | Raise 2 to the power of each element of an 'Array' (@2 ** x@)
 --
 -- >>> A.pow2 (A.vector @Int 10 [1..])
 -- ArrayFire Array
@@ -1712,7 +1732,7 @@ pow2 = flip op1 af_pow2
 --  8103.0839
 -- 22026.4658
 exp
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1721,7 +1741,7 @@ exp = flip op1 af_exp
 
 -- | Execute sigmoid on 'Array'
 --
--- >>> A.sigmoid (A.vector @Int 10 [1..])
+-- >>> A.sigmoid (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.7311
@@ -1735,7 +1755,7 @@ exp = flip op1 af_exp
 --     0.9999
 --     1.0000
 sigmoid
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1744,7 +1764,7 @@ sigmoid = flip op1 af_sigmoid
 
 -- | Execute expm1
 --
--- >>> A.expm1 (A.vector @Int 10 [1..])
+-- >>> A.expm1 (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.7183
@@ -1758,7 +1778,7 @@ sigmoid = flip op1 af_sigmoid
 --  8102.0840
 -- 22025.4648
 expm1
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1767,7 +1787,7 @@ expm1 = flip op1 af_expm1
 
 -- | Execute erf
 --
--- >>> A.erf (A.vector @Int 10 [1..])
+-- >>> A.erf (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.8427
@@ -1781,7 +1801,7 @@ expm1 = flip op1 af_expm1
 --     1.0000
 --     1.0000
 erf
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1790,7 +1810,7 @@ erf = flip op1 af_erf
 
 -- | Execute erfc
 --
--- >>> A.erfc (A.vector @Int 10 [1..])
+-- >>> A.erfc (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.1573
@@ -1804,7 +1824,7 @@ erf = flip op1 af_erf
 --     0.0000
 --     0.0000
 erfc
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1813,7 +1833,7 @@ erfc = flip op1 af_erfc
 
 -- | Execute log
 --
--- >>> A.log (A.vector @Int 10 [1..])
+-- >>> A.log (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -1827,7 +1847,7 @@ erfc = flip op1 af_erfc
 --     2.1972
 --     2.3026
 log
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1836,7 +1856,7 @@ log = flip op1 af_log
 
 -- | Execute log1p
 --
--- >>> A.log1p (A.vector @Int 10 [1..])
+-- >>> A.log1p (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.6931
@@ -1850,7 +1870,7 @@ log = flip op1 af_log
 --     2.3026
 --     2.3979
 log1p
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1859,7 +1879,7 @@ log1p = flip op1 af_log1p
 
 -- | Execute log10
 --
--- >>> A.log10 (A.vector @Int 10 [1..])
+-- >>> A.log10 (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -1873,7 +1893,7 @@ log1p = flip op1 af_log1p
 --     0.9542
 --     1.0000
 log10
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1882,7 +1902,7 @@ log10 = flip op1 af_log10
 
 -- | Execute log2
 --
--- >>> A.log2 (A.vector @Int 10 [1..])
+-- >>> A.log2 (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -1896,7 +1916,7 @@ log10 = flip op1 af_log10
 --     3.1699
 --     3.3219
 log2
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1905,7 +1925,7 @@ log2 = flip op1 af_log2
 
 -- | Execute sqrt
 --
--- >>> A.sqrt (A.vector @Int 10 [ x * x | x <- [ 1 .. 10 ]])
+-- >>> A.sqrt (A.vector @Double 10 [ x * x | x <- [ 1 .. 10 ]])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
@@ -1919,7 +1939,7 @@ log2 = flip op1 af_log2
 --     9.0000
 --    10.0000
 sqrt
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1928,7 +1948,7 @@ sqrt = flip op1 af_sqrt
 
 -- | Execute cbrt
 --
--- >>> A.cbrt (A.vector @Int 10 [ x * x * x | x <- [ 1 .. 10 ]])
+-- >>> A.cbrt (A.vector @Double 10 [ x * x * x | x <- [ 1 .. 10 ]])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
@@ -1942,7 +1962,7 @@ sqrt = flip op1 af_sqrt
 --     9.0000
 --    10.0000
 cbrt
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1951,7 +1971,7 @@ cbrt = flip op1 af_cbrt
 
 -- | Execute factorial
 --
--- >>> A.factorial (A.vector @Int 10 [1..])
+-- >>> A.factorial (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
@@ -1965,7 +1985,7 @@ cbrt = flip op1 af_cbrt
 -- 362880.0000
 -- 3628801.7500
 factorial
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1974,7 +1994,7 @@ factorial = flip op1 af_factorial
 
 -- | Execute tgamma
 --
--- >>> tgamma (vector @Int 10 [1..])
+-- >>> tgamma (vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     1.0000
@@ -1988,7 +2008,7 @@ factorial = flip op1 af_factorial
 -- 40319.9961
 -- 362880.0000
 tgamma
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -1997,7 +2017,7 @@ tgamma = flip op1 af_tgamma
 
 -- | Execute lgamma
 --
--- >>> A.lgamma (A.vector @Int 10 [1..])
+-- >>> A.lgamma (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --     0.0000
@@ -2011,7 +2031,7 @@ tgamma = flip op1 af_tgamma
 --    10.6046
 --    12.8018
 lgamma
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input array
   -> Array a
@@ -2066,7 +2086,7 @@ isInf = (`op1` af_isinf)
 
 -- | Execute isNaN
 --
--- >>> A.isNaN $ A.acos (A.vector @Int 10 [1..])
+-- >>> A.isNaN $ A.acos (A.vector @Double 10 [1..])
 -- ArrayFire Array
 -- [10 1 1 1]
 --          0

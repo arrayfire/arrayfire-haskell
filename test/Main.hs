@@ -13,6 +13,8 @@ import           System.Exit             (exitFailure)
 import           Test.Hspec              (hspec, after_)
 import           Test.QuickCheck
 import           Test.QuickCheck.Classes
+import           Data.Typeable
+
 
 import qualified ArrayFire               as A
 import           ArrayFire               (Array)
@@ -34,8 +36,11 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
     ]
    where
     (d0, d1, d2, d3) = A.getDims arr
-    ndim             = A.getNumDims arr
-    currentDims      = take ndim [d0, d1, d2, d3]
+    -- af_get_numdims collapses trailing unit dims ([2,1,1] → 1), losing the
+    -- constructed dimensionality.  Compute ndim directly from getDims instead.
+    allDims     = [d0, d1, d2, d3]
+    ndim        = length (dropWhile (== 1) (reverse allDims)) `max` 1
+    currentDims = take ndim allDims
     shrunkDims =
       [ [if i == j then d - 1 else d | (j, d) <- zip [0..] currentDims]
       | i <- [0 .. ndim - 1]
@@ -66,7 +71,7 @@ instance (A.AFType a, Num a) => Ring (Scalar a) where
   negate x = 0 - x
 
 instance Arbitrary CBool where
-  arbitrary = CBool <$> arbitrary
+  arbitrary = elements [0, 1]
 
 instance (A.AFType a, Arbitrary a) => Arbitrary (Scalar a) where
   arbitrary = Scalar . A.scalar <$> arbitrary
@@ -87,6 +92,7 @@ checkLaws ref laws = do
 
 main :: IO ()
 main = A.withArrayFire $ do
+  A.info
   ref <- newIORef True
   let check = checkLaws ref
   -- IEEE 754 is not an exact ring; only Eq laws for floating-point arrays.
@@ -110,9 +116,10 @@ main = A.withArrayFire $ do
   ok <- readIORef ref
   unless ok exitFailure
 
-intChecks :: forall a. (A.AFType a, Arbitrary a, Num a, Eq a) => IORef Bool -> Proxy a -> IO ()
+intChecks :: forall a. (Typeable a, A.AFType a, Arbitrary a, Num a, Eq a) => IORef Bool -> Proxy a -> IO ()
 intChecks ref _ = do
-  checkLaws ref (numLaws      (Proxy :: Proxy (Scalar a)))
+  print $ typeOf (undefined :: a)
+  checkLaws ref (numLaws       (Proxy :: Proxy (Scalar a)))
   checkLaws ref (semiringLaws (Proxy :: Proxy (Scalar a)))
   checkLaws ref (ringLaws     (Proxy :: Proxy (Scalar a)))
   checkLaws ref (eqLaws       (Proxy :: Proxy (Array  a)))

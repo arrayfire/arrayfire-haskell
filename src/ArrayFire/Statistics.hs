@@ -45,12 +45,12 @@ import ArrayFire.Internal.Types
 
 -- | Calculates 'mean' of 'Array' along user-specified dimension.
 --
--- >>> mean (vector @Int 10 [1..]) 0
+-- >>> mean (vector @Double 10 [1..]) 0
 -- ArrayFire Array
 --   [1 1 1 1]
 --      5.5000
 mean
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> Int
@@ -68,7 +68,7 @@ mean a n =
 --   [1 1 1 1]
 --      7.0000
 meanWeighted
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> Array a
@@ -88,7 +88,7 @@ meanWeighted x y (fromIntegral -> n) =
 --   [1 1 1 1]
 --      5.2500
 var
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> VarianceType
@@ -112,7 +112,7 @@ data VarianceType = Population | Sample
 --   [1 1 1 1]
 --      1.9091
 varWeighted
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> Array a
@@ -132,7 +132,7 @@ varWeighted x y (fromIntegral -> n) =
 --   [1 1 1 1]
 --      1.0000
 stdev
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> Int
@@ -150,7 +150,7 @@ stdev a n =
 --   [1 1 1 1]
 --      0.0000
 cov
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ First input 'Array'
   -> Array a
@@ -170,7 +170,7 @@ cov x y (fromIntegral . fromEnum -> n) =
 --   [1 1 1 1]
 --      5.5000
 median
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> Int
@@ -332,7 +332,7 @@ topk a (fromIntegral -> x) (fromTopK -> f)
 -- [1 1 1 1]
 --    1.2500
 meanVar
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> VarBias
@@ -353,7 +353,7 @@ meanVar arr bias (fromIntegral -> dim) =
 -- [1 1 1 1]
 --    2.5000
 meanVarWeighted
-  :: AFType a
+  :: (AFType a, Fractional a)
   => Array a
   -- ^ Input 'Array'
   -> Array a

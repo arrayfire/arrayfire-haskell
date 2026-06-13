@@ -83,7 +83,7 @@ getFeaturesNum = fromIntegral . (`infoFromFeatures` af_get_features_num)
 --     2.4375
 getFeaturesXPos
   :: Features
-  -> Array a
+  -> Array Float
 getFeaturesXPos = (`featuresToArray` af_get_features_xpos)
 
 -- | Get Feature Y-position
@@ -103,7 +103,7 @@ getFeaturesXPos = (`featuresToArray` af_get_features_xpos)
 --        nan
 getFeaturesYPos
   :: Features
-  -> Array a
+  -> Array Float
 getFeaturesYPos = (`featuresToArray` af_get_features_ypos)
 
 -- | Get Feature Score
@@ -123,7 +123,7 @@ getFeaturesYPos = (`featuresToArray` af_get_features_ypos)
 --        nan
 getFeaturesScore
   :: Features
-  -> Array a
+  -> Array Float
 getFeaturesScore = (`featuresToArray` af_get_features_score)
 
 -- | Get Feature orientation
@@ -143,7 +143,7 @@ getFeaturesScore = (`featuresToArray` af_get_features_score)
 --        nan
 getFeaturesOrientation
   :: Features
-  -> Array a
+  -> Array Float
 getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
 
 -- | Get Feature size
@@ -163,5 +163,5 @@ getFeaturesOrientation = (`featuresToArray` af_get_features_orientation)
 --        nan
 getFeaturesSize
   :: Features
-  -> Array a
+  -> Array Float
 getFeaturesSize = (`featuresToArray` af_get_features_size)

@@ -381,7 +381,7 @@ spec =
         length xs >= 2 ==>
           closeList
             (A.toList (A.diff1 (A.accum (A.vector (length xs) xs) 0) 0))
-            (tail xs)
+            (drop 1 xs)
 
     describe "set operation properties" $ do
       -- setUnion result contains all elements of each input.

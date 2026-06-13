@@ -185,6 +185,7 @@ test-suite test
     ArrayFire.SignalSpec
     ArrayFire.SparseSpec
     ArrayFire.StatisticsSpec
+    ArrayFire.TestHelper
     ArrayFire.UtilSpec
     ArrayFire.VisionSpec
 

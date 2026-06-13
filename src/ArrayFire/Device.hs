@@ -20,6 +20,7 @@ module ArrayFire.Device where
 
 import Control.Exception (finally)
 import Foreign.C.String
+import Foreign.Ptr (castPtr)
 import ArrayFire.Internal.Device
 import ArrayFire.FFI
 
@@ -61,7 +62,12 @@ afInit = afCall af_init
 -- >>> getInfoString
 -- "ArrayFire v3.6.4 (OpenCL, 64-bit Mac OSX, build 1b8030c5)\n[0] APPLE: AMD Radeon Pro 555X Compute Engine, 4096 MB\n-1- APPLE: Intel(R) UHD Graphics 630, 1536 MB\n"
 getInfoString :: IO String
-getInfoString = peekCString =<< afCall1 (flip af_info_string 1)
+getInfoString = do
+  strPtr <- afCall1 (flip af_info_string 1)
+  str <- peekCString strPtr
+  -- allocated by ArrayFire with af_alloc_host; free to avoid leaking
+  _ <- af_free_host (castPtr strPtr)
+  pure str
 
 -- | Retrieves count of devices
 --

@@ -18,8 +18,6 @@
 module ArrayFire.Graphics where
 
 import Control.Exception
-import Foreign.Marshal
-import Foreign.Storable
 import Foreign.ForeignPtr
 import Foreign.C.String
 
@@ -116,8 +114,7 @@ drawImage
 drawImage (Window wfptr) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
     withForeignPtr wfptr $ \wptr ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_image wptr aptr cellPtr
 
 -- | Draw a plot onto a 'Window'
@@ -142,8 +139,7 @@ drawPlot (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
       withForeignPtr w $ \wptr ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_plot wptr ptr1 ptr2 cellPtr
 
 -- | Draw a plot onto a 'Window'
@@ -163,8 +159,7 @@ drawPlot3
 drawPlot3 (Window w) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
     withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_draw_plot3 wptr aptr cellPtr
 
 -- | Draw a plot onto a 'Window'
@@ -184,8 +179,7 @@ drawPlotNd
 drawPlotNd (Window w) (Array fptr) cell =
   mask_ $ withForeignPtr fptr $ \aptr ->
     withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_draw_plot_nd wptr aptr cellPtr
 
 -- | Draw a plot onto a 'Window'
@@ -208,8 +202,7 @@ drawPlot2d (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
      withForeignPtr w $ \wptr ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_plot_2d wptr ptr1 ptr2 cellPtr
 
 -- | Draw a 3D plot onto a 'Window'
@@ -235,8 +228,7 @@ drawPlot3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
     withForeignPtr fptr2 $ \ptr2 ->
       withForeignPtr fptr3 $ \ptr3 ->
         withForeignPtr w $ \wptr ->
-          alloca $ \cellPtr -> do
-            poke cellPtr =<< cellToAFCell cell
+          withAFCell cell $ \cellPtr -> do
             throwAFError =<< af_draw_plot_3d wptr ptr1 ptr2 ptr3 cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
@@ -261,8 +253,7 @@ drawScatter (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
     withForeignPtr fptr2 $ \ptr2 ->
      withForeignPtr w $ \wptr ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_scatter wptr ptr1 ptr2 m cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
@@ -284,8 +275,7 @@ drawScatter3
 drawScatter3 (Window w) (Array fptr1) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_draw_scatter3 wptr ptr1 m cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
@@ -307,8 +297,7 @@ drawScatterNd
 drawScatterNd (Window w) (Array fptr1) (fromMarkerType -> m) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_draw_scatter_nd wptr ptr1 m cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
@@ -333,8 +322,7 @@ drawScatter2d (Window w) (Array fptr1) (Array fptr2) (fromMarkerType -> m) cell 
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
    withForeignPtr fptr2 $ \ptr2 ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_draw_scatter_2d wptr ptr1 ptr2 m cellPtr
 
 -- | Draw a scatter plot onto a 'Window'
@@ -362,8 +350,7 @@ drawScatter3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromMarkerTy
    withForeignPtr w $ \wptr ->
    withForeignPtr fptr2 $ \ptr2 ->
     withForeignPtr fptr3 $ \ptr3 ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_scatter_3d wptr ptr1 ptr2 ptr3 m cellPtr
 
 -- | Draw a Histogram onto a 'Window'
@@ -387,8 +374,7 @@ drawHistogram
 drawHistogram (Window w) (Array fptr1) minval maxval cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_draw_hist wptr ptr1 minval maxval cellPtr
 
 -- | Draw a Surface onto a 'Window'
@@ -414,8 +400,7 @@ drawSurface (Window w) (Array fptr1) (Array fptr2) (Array fptr3) cell =
    withForeignPtr w $ \wptr ->
    withForeignPtr fptr2 $ \ptr2 ->
     withForeignPtr fptr3 $ \ptr3 ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_surface wptr ptr1 ptr2 ptr3 cellPtr
 
 -- | Draw a Vector Field onto a 'Window'
@@ -438,8 +423,7 @@ drawVectorFieldND (Window w) (Array fptr1) (Array fptr2) cell =
   mask_ $ withForeignPtr fptr1 $ \ptr1 ->
    withForeignPtr fptr2 $ \ptr2 ->
      withForeignPtr w $ \wptr ->
-      alloca $ \cellPtr -> do
-        poke cellPtr =<< cellToAFCell cell
+      withAFCell cell $ \cellPtr -> do
         throwAFError =<< af_draw_vector_field_nd wptr ptr1 ptr2 cellPtr
 
 -- | Draw a Vector Field onto a 'Window'
@@ -476,8 +460,7 @@ drawVectorField3d (Window w) (Array fptr1) (Array fptr2) (Array fptr3)
           withForeignPtr fptr4 $ \ptr4 ->
             withForeignPtr fptr5 $ \ptr5 ->
               withForeignPtr fptr6 $ \ptr6 -> do
-                alloca $ \cellPtr -> do
-                  poke cellPtr =<< cellToAFCell cell
+                withAFCell cell $ \cellPtr -> do
                   throwAFError =<< af_draw_vector_field_3d wptr ptr1 ptr2 ptr3 ptr4 ptr5 ptr6 cellPtr
 
 -- | Draw a Vector Field onto a 'Window'
@@ -507,8 +490,7 @@ drawVectorField2d (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (Array fp
       withForeignPtr fptr2 $ \ptr2 ->
         withForeignPtr fptr3 $ \ptr3 ->
           withForeignPtr fptr4 $ \ptr4 ->
-            alloca $ \cellPtr -> do
-              poke cellPtr =<< cellToAFCell cell
+            withAFCell cell $ \cellPtr -> do
               throwAFError =<< af_draw_vector_field_2d wptr ptr1 ptr2 ptr3 ptr4 cellPtr
 
 -- | Draw a grid onto a 'Window'
@@ -555,8 +537,7 @@ setAxesLimitsCompute (Window w) (Array fptr1) (Array fptr2) (Array fptr3) (fromI
     withForeignPtr fptr1 $ \ptr1 ->
       withForeignPtr fptr2 $ \ptr2 ->
         withForeignPtr fptr3 $ \ptr3 ->
-          alloca $ \cellPtr -> do
-            poke cellPtr =<< cellToAFCell cell
+          withAFCell cell $ \cellPtr -> do
             throwAFError =<< af_set_axes_limits_compute wptr ptr1 ptr2 ptr3 exact cellPtr
 
 -- | Setting axes limits for a 2D histogram/plot/surface/vector field.
@@ -582,8 +563,7 @@ setAxesLimits2d
 setAxesLimits2d (Window w) xmin xmax ymin ymax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_set_axes_limits_2d wptr xmin xmax ymin ymax exact cellPtr
 
 -- | Setting axes limits for a 3D histogram/plot/surface/vector field.
@@ -613,8 +593,7 @@ setAxesLimits3d
 setAxesLimits3d (Window w) xmin xmax ymin ymax zmin zmax (fromIntegral . fromEnum -> exact) cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
-      poke cellPtr =<< cellToAFCell cell
+    withAFCell cell $ \cellPtr -> do
       throwAFError =<< af_set_axes_limits_3d wptr xmin xmax ymin ymax zmin zmax exact cellPtr
 
 
@@ -637,11 +616,10 @@ setAxesTitles
 setAxesTitles (Window w) x y z cell =
   mask_ $ do
    withForeignPtr w $ \wptr ->
-    alloca $ \cellPtr -> do
+    withAFCell cell $ \cellPtr ->
       withCString x $ \xstr ->
         withCString y $ \ystr ->
-          withCString z $ \zstr -> do
-            poke cellPtr =<< cellToAFCell cell
+          withCString z $ \zstr ->
             throwAFError =<< af_set_axes_titles wptr xstr ystr zstr cellPtr
 
 -- | Displays 'Window'

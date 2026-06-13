@@ -149,7 +149,7 @@ getRandomEngineType r =
     r `infoFromRandomEngine` af_random_engine_get_type
 
 foreign import ccall unsafe "af_random_engine_set_seed_"
-  af_random_engine_set_seed_ :: AFRandomEngine -> IntL -> IO AFErr
+  af_random_engine_set_seed_ :: AFRandomEngine -> UIntL -> IO AFErr
 
 -- | Sets seed on 'RandomEngine'
 --
@@ -159,7 +159,7 @@ foreign import ccall unsafe "af_random_engine_set_seed_"
 randomEngineSetSeed
   :: RandomEngine
   -- ^ 'RandomEngine' argument
-  -> Int
+  -> Word
   -- ^ Seed
   -> IO ()
 randomEngineSetSeed r t =

@@ -19,11 +19,13 @@ import           Prelude hiding (pi)
 import qualified Prelude
 
 import           Control.DeepSeq (NFData(..))
+import           Data.Proxy      (Proxy (..))
 
 import qualified ArrayFire.Arith     as A
 import qualified ArrayFire.Array     as A
 import qualified ArrayFire.Algorithm as A
 import qualified ArrayFire.Data      as A
+import           ArrayFire.Internal.Defines (s16, s32, s64, u8, u16, u32, u64, b8)
 import           ArrayFire.Types
 import           ArrayFire.Util
 
@@ -32,10 +34,21 @@ instance NFData (Array a) where
 
 -- | Structural equality on 'Array': equal shapes and elementwise-equal values.
 --
--- Both inputs are 'A.eval'-ed before the comparison to flush each array's JIT
--- queue; skipping either eval can produce stale results. 'A.allTrueAll' reads
--- back a @(real, imaginary)@ pair; the imaginary component is reliably @0@ for
--- boolean reductions, so comparing only the real part against @1.0@ is safe.
+-- Both inputs are 'A.eval'-ed before comparison.  On asynchronous backends
+-- (OpenCL) a freshly-created array's fill kernel is enqueued but may not have
+-- retired before the JIT for 'eqBatched' runs, so the comparison can read
+-- stale buffer contents.  'A.eval' flushes the command queue for each array,
+-- ensuring the buffer is populated.  The CPU backend is synchronous and does
+-- not require this, but the call is cheap and correct on all backends.
+--
+-- 'A.allTrueAll' returns a @(real, imaginary)@ pair; imaginary is reliably
+-- @0@ for boolean reductions, so comparing only the real part against @1.0@
+-- is safe.
+--
+-- /Caveat/: comparisons follow IEEE semantics elementwise, so an array
+-- containing @NaN@ is not equal to itself (@x == x@ is 'False'), violating
+-- 'Eq' reflexivity exactly as 'Double' itself does. @(\/=)@ remains the exact
+-- negation of @(==)@ in all cases, including @NaN@.
 instance (AFType a, Eq a) => Eq (Array a) where
   x == y = A.getDims x == A.getDims y
         && A.allTrueAll (A.eqBatched (A.eval x) (A.eval y) False) == 1.0
@@ -61,7 +74,15 @@ instance (AFType a, Eq a) => Eq (Array a) where
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
   x * y       = A.mul x y
-  abs         = A.abs
+  -- af_abs promotes all integer inputs to f32 internally (see complex.cpp),
+  -- losing precision for |x| > 2^24.  For integer types we implement abs
+  -- entirely in integer arithmetic: signed types negate negative elements via
+  -- select; unsigned types are already non-negative so abs is the identity.
+  abs x
+    | dt `elem` [s16, s32, s64] = A.select (A.lt x 0) (0 - x) x
+    | dt `elem` [u8, u16, u32, u64, b8] = x
+    | otherwise = A.abs x   -- float / complex: delegate to AF
+    where dt = afType (Proxy @a)
   signum x    = A.select (A.gt x 0) 1 (A.select (A.lt x 0) (-1) 0)
   negate arr  = A.scalar @a (fromInteger (-1)) `A.mul` arr
   x - y       = A.sub x y

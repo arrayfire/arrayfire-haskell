@@ -28,14 +28,17 @@ spec =
         `shouldBe`
            5.25
     it "Should find the weighted variance (equal weights)" $ do
-      head (toList (varWeighted (vector @Double 8 [1..]) (vector @Double 8 (repeat 1)) 0))
-        `shouldBeApprox` 5.25
+      case listToMaybe (toList (varWeighted (vector @Double 8 [1..]) (vector @Double 8 (repeat 1)) 0)) of
+        Nothing -> expectationFailure "expected a value, got empty array"
+        Just v  -> v `shouldBeApprox` 5.25
     it "Should find the weighted variance (increasing weights)" $ do
-      head (toList (varWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0))
-        `shouldBeApprox` (21/11 :: Double)
+      case listToMaybe (toList (varWeighted (vector @Double 10 [1..]) (vector @Double 10 [1..]) 0)) of
+        Nothing -> expectationFailure "expected a value, got empty array"
+        Just v  -> v `shouldBeApprox` (21/11 :: Double)
     it "Should find the standard deviation" $ do
-      head (toList (stdev (vector @Double 10 (cycle [1,-1])) 0))
-        `shouldBeApprox` 1.0
+      case listToMaybe (toList (stdev (vector @Double 10 (cycle [1,-1])) 0)) of
+        Nothing -> expectationFailure "expected a value, got empty array"
+        Just v  -> v `shouldBeApprox` 1.0
     it "Should find the covariance" $ do
       cov (vector @Double 10 (repeat 1)) (vector @Double 10 (repeat 1)) False
         `shouldBe`

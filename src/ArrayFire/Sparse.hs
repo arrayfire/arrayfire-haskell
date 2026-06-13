@@ -14,14 +14,18 @@
 -- *Note*
 -- Sparse functionality support was added to ArrayFire in v3.4.0.
 --
--- >>> createSparseArray 10 10 (matrix @Double (10,10) [[1,2],[3,4]]) (vector @Int32 10 [1..]) (vector @Int32 10 [1..]) CSR
+-- >>> createSparseArray 3 3 (vector @Double 3 [1,2,3]) (vector @Int32 3 [0,1,2]) (vector @Int32 3 [0,1,2]) COO
 --
 --
 --------------------------------------------------------------------------------
 module ArrayFire.Sparse where
 
+import Control.Exception (throw)
+
+import ArrayFire.Exception
 import ArrayFire.Types
 import ArrayFire.FFI
+import ArrayFire.Internal.Algorithm (af_any_true_all)
 import ArrayFire.Internal.Sparse
 import ArrayFire.Internal.Types
 import Data.Int
@@ -33,7 +37,7 @@ import Data.Int
 -- *Note*
 -- This function only create references of these arrays into the sparse data structure and does not do deep copies.
 --
--- >>> createSparseArray 10 10 (matrix @Double (10,10) [[1,2],[3,4]]) (vector @Int32 10 [1..]) (vector @Int32 10 [1..]) CSR
+-- >>> createSparseArray 3 3 (vector @Double 3 [1,2,3]) (vector @Int32 3 [0,1,2]) (vector @Int32 3 [0,1,2]) COO
 --
 createSparseArray
   :: (AFType a, Fractional a)
@@ -85,8 +89,17 @@ createSparseArrayFromDense
   -- ^ is the storage format of the sparse array
   -> Array a
   -- ^ 'Array' for the sparse array with the given storage type
-createSparseArrayFromDense a s =
-  a `op1` (\p x -> af_create_sparse_array_from_dense p x (toStorage s))
+createSparseArrayFromDense a s
+  -- Guard: converting an all-zero dense matrix (NNZ = 0) segfaults inside
+  -- ArrayFire (observed on AF 3.8.2). Throw a proper AFException instead of
+  -- crashing the process.
+  | nonZero == 0.0 =
+      throw $ AFException SizeError 203
+        "createSparseArrayFromDense: input has no non-zero elements; zero-NNZ sparse arrays crash the underlying ArrayFire library"
+  | otherwise =
+      a `op1` (\p x -> af_create_sparse_array_from_dense p x (toStorage s))
+  where
+    (nonZero, _) = a `infoFromArray2` af_any_true_all :: (Double, Double)
 
 -- | Convert an existing sparse array into a different storage format.
 --
@@ -207,7 +220,7 @@ sparseToDense = (`op1` af_sparse_to_dense)
 --
 -- Returns reference to values, row indices, column indices and storage format of an input sparse array
 --
--- >>> (values, cols, rows, storage) = sparseGetInfo $ createSparseArrayFromDense (matrix @Double (2,2) [[1,2],[3,4]]) CSR
+-- >>> (values, rows, cols, storage) = sparseGetInfo $ createSparseArrayFromDense (matrix @Double (2,2) [[1,2],[3,4]]) CSR
 -- >>> values
 -- ArrayFire Array
 -- [4 1 1 1]
@@ -268,7 +281,9 @@ sparseGetValues = (`op1` af_sparse_get_values)
 -- [ArrayFire Docs](http://arrayfire.org/docs/group__sparse__func__row__idx.htm)
 --
 -- Returns reference to the row indices component of the sparse array.
--- Row indices is the 'Array' containing the column indices of the sparse array.
+-- Row indices is the 'Array' containing the row indices of the sparse array
+-- (for 'CSR' storage these are the compressed row offsets, of length
+-- rows + 1).
 --
 -- >>> sparseGetRowIdx (createSparseArrayFromDense (matrix @Double (2,2) [[1,2],[3,4]]) CSR)
 -- ArrayFire Array
