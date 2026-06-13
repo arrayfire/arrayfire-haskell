@@ -119,11 +119,11 @@ spec = describe "Vision spec" $ do
   --  ORB
   -- ------------------------------------------------------------------ --
   describe "orb" $ do
-    it "descriptor row count equals getFeaturesNum" $ skipOnBrokenBackend $ do
+    it "descriptor column count equals getFeaturesNum" $ skipOnBrokenBackend $ do
       let (feats, descs) = A.orb orbImg 0.1 500 1.5 4 False
           n              = A.getFeaturesNum feats
-          (d0, _, _, _)  = A.getDims (descs :: A.Array Float)
-      d0 `shouldBe` n
+          (_, d1, _, _)  = A.getDims (descs :: A.Array Float)
+      d1 `shouldBe` n
 
     it "all coordinate arrays are consistent with getFeaturesNum" $ skipOnBrokenBackend $ do
       let (feats, _) = A.orb orbImg 0.1 500 1.5 4 False
