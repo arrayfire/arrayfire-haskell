@@ -34,10 +34,16 @@ instance NFData (Array a) where
 
 -- | Structural equality on 'Array': equal shapes and elementwise-equal values.
 --
--- Both inputs are 'A.eval'-ed before the comparison to flush each array's JIT
--- queue; skipping either eval can produce stale results. 'A.allTrueAll' reads
--- back a @(real, imaginary)@ pair; the imaginary component is reliably @0@ for
--- boolean reductions, so comparing only the real part against @1.0@ is safe.
+-- Both inputs are 'A.eval'-ed before comparison.  On asynchronous backends
+-- (OpenCL) a freshly-created array's fill kernel is enqueued but may not have
+-- retired before the JIT for 'eqBatched' runs, so the comparison can read
+-- stale buffer contents.  'A.eval' flushes the command queue for each array,
+-- ensuring the buffer is populated.  The CPU backend is synchronous and does
+-- not require this, but the call is cheap and correct on all backends.
+--
+-- 'A.allTrueAll' returns a @(real, imaginary)@ pair; imaginary is reliably
+-- @0@ for boolean reductions, so comparing only the real part against @1.0@
+-- is safe.
 --
 -- /Caveat/: comparisons follow IEEE semantics elementwise, so an array
 -- containing @NaN@ is not equal to itself (@x == x@ is 'False'), violating
