@@ -21,13 +21,7 @@ skipOnBrokenBackend action
   | brokenVisionBackend = pendingWith "Vision detectors broken on AF 3.8.2 OpenCL"
   | otherwise = action
 
--- | af_orb crashes the process (C-level abort) on both the AF 3.8.2 OpenCL
--- and CPU backends on macOS.  Skip unconditionally until a working backend
--- is available.
-skipOrb :: Expectation -> Expectation
-skipOrb _ = pendingWith "af_orb aborts the process on AF 3.8.2 (OpenCL and CPU)"
-
--- | 100×100 constant-intensity Float image. No edges or corners.
+-- | 32×32 constant-intensity Float image. No edges or corners.
 -- FAST / Harris / SUSAN must produce 0 features on this image.
 flatImg :: A.Array Float
 flatImg = A.constant @Float [32, 32] 0.5
@@ -40,6 +34,20 @@ quadrantImg =
       tr = A.constant @Float [16, 16] 1.0
       bl = A.constant @Float [16, 16] 1.0
       br = A.constant @Float [16, 16] 0.0
+  in A.join 0 (A.join 1 tl tr) (A.join 1 bl br)
+
+-- | 128×128 quadrant image for ORB tests.
+-- ORB requires min(h,w) / scl_fctr >= REF_PAT_SIZE (31), i.e. the image must
+-- be at least 47px on each side for scl_fctr=1.5.  32×32 triggers an
+-- unchecked underflow in the pyramid-sizing loop (max_levels stays 0, then
+-- lvl_best[UINT_MAX] is written → process abort).  128×128 is well above
+-- the threshold and gives ORB enough room to find features at multiple levels.
+orbImg :: A.Array Float
+orbImg =
+  let tl = A.constant @Float [64, 64] 0.0
+      tr = A.constant @Float [64, 64] 1.0
+      bl = A.constant @Float [64, 64] 1.0
+      br = A.constant @Float [64, 64] 0.0
   in A.join 0 (A.join 1 tl tr) (A.join 1 bl br)
 
 xpos, ypos, score, orient, size_ :: A.Features -> A.Array Float
@@ -111,14 +119,14 @@ spec = describe "Vision spec" $ do
   --  ORB
   -- ------------------------------------------------------------------ --
   describe "orb" $ do
-    it "descriptor row count equals getFeaturesNum" $ skipOrb $ do
-      let (feats, descs) = A.orb quadrantImg 0.1 500 1.5 4 False
+    it "descriptor row count equals getFeaturesNum" $ skipOnBrokenBackend $ do
+      let (feats, descs) = A.orb orbImg 0.1 500 1.5 4 False
           n              = A.getFeaturesNum feats
           (d0, _, _, _)  = A.getDims (descs :: A.Array Float)
       d0 `shouldBe` n
 
-    it "all coordinate arrays are consistent with getFeaturesNum" $ skipOrb $ do
-      let (feats, _) = A.orb quadrantImg 0.1 500 1.5 4 False
+    it "all coordinate arrays are consistent with getFeaturesNum" $ skipOnBrokenBackend $ do
+      let (feats, _) = A.orb orbImg 0.1 500 1.5 4 False
           n          = A.getFeaturesNum feats
       A.getElements (xpos   feats) `shouldBe` n
       A.getElements (ypos   feats) `shouldBe` n
