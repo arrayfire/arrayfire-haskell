@@ -18,8 +18,6 @@
 module ArrayFire.Graphics where
 
 import Control.Exception
-import Foreign.Marshal
-import Foreign.Storable
 import Foreign.ForeignPtr
 import Foreign.C.String
 
