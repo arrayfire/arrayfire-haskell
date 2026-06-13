@@ -36,8 +36,11 @@ instance (A.AFType a, Arbitrary a) => Arbitrary (Array a) where
     ]
    where
     (d0, d1, d2, d3) = A.getDims arr
-    ndim             = A.getNumDims arr
-    currentDims      = take ndim [d0, d1, d2, d3]
+    -- af_get_numdims collapses trailing unit dims ([2,1,1] → 1), losing the
+    -- constructed dimensionality.  Compute ndim directly from getDims instead.
+    allDims     = [d0, d1, d2, d3]
+    ndim        = length (dropWhile (== 1) (reverse allDims)) `max` 1
+    currentDims = take ndim allDims
     shrunkDims =
       [ [if i == j then d - 1 else d | (j, d) <- zip [0..] currentDims]
       | i <- [0 .. ndim - 1]
@@ -116,10 +119,6 @@ main = A.withArrayFire $ do
 intChecks :: forall a. (Typeable a, A.AFType a, Arbitrary a, Num a, Eq a) => IORef Bool -> Proxy a -> IO ()
 intChecks ref _ = do
   print $ typeOf (undefined :: a)
-  -- numLaws is skipped: af_abs casts all integer inputs to f32 internally
-  -- (see complex.cpp), so abs(minBound) overflows when cast back to a signed
-  -- type, and abs(x) loses precision for |x| > 2^24.  The ring structure is
-  -- fully covered by semiringLaws + ringLaws below.
   checkLaws ref (numLaws       (Proxy :: Proxy (Scalar a)))
   checkLaws ref (semiringLaws (Proxy :: Proxy (Scalar a)))
   checkLaws ref (ringLaws     (Proxy :: Proxy (Scalar a)))
