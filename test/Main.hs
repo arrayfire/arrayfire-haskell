@@ -89,7 +89,7 @@ checkLaws ref laws = do
 
 main :: IO ()
 main = A.withArrayFire $ do
---  A.setBackend A.CPU
+  A.info
   ref <- newIORef True
   let check = checkLaws ref
   -- IEEE 754 is not an exact ring; only Eq laws for floating-point arrays.
@@ -101,14 +101,14 @@ main = A.withArrayFire $ do
   -- Integral types: exact ring laws via Scalar, Eq laws via multi-dim Array.
   intChecks ref (Proxy :: Proxy Int)
   intChecks ref (Proxy :: Proxy A.Int16)
---  intChecks ref (Proxy :: Proxy A.Int32)
---  intChecks ref (Proxy :: Proxy A.Int64)
+  intChecks ref (Proxy :: Proxy A.Int32)
+  intChecks ref (Proxy :: Proxy A.Int64)
   intChecks ref (Proxy :: Proxy A.Word8)
   intChecks ref (Proxy :: Proxy A.Word16)
---  intChecks ref (Proxy :: Proxy A.Word32)
---  intChecks ref (Proxy :: Proxy A.Word64)
+  intChecks ref (Proxy :: Proxy A.Word32)
+  intChecks ref (Proxy :: Proxy A.Word64)
   intChecks ref (Proxy :: Proxy Word)
---  intChecks ref (Proxy :: Proxy A.CBool)
+  intChecks ref (Proxy :: Proxy A.CBool)
   hspec (after_ A.deviceGC spec)
   ok <- readIORef ref
   unless ok exitFailure
