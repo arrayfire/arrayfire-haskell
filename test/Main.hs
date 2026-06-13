@@ -109,7 +109,7 @@ main = A.withArrayFire $ do
   intChecks ref (Proxy :: Proxy A.Word64)
   intChecks ref (Proxy :: Proxy Word)
   intChecks ref (Proxy :: Proxy A.CBool)
---  hspec (after_ A.deviceGC spec)
+  hspec (after_ A.deviceGC spec)
   ok <- readIORef ref
   unless ok exitFailure
 
