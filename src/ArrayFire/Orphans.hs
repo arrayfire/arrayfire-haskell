@@ -19,11 +19,13 @@ import           Prelude hiding (pi)
 import qualified Prelude
 
 import           Control.DeepSeq (NFData(..))
+import           Data.Proxy      (Proxy (..))
 
 import qualified ArrayFire.Arith     as A
 import qualified ArrayFire.Array     as A
 import qualified ArrayFire.Algorithm as A
 import qualified ArrayFire.Data      as A
+import           ArrayFire.Internal.Defines (f32, f64, c32, c64, s16, s32, s64, u8, u16, u32, u64, b8)
 import           ArrayFire.Types
 import           ArrayFire.Util
 
@@ -66,7 +68,15 @@ instance (AFType a, Eq a) => Eq (Array a) where
 instance (Num a, AFType a) => Num (Array a) where
   x + y       = A.add x y
   x * y       = A.mul x y
-  abs         = A.abs
+  -- af_abs promotes all integer inputs to f32 internally (see complex.cpp),
+  -- losing precision for |x| > 2^24.  For integer types we implement abs
+  -- entirely in integer arithmetic: signed types negate negative elements via
+  -- select; unsigned types are already non-negative so abs is the identity.
+  abs x
+    | dt `elem` [s16, s32, s64] = A.select (A.lt x 0) (0 - x) x
+    | dt `elem` [u8, u16, u32, u64, b8] = x
+    | otherwise = A.abs x   -- f32, f64, c32, c64: delegate to AF
+    where dt = afType (Proxy @a)
   signum x    = A.select (A.gt x 0) 1 (A.select (A.lt x 0) (-1) 0)
   negate arr  = A.scalar @a (fromInteger (-1)) `A.mul` arr
   x - y       = A.sub x y
