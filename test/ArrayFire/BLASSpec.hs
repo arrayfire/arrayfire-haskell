@@ -40,9 +40,9 @@ spec =
     it "Should dot product two vectors" $ do
       dot (vector @Double 2 (repeat 2)) (vector @Double 2 (repeat 2)) None None
         `shouldBe` scalar @Double 8
-    it "Should produce scalar dot product between two vectors as a Complex number" $ do
+    it "Should produce scalar dot product between two vectors" $ do
       dotAll (vector @Double 2 (repeat 2)) (vector @Double 2 (repeat 2)) None None
-        `shouldBe` 8.0 :+ 0.0
+        `shouldBe` (8.0 :: Double)
     it "Should take the transpose of a matrix" $ do
       transpose (matrix @Double (2,2) [[1,1],[2,2]]) False
         `shouldBe` matrix @Double (2,2) [[1,2],[1,2]]

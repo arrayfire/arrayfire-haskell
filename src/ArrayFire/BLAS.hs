@@ -1,5 +1,6 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE ViewPatterns        #-}
 --------------------------------------------------------------------------------
 -- |
@@ -113,9 +114,9 @@ dot arr1 arr2 prop1 prop2 =
 -- | Scalar dot product between two vectors. Also referred to as the inner product. Returns the result as a host scalar.
 --
 -- >>> dotAll (vector @Double 10 [1..]) (vector @Double 10 [1..]) None None
--- 385.0 :+ 0.0
+-- 385.0
 dotAll
-  :: AFType a
+  :: forall a . AFResult a
   => Array a
   -- ^ Left-hand side array
   -> Array a
@@ -124,13 +125,12 @@ dotAll
   -- ^ Options for left-hand side. Currently only AF_MAT_NONE and AF_MAT_CONJ are supported.
   -> MatProp
   -- ^ Options for right-hand side. Currently only AF_MAT_NONE and AF_MAT_CONJ are supported.
-  -> Complex Double
-  -- ^ Real and imaginary component result
-dotAll arr1 arr2 prop1 prop2 = do
-  let (real,imag) =
-        infoFromArray22 arr1 arr2 $ \a b c d ->
-          af_dot_all a b c d (toMatProp prop1) (toMatProp prop2)
-  real :+ imag
+  -> Scalar a
+  -- ^ Result as the array's element type
+dotAll arr1 arr2 prop1 prop2 =
+  toAFResult @a $
+    infoFromArray22 arr1 arr2 $ \a b c d ->
+      af_dot_all a b c d (toMatProp prop1) (toMatProp prop2)
 
 -- | Transposes a matrix.
 --
