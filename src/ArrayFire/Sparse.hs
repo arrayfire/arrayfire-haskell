@@ -26,6 +26,7 @@ import ArrayFire.Exception
 import ArrayFire.Types
 import ArrayFire.FFI
 import ArrayFire.Internal.Algorithm (af_any_true_all)
+import ArrayFire.Internal.BLAS (af_matmul)
 import ArrayFire.Internal.Sparse
 import ArrayFire.Internal.Types
 import Data.Int
@@ -352,3 +353,31 @@ sparseGetNNZ
   -> Int
 sparseGetNNZ a =
   fromIntegral (a `infoFromArray` af_sparse_get_nnz)
+
+-- | Multiply a sparse matrix by a dense matrix or vector.
+--
+-- [ArrayFire Docs](http://arrayfire.org/docs/group__blas__func__matmul.htm)
+--
+-- Calls the standard @af_matmul@ with a sparse left-hand side, which
+-- ArrayFire dispatches to an optimised sparse-dense kernel.  The sparse
+-- input /must/ be in 'CSR' format; use 'sparseConvertTo' to convert first
+-- if necessary.
+--
+-- >>> let sp = createSparseArrayFromDense (matrix @Double (3,3) [[1,0,0],[0,2,0],[0,0,3]]) CSR
+-- >>> sparseMatmul sp (vector @Double 3 [1,2,3])
+-- ArrayFire Array
+-- [3 1 1 1]
+--     1.0000
+--     4.0000
+--     9.0000
+--
+sparseMatmul
+  :: AFType a
+  => Array a
+  -- ^ sparse CSR matrix (lhs)
+  -> Array a
+  -- ^ dense matrix or vector (rhs)
+  -> Array a
+  -- ^ dense result
+sparseMatmul lhs rhs =
+  op2 lhs rhs (\p a b -> af_matmul p a b (toMatProp None) (toMatProp None))
