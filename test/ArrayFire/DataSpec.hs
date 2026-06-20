@@ -18,24 +18,67 @@ import           ArrayFire hiding (not)
 spec :: Spec
 spec =
   describe "Data tests" $ do
-    it "Should create constant Array" $ do
-      constant @Float [1] 1 `shouldBe` 1
-      constant @Double [1] 1 `shouldBe` 1
-      constant @Int16 [1] 1 `shouldBe` 1
-      constant @Int32 [1] 1 `shouldBe` 1
-      constant @Int64 [1] 1 `shouldBe` 1
-      constant @Int [1] 1 `shouldBe` 1
-      constant @Word16 [1] 1 `shouldBe` 1
-      constant @Word32 [1] 1 `shouldBe` 1
-      constant @Word64 [1] 1 `shouldBe` 1
-      constant @Word [1] 1 `shouldBe` 1
-      constant @CBool [1] 1 `shouldBe` 1
-      constant @(Complex Double) [1] (1.0 :+ 1.0)
-        `shouldBe`
-          constant @(Complex Double) [1] (1.0 :+ 1.0)
-      constant @(Complex Float) [1] (1.0 :+ 1.0)
-        `shouldBe`
-          constant @(Complex Float) [1] (1.0 :+ 1.0)
+    describe "constant" $ do
+      it "creates a scalar Float array" $
+        constant @Float [1] 1 `shouldBe` scalar @Float 1
+      it "creates a scalar Double array" $
+        constant @Double [1] 2.5 `shouldBe` scalar @Double 2.5
+      it "creates a scalar Int16 array" $
+        constant @Int16 [1] 42 `shouldBe` scalar @Int16 42
+      it "creates a scalar Int32 array" $
+        constant @Int32 [1] (-7) `shouldBe` scalar @Int32 (-7)
+      it "creates a scalar Word8 array" $
+        constant @Word8 [1] 255 `shouldBe` scalar @Word8 255
+      it "creates a scalar Word16 array" $
+        constant @Word16 [1] 1000 `shouldBe` scalar @Word16 1000
+      it "creates a scalar Word32 array" $
+        constant @Word32 [1] 999 `shouldBe` scalar @Word32 999
+      it "creates a CBool array" $
+        constant @CBool [1] 1 `shouldBe` scalar @CBool 1
+      it "creates a multi-element array with correct shape" $ do
+        let a = constant @Double [3,3] 0
+        getDims a `shouldBe` (3,3,1,1)
+      it "all elements equal the scalar value" $
+        constant @Float [4] 3.14 `shouldBe` vector @Float 4 [3.14, 3.14, 3.14, 3.14]
+
+    describe "constantComplex" $ do
+      it "creates a Complex Double array preserving imaginary part" $
+        constantComplex [1] (1.0 :+ 2.0)
+          `shouldBe` scalar @(Complex Double) (1.0 :+ 2.0)
+      it "creates a Complex Float array preserving imaginary part" $
+        constantComplex [1] (3.0 :+ 4.0 :: Complex Float)
+          `shouldBe` scalar @(Complex Float) (3.0 :+ 4.0)
+      it "creates a zero complex array" $
+        constantComplex [2] (0 :+ 0 :: Complex Double)
+          `shouldBe` vector @(Complex Double) 2 [0, 0]
+      it "handles purely real complex values" $
+        constantComplex [1] (5.0 :+ 0.0 :: Complex Double)
+          `shouldBe` scalar @(Complex Double) (5.0 :+ 0.0)
+      it "handles purely imaginary complex values" $
+        constantComplex [1] (0.0 :+ 7.0 :: Complex Double)
+          `shouldBe` scalar @(Complex Double) (0.0 :+ 7.0)
+
+    describe "constantLong" $ do
+      it "creates an Int array with value 1" $
+        constantLong [1] 1 `shouldBe` scalar @Int 1
+      it "creates an Int array with a negative value" $
+        constantLong [1] (-42) `shouldBe` scalar @Int (-42)
+      it "preserves maxBound :: Int without rounding" $
+        constantLong [1] maxBound `shouldBe` scalar @Int maxBound
+      it "preserves minBound :: Int without rounding" $
+        constantLong [1] minBound `shouldBe` scalar @Int minBound
+      it "creates a multi-element array" $
+        constantLong [3] 7 `shouldBe` vector @Int 3 [7, 7, 7]
+
+    describe "constantULong" $ do
+      it "creates a Word64 array with value 1" $
+        constantULong [1] 1 `shouldBe` scalar @Word64 1
+      it "creates a Word64 array with value 0" $
+        constantULong [1] 0 `shouldBe` scalar @Word64 0
+      it "preserves maxBound :: Word64 without rounding" $
+        constantULong [1] maxBound `shouldBe` scalar @Word64 maxBound
+      it "creates a multi-element array" $
+        constantULong [3] 100 `shouldBe` vector @Word64 3 [100, 100, 100]
 
     describe "arange" $ do
       it "generates a sequence along dim 0 for a 1D array" $ do

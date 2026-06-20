@@ -126,47 +126,20 @@ newtype Window = Window (ForeignPtr ())
 class Storable a => AFType a where
   afType :: Proxy a -> AFDtype
 
-instance AFType Double where
-  afType Proxy = f64
-
-instance AFType Float where
-  afType Proxy = f32
-
-instance AFType (Complex Double) where
-  afType Proxy = c64
-
-instance AFType (Complex Float) where
-  afType Proxy = c32
-
-instance AFType CBool where
-  afType Proxy = b8
-
-instance AFType Int32 where
-  afType Proxy = s32
-
-instance AFType Word32 where
-  afType Proxy = u32
-
-instance AFType Word8 where
-  afType Proxy = u8
-
-instance AFType Int64 where
-  afType Proxy = s64
-
-instance AFType Int where
-  afType Proxy = s64
-
-instance AFType Int16 where
-  afType Proxy = s16
-
-instance AFType Word16 where
-  afType Proxy = u16
-
-instance AFType Word64 where
-  afType Proxy = u64
-
-instance AFType Word where
-  afType Proxy = u64
+instance AFType Double         where afType Proxy = f64
+instance AFType Float          where afType Proxy = f32
+instance AFType (Complex Double) where afType Proxy = c64
+instance AFType (Complex Float)  where afType Proxy = c32
+instance AFType CBool          where afType Proxy = b8
+instance AFType Int32          where afType Proxy = s32
+instance AFType Word32         where afType Proxy = u32
+instance AFType Word8          where afType Proxy = u8
+instance AFType Int64          where afType Proxy = s64
+instance AFType Int             where afType Proxy = s64
+instance AFType Int16          where afType Proxy = s16
+instance AFType Word16         where afType Proxy = u16
+instance AFType Word64         where afType Proxy = u64
+instance AFType Word            where afType Proxy = u64
 
 -- | Maps an ArrayFire element type to the scalar type returned by whole-array
 -- reductions (e.g. 'meanAll', 'det').  Real and integral element types yield
