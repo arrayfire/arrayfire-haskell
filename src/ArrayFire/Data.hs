@@ -41,7 +41,6 @@ import Foreign.Marshal          hiding (void)
 import Foreign.Ptr (Ptr)
 import Foreign.Storable
 import System.IO.Unsafe
-import Unsafe.Coerce
 
 import Data.Bits
 
@@ -60,7 +59,7 @@ import ArrayFire.Arith
 -- [1 1 1 1]
 --        -1
 bitNot
-  :: (AFType a, Bits a)
+  :: forall a. (AFType a, Bits a, Integral a)
   => Array a
   -> Array a
 bitNot arr = arr `bitXor` ones
@@ -72,148 +71,78 @@ bitNot arr = arr `bitXor` ones
       , fromIntegral d2
       , fromIntegral d3
       ]
-      (complement zeroBits)
+      (fromIntegral (complement (zeroBits :: a)))
 
--- | Creates an 'Array' from a scalar value from given dimensions
---
--- >>> constant @Double [2,2] 2.0
---  ArrayFire Array
--- [2 2 1 1]
---    2.0000     2.0000
---    2.0000     2.0000
+-- | Creates a constant 'Array' filled with a 'Double' scalar.
+-- ArrayFire converts the value to the element type internally.
+-- Use 'constantComplex' for complex arrays, 'constantLong' / 'constantULong'
+-- for 64-bit integer arrays where the value exceeds 2^53.
 constant
-  :: forall a . AFType a
-  => [Int]
-  -- ^ Dimensions
-  -> a
-  -- ^ Scalar value
+  :: forall a. AFType a
+  => [Int]   -- ^ Dimensions
+  -> Double  -- ^ Scalar value
   -> Array a
 {-# NOINLINE constant #-}
 constant dims val =
-  case dtyp of
-    x | x == c64 ->
-        cast $ constantComplex dims (unsafeCoerce val :: Complex Double)
-      | x == c32 ->
-        cast $ constantComplex dims (unsafeCoerce val :: Complex Float)
-      | x == s64 ->
-        cast $ constantLong dims (unsafeCoerce val :: Int)
-      | x == u64 ->
-        cast $ constantULong dims (unsafeCoerce val :: Word64)
-      | x == s32 ->
-        constant' dims (fromIntegral (unsafeCoerce val :: Int32) :: Double)
-      | x == s16 ->
-        constant' dims (fromIntegral (unsafeCoerce val :: Int16) :: Double)
-      | x == u32 ->
-        constant' dims (fromIntegral (unsafeCoerce val :: Word32) :: Double)
-      | x == u8 ->
-        constant' dims (fromIntegral (unsafeCoerce val :: Word8) :: Double)
-      | x == u16 ->
-        constant' dims (fromIntegral (unsafeCoerce val :: Word16) :: Double)
-      | x == f64 ->
-        constant' dims (unsafeCoerce val :: Double)
-      | x == b8  ->
-        constant' dims (fromIntegral (unsafeCoerce val :: CBool) :: Double)
-      | x == f32 ->
-        constant' dims (realToFrac (unsafeCoerce val :: Float))
-      | otherwise -> error "constant: Invalid array fire type"
+  unsafePerformIO . mask_ $ do
+    ptr <- calloca $ \ptrPtr -> do
+      withArray (fromIntegral <$> dims) $ \dimArray -> do
+        throwAFError =<< af_constant ptrPtr val n dimArray dtyp
+        peek ptrPtr
+    Array <$> newForeignPtr af_release_array_finalizer ptr
   where
+    n    = fromIntegral (length dims)
     dtyp = afType (Proxy @a)
 
-    -- Creates the array directly with the target dtype: @af_constant@ takes
-    -- the value as a C double for every non-complex, non-64-bit-integral
-    -- dtype. Routing through an f64 array and casting (as this used to do)
-    -- fails with AF_ERR_NO_DBL on OpenCL devices without fp64 support and
-    -- changes b8 semantics (the cast normalises non-zero values to 1).
-    constant'
-      :: [Int]
-      -- ^ Dimensions
-      -> Double
-      -- ^ Scalar value
-      -> Array a
-    constant' dims' val' =
-      unsafePerformIO . mask_ $ do
-        ptr <- calloca $ \ptrPtr -> do
-          withArray (fromIntegral <$> dims') $ \dimArray -> do
-            throwAFError =<< af_constant ptrPtr val' n dimArray dtyp
-            peek ptrPtr
-        Array <$>
-          newForeignPtr
-            af_release_array_finalizer
-              ptr
-          where
-            n = fromIntegral (length dims')
+-- | Creates a constant complex 'Array' from a 'Complex' scalar.
+constantComplex
+  :: forall r. (Real r, AFType (Complex r))
+  => [Int]      -- ^ Dimensions
+  -> Complex r  -- ^ Scalar value
+  -> Array (Complex r)
+{-# NOINLINE constantComplex #-}
+constantComplex dims ((realToFrac -> x) :+ (realToFrac -> y)) =
+  unsafePerformIO . mask_ $ do
+    ptr <- calloca $ \ptrPtr -> do
+      withArray (fromIntegral <$> dims) $ \dimArray -> do
+        throwAFError =<< af_constant_complex ptrPtr x y n dimArray typ
+        peek ptrPtr
+    Array <$> newForeignPtr af_release_array_finalizer ptr
+  where
+    n   = fromIntegral (length dims)
+    typ = afType (Proxy @(Complex r))
 
-    -- | Creates an 'Array (Complex Double)' from a scalar val'ue
-    --
-    -- @
-    -- >>> constantComplex [2,2] (2.0 :+ 2.0)
-    -- @
-    --
-    constantComplex
-      :: forall arr . (Real arr, AFType (Complex arr))
-      => [Int]
-      -- ^ Dimensions
-      -> Complex arr
-      -- ^ Scalar val'ue
-      -> Array (Complex arr)
-    constantComplex dims' ((realToFrac -> x) :+ (realToFrac -> y)) = unsafePerformIO . mask_ $ do
-      ptr <- calloca $ \ptrPtr -> do
-        withArray (fromIntegral <$> dims') $ \dimArray -> do
-          throwAFError =<< af_constant_complex ptrPtr x y n dimArray typ
-          peek ptrPtr
-      Array <$>
-        newForeignPtr
-          af_release_array_finalizer
-            ptr
-          where
-            n = fromIntegral (length dims')
-            typ = afType (Proxy @(Complex arr))
+-- | Creates a constant 'Array' of 64-bit signed integers.
+-- Preserves the full integer value without 'Double' rounding.
+constantLong
+  :: [Int]  -- ^ Dimensions
+  -> Int    -- ^ Scalar value
+  -> Array Int
+{-# NOINLINE constantLong #-}
+constantLong dims val =
+  unsafePerformIO . mask_ $ do
+    ptr <- calloca $ \ptrPtr -> do
+      withArray (fromIntegral <$> dims) $ \dimArray -> do
+        throwAFError =<< af_constant_long ptrPtr (fromIntegral val) n dimArray
+        peek ptrPtr
+    Array <$> newForeignPtr af_release_array_finalizer ptr
+  where n = fromIntegral (length dims)
 
-    -- | Creates an 'Array Int64' from a scalar val'ue
-    --
-    -- @
-    -- >>> constantLong [2,2] 2.0
-    -- @
-    --
-    constantLong
-      :: [Int]
-      -- ^ Dimensions
-      -> Int
-      -- ^ Scalar val'ue
-      -> Array Int
-    constantLong dims' val' = unsafePerformIO . mask_ $ do
-      ptr <- calloca $ \ptrPtr -> do
-        withArray (fromIntegral <$> dims') $ \dimArray -> do
-          throwAFError =<< af_constant_long ptrPtr (fromIntegral val') n dimArray
-          peek ptrPtr
-      Array <$>
-        newForeignPtr
-          af_release_array_finalizer
-            ptr
-          where
-            n = fromIntegral (length dims')
-
-    -- | Creates an 'Array Word64' from a scalar val'ue
-    --
-    -- @
-    -- >>> constantULong [2,2] 2.0
-    -- @
-    --
-    constantULong
-      :: [Int]
-      -> Word64
-      -> Array Word64
-    constantULong dims' val' = unsafePerformIO . mask_ $ do
-      ptr <- calloca $ \ptrPtr -> do
-        withArray (fromIntegral <$> dims') $ \dimArray -> do
-          throwAFError =<< af_constant_ulong ptrPtr (fromIntegral val') n dimArray
-          peek ptrPtr
-      Array <$>
-        newForeignPtr
-          af_release_array_finalizer
-            ptr
-          where
-            n = fromIntegral (length dims')
+-- | Creates a constant 'Array' of 64-bit unsigned integers.
+-- Preserves the full integer value without 'Double' rounding.
+constantULong
+  :: [Int]   -- ^ Dimensions
+  -> Word64  -- ^ Scalar value
+  -> Array Word64
+{-# NOINLINE constantULong #-}
+constantULong dims val =
+  unsafePerformIO . mask_ $ do
+    ptr <- calloca $ \ptrPtr -> do
+      withArray (fromIntegral <$> dims) $ \dimArray -> do
+        throwAFError =<< af_constant_ulong ptrPtr (fromIntegral val) n dimArray
+        peek ptrPtr
+    Array <$> newForeignPtr af_release_array_finalizer ptr
+  where n = fromIntegral (length dims)
 
 -- | Creates a range of values in an Array
 --
